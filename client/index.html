@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>探索遊戲｜多人版 DEV</title>
+  <link rel="stylesheet" href="/css/multiplayer.css" />
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">INDEPENDENT MULTIPLAYER PROJECT · v0.5</div>
+        <h1>探索遊戲｜多人版 DEV</h1>
+        <p>獨立專案，不讀寫原單機版 localStorage。</p>
+      </div>
+      <div class="top-statuses">
+        <div id="connection" class="status">連線中…</div>
+        <div id="deployMode" class="status subtle">WEB</div>
+      </div>
+    </header>
+
+    <div id="reconnectBanner" class="reconnect-banner hidden">連線暫時中斷，伺服器會保留你的席位並自動重新連線。</div>
+    <div id="resumeStatus" class="resume-status" aria-live="polite"></div>
+
+    <section id="entry" class="card entry-grid">
+      <label>玩家名稱<input id="playerName" maxlength="16" value="探索者" /></label>
+      <button id="createRoom">建立房間</button>
+      <div id="inviteNotice" class="invite-notice hidden">已從邀請連結帶入房號 <strong id="inviteRoomCode"></strong>，輸入名稱即可加入。</div>
+      <div class="join-row"><input id="roomId" maxlength="4" placeholder="房號" autocomplete="off" /><button id="joinRoom" class="secondary">加入房間</button></div>
+      <p id="entryError" class="error"></p>
+    </section>
+
+    <section id="game" class="game-grid hidden">
+      <aside class="card side-card">
+        <div class="section-title">房間 <strong id="roomCode">----</strong></div>
+        <div class="room-tools">
+          <button id="copyInvite" class="secondary compact">複製邀請連結</button>
+          <span id="copyInviteStatus" class="copy-status" aria-live="polite"></span>
+        </div>
+        <div id="areaSummary" class="area-summary"></div>
+        <div id="playerList" class="player-list"></div>
+        <button id="startGame" class="hidden">開始探索</button>
+      </aside>
+
+      <section class="card center-card">
+        <div id="lobbySetup">
+          <div class="section-title">探索準備</div>
+          <h2>探索地區</h2>
+          <div id="areaList" class="area-list"></div>
+          <h2>選擇你的罪人</h2>
+          <div id="sinnerList" class="sinner-list"></div>
+        </div>
+
+        <div id="explorationPanel" class="hidden">
+          <div class="section-title">共同探索 · <span id="runNumber">#1</span></div>
+          <div id="eventPanel">
+            <div class="event-kicker" id="eventArea"></div>
+            <h2 id="eventName"></h2>
+            <p id="eventDescription"></p>
+            <div id="eventOptions" class="event-options"></div>
+            <div id="eventResult" class="event-result hidden"></div>
+            <button id="nextEvent" class="hidden">繼續探索</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="card side-card">
+        <div class="section-title">隊伍狀態</div>
+        <div id="teamInfo" class="muted">等待玩家加入。</div>
+        <div class="hint">v0.5：支援短暫斷線、重新整理與伺服器重啟後由房主自動復原房間；另有伺服器端自動存檔。</div><button id="forgetSession" class="secondary compact session-reset">清除本機聯機身分</button>
+      </aside>
+    </section>
+  </main>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/multiplayer.js"></script>
+</body>
+</html>
