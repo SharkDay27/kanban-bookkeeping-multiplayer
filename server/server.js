@@ -17,7 +17,7 @@ const io = new Server(server, { cors: { origin: '*' } });
 loadPersistedRooms();
 app.use(express.json({ limit:'1mb' }));
 app.use(express.static(path.join(__dirname, '..', 'client')));
-app.get('/health', (_req, res) => res.json({ ok:true, rooms:rooms.size, version:'0.6.0' }));
+app.get('/health', (_req, res) => res.json({ ok:true, rooms:rooms.size, version:'0.6.1' }));
 app.get('/api/game-data', (_req, res) => res.json({ areas:AREAS, sinners:SINNERS }));
 
 const ACTIONS = {
@@ -104,10 +104,10 @@ io.on('connection',(socket)=>{
   socket.on('room:restore',({snapshot,recoveryToken,playerId,reconnectToken},ack=()=>{})=>{try{const {room,player}=restoreRoom(snapshot,recoveryToken,socket.id,playerId,reconnectToken);socket.join(room.id);ack(sessionPayload(room,player));emitRoom(room)}catch(error){ack({ok:false,error:error.message})}});
   socket.on('room:area',({roomId,areaId},ack=()=>{})=>{try{const room=rooms.get(String(roomId||'').toUpperCase()),player=getContext(room,socket);setArea(room,player,areaId);emitRoom(room);ack({ok:true})}catch(error){ack({ok:false,error:error.message})}});
   socket.on('player:sinner',({roomId,sinnerId},ack=()=>{})=>{try{const room=rooms.get(String(roomId||'').toUpperCase()),player=getContext(room,socket);setSinner(room,player,sinnerId);emitRoom(room);ack({ok:true})}catch(error){ack({ok:false,error:error.message})}});
-  socket.on('room:start',({roomId},ack=()=>{})=>{try{const room=rooms.get(String(roomId||'').toUpperCase()),actor=getContext(room,socket);if(actor.id!==room.hostId)throw new Error('只有房主可以開始。');if(room.players.length<2)throw new Error('至少需要 2 名玩家。');if(room.players.some((p)=>!p.connected))throw new Error('有玩家目前離線，請等他重新連線。');if(room.players.some((p)=>!p.sinnerId))throw new Error('每位玩家都要先選擇罪人。');const area=AREAS.find((a)=>a.id===room.areaId);if(area.requiredLevel&&room.players.some((p)=>p.level<area.requiredLevel))throw new Error(`此區域需要全隊至少 Lv.${area.requiredLevel}。`);room.phase='exploration';room.run+=1;room.exploration=freshExploration();room.currentEvent=pickEvent(room);room.eventResult=null;room.votes={};persist();emitRoom(room);ack({ok:true})}catch(error){ack({ok:false,error:error.message})}});
+  socket.on('room:start',({roomId},ack=()=>{})=>{try{const room=rooms.get(String(roomId||'').toUpperCase()),actor=getContext(room,socket);if(actor.id!==room.hostId)throw new Error('只有房主可以開始。');if(room.players.some((p)=>!p.connected))throw new Error('有玩家目前離線，請等他重新連線。');if(room.players.some((p)=>!p.sinnerId))throw new Error('每位玩家都要先選擇罪人。');const area=AREAS.find((a)=>a.id===room.areaId);if(area.requiredLevel&&room.players.some((p)=>p.level<area.requiredLevel))throw new Error(`此區域需要全隊至少 Lv.${area.requiredLevel}。`);room.phase='exploration';room.run+=1;room.exploration=freshExploration();room.currentEvent=pickEvent(room);room.eventResult=null;room.votes={};persist();emitRoom(room);ack({ok:true})}catch(error){ack({ok:false,error:error.message})}});
   socket.on('event:vote',({roomId,optionId},ack=()=>{})=>{try{const room=rooms.get(String(roomId||'').toUpperCase()),player=getContext(room,socket);if(room.phase!=='exploration'||!room.currentEvent||room.eventResult)throw new Error('目前沒有可宣告的場景行動。');if(!room.currentEvent.options.some((o)=>o.id===optionId))throw new Error('無效行動。');room.votes[player.id]=optionId;persist();resolveCurrentEvent(room);emitRoom(room);ack({ok:true})}catch(error){ack({ok:false,error:error.message})}});
   socket.on('event:next',({roomId},ack=()=>{})=>{try{const room=rooms.get(String(roomId||'').toUpperCase()),player=getContext(room,socket);if(player.id!==room.hostId)throw new Error('只有房主可以推進場景。');if(!room.eventResult)throw new Error('目前場景尚未結算。');room.run+=1;room.currentEvent=pickEvent(room);room.eventResult=null;room.votes={};persist();emitRoom(room);ack({ok:true})}catch(error){ack({ok:false,error:error.message})}});
   socket.on('disconnect',()=>{const result=markDisconnected(socket.id);if(!result?.room)return;emitRoom(result.room);const {id:roomId}=result.room,{id:playerId,disconnectedAt}=result.player;setTimeout(()=>{const removed=removeExpiredPlayer(roomId,playerId,disconnectedAt);if(removed?.room)emitRoom(removed.room)},RECONNECT_GRACE_MS+1000)});
 });
 
-server.listen(PORT,()=>console.log(`Multiplayer v0.6 TRPG: http://localhost:${PORT}`));
+server.listen(PORT,()=>console.log(`Multiplayer v0.6.1 TRPG: http://localhost:${PORT}`));
