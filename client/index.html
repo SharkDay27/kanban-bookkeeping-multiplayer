@@ -10,7 +10,7 @@
 <body>
   <main class="shell">
     <header class="topbar">
-      <div><div class="eyebrow">MULTIPLAYER EXPEDITION · v0.7</div><h1>探索遊戲｜多人 TRPG</h1></div>
+      <div><div class="eyebrow">MULTIPLAYER EXPEDITION · v0.8</div><h1>探索遊戲｜多人 TRPG</h1></div>
       <div class="top-statuses"><div id="connection" class="status">連線中…</div><div id="deployMode" class="status subtle">WEB</div></div>
     </header>
 
@@ -44,8 +44,8 @@
       <section class="card center-card main-panel">
         <div id="lobbySetup">
           <div class="section-title">SESSION ZERO / 探索準備</div>
-          <h2>本局候選地圖</h2>
-          <p class="subcopy">每次建立房間隨機抽出 3 張地圖，由房主選擇其中一張。</p>
+          <h2>選擇三個探索地區</h2>
+          <p id="mapSelectionNote" class="subcopy">房主依序選 3 個地區：第 1 張為初級、第 2 張為中級、第 3 張為高級。</p>
           <div id="areaList" class="area-list"></div>
           <h2>選擇你的罪人</h2>
           <div id="sinnerList" class="sinner-list"></div>
@@ -53,6 +53,7 @@
 
         <div id="explorationPanel" class="hidden">
           <div class="section-title">EXPEDITION / 遠征 · <span id="runNumber">#1</span></div>
+          <div id="chapterBar" class="chapter-bar"></div>
           <div id="routePanel" class="route-panel"></div>
           <div id="explorationMeters" class="exploration-meters"></div>
 
@@ -68,13 +69,12 @@
           </div>
 
           <div id="combatPanel" class="combat-panel hidden">
-            <div class="combat-stage">
-              <div id="enemyKind" class="enemy-kind"></div>
-              <div id="enemyAvatar" class="enemy-avatar">異</div>
+            <div id="combatStage" class="combat-stage">
+              <div class="combat-heading-row"><div id="enemyKind" class="enemy-kind"></div><div id="combatRound" class="combat-round"></div></div>
               <h2 id="enemyName"></h2>
-              <div class="enemy-hp-line"><span id="enemyHpText"></span><div class="enemy-hp-track"><i id="enemyHpBar"></i></div></div>
               <p id="enemyTrait" class="enemy-trait"></p>
-              <div id="combatRound" class="combat-round"></div>
+              <div class="enemy-hp-line"><div class="enemy-hp-copy"><span>HP</span><strong id="enemyHpText"></strong></div><div class="enemy-hp-track"><i id="enemyHpBar"></i></div></div>
+              <div id="combatFx" class="combat-fx" aria-hidden="true"></div>
             </div>
             <div class="action-prompt">本回合行動</div>
             <div id="combatOptions" class="event-options"></div>
