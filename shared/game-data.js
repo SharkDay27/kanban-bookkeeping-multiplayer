@@ -6,6 +6,7 @@ const { SUPPLIES } = require('./supplies');
 const { REST_NODES } = require('./rest');
 const { EQUIPMENT } = require('./equipment');
 const { CONSUMABLES } = require('./consumables');
+const { STATUS_EFFECTS, getStatus } = require('./status-effects');
 
 const AREAS = [
   { id:'zone-1', name:'廢棄商業區', risk:'LOW', desc:'封鎖後的商業街、百貨後場與地下通道。常見與消費、廣告、人群殘響相關的怪異。' },
@@ -33,4 +34,4 @@ const SINNERS = [
   { id:'13', name:'格里高爾', stats:{combat:7,observe:6,mobility:5,stability:9}, specialty:'生存韌性' }
 ];
 
-module.exports = { AREAS, SINNERS, EVENTS, NORMAL_ENEMIES, ELITE_ENEMIES, BOSSES, SUPPLIES, REST_NODES, EQUIPMENT, CONSUMABLES };
+module.exports = { AREAS, SINNERS, EVENTS, NORMAL_ENEMIES, ELITE_ENEMIES, BOSSES, SUPPLIES, REST_NODES, EQUIPMENT, CONSUMABLES, STATUS_EFFECTS, getStatus };
