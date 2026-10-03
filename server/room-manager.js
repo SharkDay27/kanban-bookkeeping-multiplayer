@@ -20,11 +20,12 @@ function makeRoomId() {
   }
   throw new Error('暫時無法建立房間，請重試。');
 }
+function emptyEquipment() { return { weapon:null, armor:null, accessory:null }; }
 function makePlayer(socketId, playerName, reconnectToken) {
   return {
     id: crypto.randomUUID(), reconnectToken: reconnectToken || crypto.randomUUID(), socketId,
     connected:true, disconnectedAt:null, name:cleanName(playerName), hp:100, maxHp:100,
-    level:22, sinnerId:'', ready:false, inventory:[]
+    level:22, sinnerId:'', ready:false, inventory:[], equipment:emptyEquipment()
   };
 }
 function freshExploration() { return { progress:0, progressGoal:8, danger:0, dangerMax:6, clues:0, scenes:0 }; }
@@ -39,6 +40,10 @@ function verifyRecovery(roomId, hostId, token) {
 function recoverySnapshot(room) { return JSON.parse(JSON.stringify(room)); }
 function persist() { saveRooms(rooms); }
 function clamp(n,min,max){ return Math.max(min,Math.min(max,Number(n)||0)); }
+function sanitizeEquipment(raw){
+  const source=raw&&typeof raw==='object'?raw:{};
+  return {weapon:source.weapon||null,armor:source.armor||null,accessory:source.accessory||null};
+}
 
 function sanitizeRestoredRoom(snapshot) {
   if (!snapshot || typeof snapshot !== 'object') throw new Error('存檔格式不正確。');
@@ -51,7 +56,7 @@ function sanitizeRestoredRoom(snapshot) {
     socketId:'', connected:false, disconnectedAt:Date.now(), name:cleanName(p.name),
     hp:clamp(p.hp ?? 100,0,100), maxHp:100, level:clamp(p.level || 22,1,99),
     sinnerId:SINNERS.some((s)=>s.id===p.sinnerId)?p.sinnerId:'', ready:!!p.ready,
-    inventory:Array.isArray(p.inventory)?p.inventory.slice(0,100):[]
+    inventory:Array.isArray(p.inventory)?p.inventory.slice(0,4):[], equipment:sanitizeEquipment(p.equipment)
   }));
   const hostId = players.some((p)=>p.id===snapshot.hostId)?snapshot.hostId:players[0].id;
   const ex = snapshot.exploration || {};
