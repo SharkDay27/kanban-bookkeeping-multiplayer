@@ -10,13 +10,11 @@
 <body>
   <main class="shell">
     <header class="topbar">
-      <div><div class="eyebrow">MULTIPLAYER EXPEDITION · v0.8</div><h1>探索遊戲｜多人 TRPG</h1></div>
+      <div><div class="eyebrow">MULTIPLAYER EXPEDITION · v0.8.2</div><h1>探索遊戲｜多人 TRPG</h1></div>
       <div class="top-statuses"><div id="connection" class="status">連線中…</div><div id="deployMode" class="status subtle">WEB</div></div>
     </header>
-
     <div id="reconnectBanner" class="reconnect-banner hidden">連線暫時中斷，伺服器會保留你的席位並自動重新連線。</div>
     <div id="resumeStatus" class="resume-status" aria-live="polite"></div>
-
     <section id="entry" class="card entry-grid">
       <label>玩家名稱<input id="playerName" maxlength="16" value="探索者" /></label>
       <button id="createRoom">建立房間</button>
@@ -24,7 +22,6 @@
       <div class="join-row"><input id="roomId" maxlength="4" placeholder="房號" autocomplete="off" /><button id="joinRoom" class="secondary">加入房間</button></div>
       <p id="entryError" class="error"></p>
     </section>
-
     <section id="game" class="game-grid hidden">
       <div class="left-stack">
         <aside class="card side-card session-panel">
@@ -40,7 +37,6 @@
           <button id="forgetSession" class="danger-ghost compact">清除本機聯機資料</button>
         </aside>
       </div>
-
       <section class="card center-card main-panel">
         <div id="lobbySetup">
           <div class="section-title">SESSION ZERO / 探索準備</div>
@@ -50,13 +46,11 @@
           <h2>選擇你的罪人</h2>
           <div id="sinnerList" class="sinner-list"></div>
         </div>
-
         <div id="explorationPanel" class="hidden">
           <div class="section-title">EXPEDITION / 遠征 · <span id="runNumber">#1</span></div>
           <div id="chapterBar" class="chapter-bar"></div>
           <div id="routePanel" class="route-panel"></div>
           <div id="explorationMeters" class="exploration-meters"></div>
-
           <div id="eventPanel" class="gm-panel hidden">
             <div class="event-kicker" id="eventArea"></div>
             <div class="gm-label">GM / 場景描述</div>
@@ -67,13 +61,13 @@
             <div id="eventResult" class="event-result hidden"></div>
             <button id="nextEvent" class="hidden">前往下一節點</button>
           </div>
-
           <div id="combatPanel" class="combat-panel hidden">
             <div id="combatStage" class="combat-stage">
               <div class="combat-heading-row"><div id="enemyKind" class="enemy-kind"></div><div id="combatRound" class="combat-round"></div></div>
               <h2 id="enemyName"></h2>
               <p id="enemyTrait" class="enemy-trait"></p>
               <div class="enemy-hp-line"><div class="enemy-hp-copy"><span>HP</span><strong id="enemyHpText"></strong></div><div class="enemy-hp-track"><i id="enemyHpBar"></i></div></div>
+              <div id="enemyIntent" class="enemy-intent"></div>
               <div id="combatFx" class="combat-fx" aria-hidden="true"></div>
             </div>
             <div class="action-prompt">本回合行動</div>
@@ -82,20 +76,12 @@
             <div id="combatResult" class="event-result hidden"></div>
             <button id="nextCombatNode" class="hidden">前往下一節點</button>
           </div>
-
           <div id="endingPanel" class="ending-panel hidden"></div>
         </div>
       </section>
-
       <aside class="card side-card party-panel">
-        <details class="mobile-collapsible" open>
-          <summary class="section-title">MY SINNER / 我的罪人</summary>
-          <div id="mySinner"></div>
-        </details>
-        <details class="mobile-collapsible team-collapsible">
-          <summary class="section-title">PARTY / 隊伍狀態</summary>
-          <div id="teamInfo" class="muted">等待玩家加入。</div>
-        </details>
+        <details class="mobile-collapsible" open><summary class="section-title">MY SINNER / 我的罪人</summary><div id="mySinner"></div></details>
+        <details class="mobile-collapsible team-collapsible"><summary class="section-title">PARTY / 隊伍狀態</summary><div id="teamInfo" class="muted">等待玩家加入。</div></details>
       </aside>
     </section>
   </main>
