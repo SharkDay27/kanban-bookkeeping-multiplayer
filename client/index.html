@@ -10,14 +10,8 @@
 <body>
   <main class="shell">
     <header class="topbar">
-      <div>
-        <div class="eyebrow">MULTIPLAYER FIELD SESSION · v0.7</div>
-        <h1>探索遊戲｜多人 TRPG</h1>
-      </div>
-      <div class="top-statuses">
-        <div id="connection" class="status">連線中…</div>
-        <div id="deployMode" class="status subtle">WEB</div>
-      </div>
+      <div><div class="eyebrow">MULTIPLAYER EXPEDITION · v0.7</div><h1>探索遊戲｜多人 TRPG</h1></div>
+      <div class="top-statuses"><div id="connection" class="status">連線中…</div><div id="deployMode" class="status subtle">WEB</div></div>
     </header>
 
     <div id="reconnectBanner" class="reconnect-banner hidden">連線暫時中斷，伺服器會保留你的席位並自動重新連線。</div>
@@ -32,53 +26,76 @@
     </section>
 
     <section id="game" class="game-grid hidden">
-      <aside class="card side-card session-panel">
-        <div class="section-title">SESSION / 房間 <strong id="roomCode">----</strong></div>
-        <div class="room-tools">
-          <button id="copyInvite" class="secondary compact">複製邀請連結</button>
-          <span id="copyInviteStatus" class="copy-status" aria-live="polite"></span>
-        </div>
-        <div id="areaSummary" class="area-summary"></div>
-        <div id="playerList" class="player-list"></div>
-        <button id="startGame" class="hidden">開始探索</button>
-      </aside>
+      <div class="left-stack">
+        <aside class="card side-card session-panel">
+          <div class="section-title">SESSION / 房間 <strong id="roomCode">----</strong></div>
+          <div class="room-tools"><button id="copyInvite" class="secondary compact">複製邀請連結</button><span id="copyInviteStatus" class="copy-status"></span></div>
+          <div id="areaSummary" class="area-summary"></div>
+          <div id="playerList" class="player-list"></div>
+          <button id="startGame" class="hidden">開始遠征</button>
+        </aside>
+        <aside id="hostTools" class="card host-tools hidden">
+          <div class="section-title">HOST / 房主管理</div>
+          <p>此區只有房主可見。</p>
+          <button id="forgetSession" class="danger-ghost compact">清除本機聯機資料</button>
+        </aside>
+      </div>
 
       <section class="card center-card main-panel">
         <div id="lobbySetup">
           <div class="section-title">SESSION ZERO / 探索準備</div>
-          <h2>探索地區</h2>
+          <h2>本局候選地圖</h2>
+          <p class="subcopy">每次建立房間隨機抽出 3 張地圖，由房主選擇其中一張。</p>
           <div id="areaList" class="area-list"></div>
           <h2>選擇你的罪人</h2>
           <div id="sinnerList" class="sinner-list"></div>
         </div>
 
         <div id="explorationPanel" class="hidden">
-          <div class="section-title">FIELD SESSION · <span id="runNumber">#1</span></div>
-          <div id="expeditionRoute" class="expedition-route" aria-label="遠征路線"></div>
+          <div class="section-title">EXPEDITION / 遠征 · <span id="runNumber">#1</span></div>
+          <div id="routePanel" class="route-panel"></div>
           <div id="explorationMeters" class="exploration-meters"></div>
-          <div id="eventPanel" class="gm-panel">
+
+          <div id="eventPanel" class="gm-panel hidden">
             <div class="event-kicker" id="eventArea"></div>
             <div class="gm-label">GM / 場景描述</div>
             <h2 id="eventName"></h2>
             <p id="eventDescription" class="scene-text"></p>
-            <div class="action-prompt">你們打算怎麼處理？</div>
+            <div class="action-prompt">你打算怎麼處理？</div>
             <div id="eventOptions" class="event-options"></div>
             <div id="eventResult" class="event-result hidden"></div>
-            <button id="nextEvent" class="hidden">推進下一幕</button>
+            <button id="nextEvent" class="hidden">前往下一節點</button>
           </div>
+
+          <div id="combatPanel" class="combat-panel hidden">
+            <div class="combat-stage">
+              <div id="enemyKind" class="enemy-kind"></div>
+              <div id="enemyAvatar" class="enemy-avatar">異</div>
+              <h2 id="enemyName"></h2>
+              <div class="enemy-hp-line"><span id="enemyHpText"></span><div class="enemy-hp-track"><i id="enemyHpBar"></i></div></div>
+              <p id="enemyTrait" class="enemy-trait"></p>
+              <div id="combatRound" class="combat-round"></div>
+            </div>
+            <div class="action-prompt">本回合行動</div>
+            <div id="combatOptions" class="event-options"></div>
+            <div id="combatLog" class="combat-log"></div>
+            <div id="combatResult" class="event-result hidden"></div>
+            <button id="nextCombatNode" class="hidden">前往下一節點</button>
+          </div>
+
+          <div id="endingPanel" class="ending-panel hidden"></div>
         </div>
       </section>
 
       <aside class="card side-card party-panel">
-        <details class="mobile-collapsible character-details" open>
-          <summary class="section-title">CHARACTER / 我的罪人</summary>
-          <div id="selfCharacter" class="self-character muted">尚未選擇罪人。</div>
+        <details class="mobile-collapsible" open>
+          <summary class="section-title">MY SINNER / 我的罪人</summary>
+          <div id="mySinner"></div>
         </details>
-        <details class="mobile-collapsible party-details">
+        <details class="mobile-collapsible team-collapsible">
           <summary class="section-title">PARTY / 隊伍狀態</summary>
           <div id="teamInfo" class="muted">等待玩家加入。</div>
         </details>
-        <button id="forgetSession" class="secondary compact session-reset">清除本機聯機身分</button>
       </aside>
     </section>
   </main>
