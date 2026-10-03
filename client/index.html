@@ -3,16 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>探索遊戲｜多人版 DEV</title>
+  <title>探索遊戲｜多人 TRPG</title>
   <link rel="stylesheet" href="/css/multiplayer.css" />
 </head>
 <body>
   <main class="shell">
     <header class="topbar">
       <div>
-        <div class="eyebrow">INDEPENDENT MULTIPLAYER PROJECT · v0.5</div>
-        <h1>探索遊戲｜多人版 DEV</h1>
-        <p>獨立專案，不讀寫原單機版 localStorage。</p>
+        <div class="eyebrow">MULTIPLAYER FIELD SESSION · v0.6</div>
+        <h1>探索遊戲｜多人 TRPG</h1>
       </div>
       <div class="top-statuses">
         <div id="connection" class="status">連線中…</div>
@@ -33,7 +32,7 @@
 
     <section id="game" class="game-grid hidden">
       <aside class="card side-card">
-        <div class="section-title">房間 <strong id="roomCode">----</strong></div>
+        <div class="section-title">SESSION / 房間 <strong id="roomCode">----</strong></div>
         <div class="room-tools">
           <button id="copyInvite" class="secondary compact">複製邀請連結</button>
           <span id="copyInviteStatus" class="copy-status" aria-live="polite"></span>
@@ -45,7 +44,7 @@
 
       <section class="card center-card">
         <div id="lobbySetup">
-          <div class="section-title">探索準備</div>
+          <div class="section-title">SESSION ZERO / 探索準備</div>
           <h2>探索地區</h2>
           <div id="areaList" class="area-list"></div>
           <h2>選擇你的罪人</h2>
@@ -53,22 +52,26 @@
         </div>
 
         <div id="explorationPanel" class="hidden">
-          <div class="section-title">共同探索 · <span id="runNumber">#1</span></div>
-          <div id="eventPanel">
+          <div class="section-title">FIELD SESSION · <span id="runNumber">#1</span></div>
+          <div id="explorationMeters" class="exploration-meters"></div>
+          <div id="eventPanel" class="gm-panel">
             <div class="event-kicker" id="eventArea"></div>
+            <div class="gm-label">GM / 場景描述</div>
             <h2 id="eventName"></h2>
-            <p id="eventDescription"></p>
+            <p id="eventDescription" class="scene-text"></p>
+            <div class="action-prompt">你們打算怎麼處理？</div>
             <div id="eventOptions" class="event-options"></div>
             <div id="eventResult" class="event-result hidden"></div>
-            <button id="nextEvent" class="hidden">繼續探索</button>
+            <button id="nextEvent" class="hidden">推進下一幕</button>
           </div>
         </div>
       </section>
 
       <aside class="card side-card">
-        <div class="section-title">隊伍狀態</div>
+        <div class="section-title">PARTY / 隊伍狀態</div>
         <div id="teamInfo" class="muted">等待玩家加入。</div>
-        <div class="hint">v0.5：支援短暫斷線、重新整理與伺服器重啟後由房主自動復原房間；另有伺服器端自動存檔。</div><button id="forgetSession" class="secondary compact session-reset">清除本機聯機身分</button>
+        <div class="hint">TRPG 模式：行動會觸發 d20 檢定，結果可能是大成功、成功、代價成功、失敗或大失敗；線索、危險度與探索進度會延續到後續場景。</div>
+        <button id="forgetSession" class="secondary compact session-reset">清除本機聯機身分</button>
       </aside>
     </section>
   </main>
