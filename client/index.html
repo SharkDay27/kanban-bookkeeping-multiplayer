@@ -2,7 +2,8 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#f7f4f1" />
   <title>探索遊戲｜多人 TRPG</title>
   <link rel="stylesheet" href="/css/multiplayer.css" />
 </head>
@@ -10,7 +11,7 @@
   <main class="shell">
     <header class="topbar">
       <div>
-        <div class="eyebrow">MULTIPLAYER FIELD SESSION · v0.6</div>
+        <div class="eyebrow">MULTIPLAYER FIELD SESSION · v0.7</div>
         <h1>探索遊戲｜多人 TRPG</h1>
       </div>
       <div class="top-statuses">
@@ -31,7 +32,7 @@
     </section>
 
     <section id="game" class="game-grid hidden">
-      <aside class="card side-card">
+      <aside class="card side-card session-panel">
         <div class="section-title">SESSION / 房間 <strong id="roomCode">----</strong></div>
         <div class="room-tools">
           <button id="copyInvite" class="secondary compact">複製邀請連結</button>
@@ -42,7 +43,7 @@
         <button id="startGame" class="hidden">開始探索</button>
       </aside>
 
-      <section class="card center-card">
+      <section class="card center-card main-panel">
         <div id="lobbySetup">
           <div class="section-title">SESSION ZERO / 探索準備</div>
           <h2>探索地區</h2>
@@ -67,10 +68,12 @@
         </div>
       </section>
 
-      <aside class="card side-card">
-        <div class="section-title">PARTY / 隊伍狀態</div>
-        <div id="teamInfo" class="muted">等待玩家加入。</div>
-        <div class="hint">TRPG 模式：行動會觸發 d20 檢定，結果可能是大成功、成功、代價成功、失敗或大失敗；線索、危險度與探索進度會延續到後續場景。</div>
+      <aside class="card side-card party-panel">
+        <details class="mobile-collapsible" open>
+          <summary class="section-title">PARTY / 隊伍狀態</summary>
+          <div id="teamInfo" class="muted">等待玩家加入。</div>
+        </details>
+        <div class="hint">TRPG 模式：行動會觸發 d20 檢定；遠征、裝備、道具與戰鬥系統將在 V0.7 依此版型擴充。</div>
         <button id="forgetSession" class="secondary compact session-reset">清除本機聯機身分</button>
       </aside>
     </section>
