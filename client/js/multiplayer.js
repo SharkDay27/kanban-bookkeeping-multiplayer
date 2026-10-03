@@ -2,6 +2,16 @@ const socket = io();
 const $ = (id) => document.getElementById(id);
 const SESSION_KEY = 'kanban-bookkeeping-multiplayer-v0.5-session';
 const PLAYER_KEY = 'kanban-bookkeeping-multiplayer-player-name';
+const ROUTE_NODES = [
+  {type:'event',icon:'?',label:'事件'},
+  {type:'battle',icon:'⚔',label:'小怪'},
+  {type:'supply',icon:'▣',label:'補給'},
+  {type:'event',icon:'?',label:'事件'},
+  {type:'elite',icon:'◆',label:'精英'},
+  {type:'rest',icon:'＋',label:'休整'},
+  {type:'event',icon:'?',label:'事件'},
+  {type:'boss',icon:'♛',label:'BOSS'}
+];
 let state = { room:null, selfId:null, reconnectToken:null, recoveryToken:null, recoverySnapshot:null, gameData:{ areas:[], sinners:[] }, resuming:false };
 let lastResultKey = '';
 
@@ -40,15 +50,37 @@ async function copyInviteLink(){const text=inviteUrl();if(!text)return;try{await
 function showCopyStatus(text){$('copyInviteStatus').textContent=text;clearTimeout(showCopyStatus.timer);showCopyStatus.timer=setTimeout(()=>{$('copyInviteStatus').textContent=''},1800)}
 function areaById(id){return state.gameData.areas.find((x)=>x.id===id)}
 function sinnerById(id){return state.gameData.sinners.find((x)=>x.id===id)}
+function itemName(item){if(!item)return'空';return typeof item==='string'?item:(item.name||item.label||'未知物品')}
 
 function render(){
   const room=state.room;if(!room)return;const me=room.players.find((p)=>p.id===state.selfId);if(!me){clearSession();location.reload();return}
   const area=areaById(room.areaId),isHost=state.selfId===room.hostId;$('roomCode').textContent=room.id;
   $('areaSummary').innerHTML=area?`<strong>${escapeHtml(area.name)}</strong><span>RISK / ${escapeHtml(area.risk)} · 建議 Lv.${area.level}</span>`:'';
-  $('playerList').innerHTML=room.players.map((p)=>{const sinner=sinnerById(p.sinnerId);const hpPct=Math.max(0,Math.round(p.hp/p.maxHp*100));return `<div class="player${p.id===state.selfId?' me':''}${p.connected?'':' offline'}"><div class="player-name">${escapeHtml(p.name)}${p.id===room.hostId?' · 房主':''}${p.connected?'':' · 離線'}</div><div class="player-meta">${sinner?escapeHtml(sinner.name):'未選角色'}</div><div class="hp-line"><span>HP ${p.hp}/${p.maxHp}</span><div class="hp-track"><i style="width:${hpPct}%"></i></div></div></div>`}).join('');
+  $('playerList').innerHTML=room.players.map((p)=>{const sinner=sinnerById(p.sinnerId);const hpPct=Math.max(0,Math.round(p.hp/p.maxHp*100));return `<div class="player${p.id===state.selfId?' me':''}${p.connected?'':' offline'}"><div class="player-headline"><div><div class="player-name">${escapeHtml(p.name)}${p.id===room.hostId?' · 房主':''}${p.connected?'':' · 離線'}</div><div class="player-meta">${sinner?escapeHtml(sinner.name):'未選角色'}</div></div><span class="hp-number">${p.hp}/${p.maxHp}</span></div><div class="hp-track"><i style="width:${hpPct}%"></i></div></div>`}).join('');
   $('lobbySetup').classList.toggle('hidden',room.phase!=='lobby');$('explorationPanel').classList.toggle('hidden',room.phase!=='exploration');$('startGame').classList.toggle('hidden',!isHost||room.phase!=='lobby');
   if(room.phase==='lobby')renderLobby(room,me,isHost);if(room.phase==='exploration')renderExploration(room,isHost);
+  renderSelfCharacter(me);
   $('teamInfo').innerHTML=room.players.map((p)=>{const sinner=sinnerById(p.sinnerId);const hpPct=Math.max(0,Math.round(p.hp/p.maxHp*100));return `<div class="team-row${p.connected?'':' offline-row'}"><div><b>${escapeHtml(sinner?.name||p.name)}</b><small>${p.connected?'在線':'離線'}</small></div><div class="team-hp"><span>${p.hp}/${p.maxHp}</span><div class="hp-track"><i style="width:${hpPct}%"></i></div></div></div>`}).join('');
+}
+function renderSelfCharacter(me){
+  const sinner=sinnerById(me.sinnerId);if(!sinner){$('selfCharacter').innerHTML='尚未選擇罪人。';return}
+  const equipment=me.equipment||{};const inventory=Array.isArray(me.inventory)?me.inventory.slice(0,4):[];
+  while(inventory.length<4)inventory.push(null);
+  $('selfCharacter').innerHTML=`
+    <div class="character-header"><div><strong>${escapeHtml(sinner.name)}</strong><span>${escapeHtml(sinner.specialty)}</span></div><div class="character-level">Lv.${me.level}</div></div>
+    <div class="character-hp"><div><span>HP</span><b>${me.hp} / ${me.maxHp}</b></div><div class="hp-track"><i style="width:${Math.max(0,Math.round(me.hp/me.maxHp*100))}%"></i></div></div>
+    <div class="stat-grid">
+      <div><span>戰鬥</span><b>${sinner.stats.combat}</b></div><div><span>觀察</span><b>${sinner.stats.observe}</b></div>
+      <div><span>機動</span><b>${sinner.stats.mobility}</b></div><div><span>穩定</span><b>${sinner.stats.stability}</b></div>
+    </div>
+    <div class="mini-heading">裝備</div>
+    <div class="equipment-grid">
+      <div><span>武器</span><b>${escapeHtml(itemName(equipment.weapon))}</b></div>
+      <div><span>防具</span><b>${escapeHtml(itemName(equipment.armor))}</b></div>
+      <div><span>飾品</span><b>${escapeHtml(itemName(equipment.accessory))}</b></div>
+    </div>
+    <div class="mini-heading">消耗品 <span>${inventory.filter(Boolean).length}/4</span></div>
+    <div class="inventory-grid">${inventory.map((item,i)=>`<div class="inventory-slot${item?' filled':''}"><span>${i+1}</span><b>${escapeHtml(itemName(item))}</b></div>`).join('')}</div>`;
 }
 function renderLobby(room,me,isHost){
   $('areaList').innerHTML=state.gameData.areas.map((area)=>{const active=room.areaId===area.id?' active':'',disabled=isHost?'':' disabled';return `<button class="area-card${active}" data-area="${area.id}"${disabled}><div><b>${escapeHtml(area.name)}</b><span>RISK / ${escapeHtml(area.risk)}</span></div><small>${escapeHtml(area.tier==='intermediate'?`中級 · 全隊需 Lv.${area.requiredLevel}`:`初級 · 建議 Lv.${area.level}`)}</small><p>${escapeHtml(area.desc)}</p></button>`}).join('');
@@ -58,9 +90,15 @@ function renderLobby(room,me,isHost){
   document.querySelectorAll('[data-sinner]').forEach((button)=>button.addEventListener('click',()=>action('player:sinner',{roomId:room.id,sinnerId:button.dataset.sinner})));
 }
 function meter(label,value,max,kind){const pct=Math.max(0,Math.min(100,Math.round(value/max*100)));return `<div class="meter ${kind}"><div><b>${label}</b><span>${value} / ${max}</span></div><div class="meter-track"><i style="width:${pct}%"></i></div></div>`}
+function renderExpeditionRoute(room){
+  const current=Math.max(0,Math.min(ROUTE_NODES.length-1,(room.run||1)-1));
+  $('expeditionRoute').innerHTML=`<div class="route-caption"><span>遠征路線</span><b>${current+1} / ${ROUTE_NODES.length}</b></div><div class="route-scroll"><div class="route-track">${ROUTE_NODES.map((node,index)=>{const cls=index<current?' done':index===current?' current':'';return `<div class="route-node ${node.type}${cls}"><span>${node.icon}</span><small>${node.label}</small></div>${index<ROUTE_NODES.length-1?'<i class="route-link"></i>':''}`}).join('')}</div></div>`;
+  requestAnimationFrame(()=>document.querySelector('.route-node.current')?.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'}));
+}
 function renderExploration(room,isHost){
   const event=room.currentEvent,area=areaById(room.areaId),ex=room.exploration||{progress:0,progressGoal:8,danger:0,dangerMax:6,clues:0};
   $('runNumber').textContent=`#${room.run}`;$('eventArea').textContent=area?`${area.name} · RISK / ${area.risk}`:'';
+  renderExpeditionRoute(room);
   $('explorationMeters').innerHTML=`${meter('探索進度',ex.progress,ex.progressGoal,'progress')}${meter('危險度',ex.danger,ex.dangerMax,'danger')}<div class="clue-card"><span>CLUES / 線索</span><strong>${ex.clues}</strong></div>`;
   $('eventName').textContent=event?.name||'等待場景';$('eventDescription').textContent=event?.description||'';
   $('eventResult').classList.toggle('hidden',!room.eventResult);$('nextEvent').classList.toggle('hidden',!isHost||!room.eventResult);
