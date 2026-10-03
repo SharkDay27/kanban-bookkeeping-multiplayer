@@ -1,8 +1,8 @@
-const { SUPPLIES, REST_NODES, STATUS_EFFECTS }=require('../shared/game-data');
+const { SUPPLIES, REST_NODES }=require('../shared/game-data');
 const { persist, beginNextArea, NODE_LABELS }=require('./room-manager');
 const { getStatus }=require('../shared/game-data');
 const {
-  sinnerOf,statFor,addStatus,removeStatus,dangerShield,healPlayer,tickStatuses,randomStatus
+  sinnerOf,statFor,addStatus,removeStatus,dangerShield,healPlayer,tickStatuses,randomStatus,applyDamageToPlayer
 }=require('./runtime-status');
 const {
   balance,randomFrom,revealNode,pickEvent,rewardChoice,pickPositiveStatus
@@ -79,7 +79,7 @@ function resolveEvent(room){
   if(degree==='critical'){cluesDelta=2;dangerDelta=-1;}else if(degree==='success')cluesDelta=1;else if(degree==='mixed'){cluesDelta=1;dangerDelta=1;damage=3;}else if(degree==='failure'){dangerDelta=2;damage=7;}else{dangerDelta=3;damage=11;}
   damage=Math.max(0,Math.round(damage*b.eventDamage));dangerDelta=dangerDelta>0?Math.max(1,Math.round(dangerDelta*b.dangerGain)):dangerDelta;
   const partyShield=Math.max(...active.map(dangerShield),0);if(dangerDelta>0)dangerDelta=Math.max(0,dangerDelta-partyShield);
-  const actualDamage=[];if(damage)for(const p of active){const before=p.hp;p.hp=Math.max(0,p.hp-damage);actualDamage.push({playerId:p.id,amount:before-p.hp});}
+  const actualDamage=[];if(damage)for(const p of active){actualDamage.push({playerId:p.id,amount:applyDamageToPlayer(p,damage)});}
   room.exploration.clues=Math.max(0,room.exploration.clues+cluesDelta);room.exploration.danger=Math.max(0,Math.min(room.exploration.dangerMax,room.exploration.danger+dangerDelta));
   const debuff=['failure','critical-failure'].includes(degree)?maybeNegativeStatus(room,degree==='critical-failure'?3:1):null;
   const buffTarget=['critical','success'].includes(degree)?randomFrom(active):null;const buff=buffTarget?maybePositiveStatus(room,buffTarget,degree==='critical'?.1:0):null;
