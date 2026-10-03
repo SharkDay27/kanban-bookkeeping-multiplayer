@@ -54,6 +54,7 @@
 
         <div id="explorationPanel" class="hidden">
           <div class="section-title">FIELD SESSION · <span id="runNumber">#1</span></div>
+          <div id="expeditionRoute" class="expedition-route" aria-label="遠征路線"></div>
           <div id="explorationMeters" class="exploration-meters"></div>
           <div id="eventPanel" class="gm-panel">
             <div class="event-kicker" id="eventArea"></div>
@@ -69,11 +70,14 @@
       </section>
 
       <aside class="card side-card party-panel">
-        <details class="mobile-collapsible" open>
+        <details class="mobile-collapsible character-details" open>
+          <summary class="section-title">CHARACTER / 我的罪人</summary>
+          <div id="selfCharacter" class="self-character muted">尚未選擇罪人。</div>
+        </details>
+        <details class="mobile-collapsible party-details">
           <summary class="section-title">PARTY / 隊伍狀態</summary>
           <div id="teamInfo" class="muted">等待玩家加入。</div>
         </details>
-        <div class="hint">TRPG 模式：行動會觸發 d20 檢定；遠征、裝備、道具與戰鬥系統將在 V0.7 依此版型擴充。</div>
         <button id="forgetSession" class="secondary compact session-reset">清除本機聯機身分</button>
       </aside>
     </section>
