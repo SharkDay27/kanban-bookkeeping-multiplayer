@@ -9,7 +9,13 @@ function rollIntent(enemy,combat){
     const p=parts.find(x=>x.name==='攻擊部位');return {type:'charged',label:'蓄力部位攻擊',damage:Math.round(base*1.7),target:'all',partId:p.id,blockRequired:Math.max(8,Math.round(p.maxHp*.48)),description:'在本回合對指定部位造成足夠傷害即可阻擋。'};
   }
   const unique=Array.isArray(enemy.skills)&&enemy.skills.length?randomFrom(enemy.skills):null;
-  if(unique&&Math.random()<.42)return {type:unique.type||'attack',label:unique.label||'特殊攻擊',damage:Math.max(1,Math.round(base*Number(unique.mult||1))),target:(unique.type||'').includes('sweep')?'all':'single',statusId:unique.statusId||null,description:unique.description||''};
+  if(unique&&Math.random()<.42){
+    const type=unique.type||'attack';
+    if(type==='shield')return {type,label:unique.label||'防護',damage:0,target:'none',shield:Math.max(1,Number(unique.shield||Math.round(enemy.maxHp*.1))),description:unique.description||'獲得護盾。'};
+    if(type==='guard')return {type,label:unique.label||'防禦',damage:0,target:'none',shield:Math.max(1,Math.round(enemy.maxHp*.08)+Number(unique.defenseBoost||0)*2),description:unique.description||'提高防護。'};
+    if(type==='enrage')return {type,label:unique.label||'強化',damage:0,target:'none',attackBoost:Number(unique.attackBoost||.18),description:unique.description||'提高後續攻擊。'};
+    return {type,label:unique.label||'特殊攻擊',damage:Math.max(1,Math.round(base*Number(unique.mult||1))),target:type.includes('sweep')?'all':'single',statusId:unique.statusId||null,description:unique.description||''};
+  }
   return Math.random()<.24?{type:'heavy',label:'重擊',damage:Math.round(base*1.45),target:'single',description:`約 ${Math.round(base*1.45)} 傷害`}:{type:'attack',label:'攻擊',damage:base,target:'single',description:`約 ${base} 傷害`};
 }
 function setEnemyIntents(combat){
