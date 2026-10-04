@@ -14,8 +14,8 @@ loadPersistedRooms();
 app.use(express.json({limit:'1mb'}));
 app.use(express.static(path.join(__dirname,'..','client')));
 app.get('/shared/check-rules.js',(_req,res)=>res.sendFile(path.join(__dirname,'..','shared','check-rules.js')));
-app.get('/health',(_req,res)=>res.json({ok:true,rooms:rooms.size,version:'0.19.0'}));
+app.get('/health',(_req,res)=>res.json({ok:true,rooms:rooms.size,version:'0.20.0'}));
 app.get('/api/game-data',(_req,res)=>res.json(gameDataPayload()));
 
 registerSocketHandlers(io);
-server.listen(PORT,()=>console.log(`Multiplayer v0.19.0: http://localhost:${PORT}`));
+server.listen(PORT,()=>console.log(`Multiplayer v0.20.0: http://localhost:${PORT}`));

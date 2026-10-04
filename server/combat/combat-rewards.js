@@ -1,7 +1,10 @@
 const {combatGoldReward}=require('../economy');
 const {primeFogAfterResolution}=require('../expedition/route-generator');
 const {goldMultiplier,extraGoldFromLostHp}=require('../relics/relic-effects');
-const {createRelicChoices}=require('../relics/relic-manager');
+const {createRelicChoices,choicesForPlayer}=require('../relics/relic-manager');
+const {EQUIPMENT}=require('../../shared/game-data');
+const {pickReward}=require('../expedition/danger-system');
+const {addEquipment}=require('../equipment/equipment-manager');
 
 function currentNode(room){return room.exploration.route[room.exploration.position];}
 function markCurrentNodeResolved(room){const node=currentNode(room);if(node)node.resolved=true;}
@@ -11,7 +14,17 @@ function finishVictory(room){
   room.eventResult={degree:combat.kind==='boss'?'boss-victory':'combat-victory',text:`戰鬥勝利。隊伍取得戰鬥金幣。`,gold:baseGold,goldByPlayer};
   markCurrentNodeResolved(room);primeFogAfterResolution(room);
   const hasNextArea=room.areaIndex<room.selectedAreas.length-1;
-  if(combat.kind==='elite'||(combat.kind==='boss'&&hasNextArea)){createRelicChoices(room,combat.kind);room.eventResult.relicReward=true;}
+  room.relicChoices={};room.eventResult.lootByPlayer={};
+  for(const player of room.players.filter(p=>p.connected&&p.hp>0)){
+    const relicChance=combat.kind==='combat'?.18:1;
+    if(Math.random()<relicChance && !(combat.kind==='boss'&&!hasNextArea)){
+      const choices=choicesForPlayer(player,combat.kind,3).map(r=>r.id);
+      if(choices.length){room.relicChoices[player.id]=choices;room.eventResult.relicReward=true;room.eventResult.lootByPlayer[player.id]={type:'relic-choice'};continue;}
+    }
+    const equipmentChance=combat.kind==='combat'?.55:1;
+    if(Math.random()<equipmentChance){const item=addEquipment(player,pickReward(EQUIPMENT,room.exploration.danger,player,room.areaIndex));room.eventResult.lootByPlayer[player.id]={type:'equipment',item};}
+  }
+
   if(combat.kind==='boss'){if(hasNextArea)room.eventResult.nextAreaAvailable=true;else room.phase='victory';}
   return room.eventResult;
 }

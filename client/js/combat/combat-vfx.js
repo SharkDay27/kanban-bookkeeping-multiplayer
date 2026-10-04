@@ -1,19 +1,11 @@
 (()=>{
-  let lastSerial=null;
-  function targetEl(id){return id?document.querySelector(`[data-combat-target="${CSS.escape(id)}"]`):null;}
-  function addFx(target,type){
-    if(!target)return;const fx=document.createElement('div');fx.className=`typed-combat-vfx ${type}`;
-    if(type==='slash')fx.innerHTML='<i></i><i></i>';
-    else if(type==='blunt')fx.innerHTML='<i></i><b></b>';
-    else if(type==='pierce')fx.innerHTML='<i></i><b></b>';
-    else if(type==='gun')fx.innerHTML='<i></i><b></b><em></em>';
-    else fx.innerHTML='<i></i><b></b>';
-    target.appendChild(fx);setTimeout(()=>fx.remove(),1050);
-  }
-  function styleFor(rec){if(rec?.soundType==='gun')return'gun';if(['slash','blunt','pierce'].includes(rec?.damageType))return rec.damageType;return'anomaly';}
-  function play(res){let delay=160;for(const rec of res?.players||[]){if(rec.dealt>0){setTimeout(()=>addFx(targetEl(rec.targetId),styleFor(rec)),delay);}delay+=850;}}
-  function markSummons(){document.querySelectorAll('.intent-card').forEach(card=>{const label=card.querySelector('b')?.textContent||'',summon=label.includes('呼叫增援');card.classList.toggle('summon-intent',summon);let tag=card.querySelector('.summon-warning-tag');if(summon&&!tag){tag=document.createElement('em');tag.className='summon-warning-tag';tag.textContent='下回合召喚手下';card.appendChild(tag);}else if(!summon&&tag)tag.remove();});}
-  function apply(room){markSummons();const res=room?.combat?.lastResolution;if(!res?.serial||res.serial===lastSerial)return;lastSerial=res.serial;play(res);}
-  socket.on('room:update',room=>requestAnimationFrame(()=>apply(room)));requestAnimationFrame(()=>state?.room&&apply(state.room));
-  window.KBMCombatVFX={apply};
+ let lastEffect=null,lastRoom=null;
+ const targetEl=id=>id?document.querySelector(`[data-combat-target="${CSS.escape(id)}"]`):null;
+ const playerEls=id=>[...document.querySelectorAll(`[data-player-id="${CSS.escape(id)}"]`),...(id===state.selfId?[document.querySelector('#mySinner .sinner-profile')]:[])].filter(Boolean);
+ function effect(target,type,text=''){if(!target)return;const fx=document.createElement('div');fx.className=`battle-effect effect-${type}`;fx.innerHTML=type==='heal'?'<i>+</i><i>+</i><i>+</i>':type==='slash'?'<i></i><i></i>':type==='pierce'?'<i></i><i></i><i></i>':'<i></i><b></b>';if(text){const n=document.createElement('strong');n.textContent=text;fx.appendChild(n);}target.appendChild(fx);setTimeout(()=>fx.remove(),1200);}
+ function attack(rec){const ids=rec.hitTargets?.length?rec.hitTargets:[rec.targetId];if(rec.dealt>0)ids.forEach(id=>effect(targetEl(id),['slash','blunt','pierce'].includes(rec.damageType)?rec.damageType:'anomaly'));if(rec.healing?.length)effect(document.getElementById('battleFocus'),'heal','+'+rec.healing.reduce((sum,h)=>sum+h.amount,0)+' HP');for(const h of rec.healing||[])playerEls(h.playerId).forEach(el=>effect(el,'heal','+'+h.amount+' HP'));}
+ function death(id){const el=targetEl(id);if(!el||el.dataset.deathPlayed)return;el.dataset.deathPlayed='1';el.classList.add('enemy-dying');setTimeout(()=>el.classList.add('enemy-removed'),900);}
+ function shield(room){for(const p of room.players||[])for(const el of playerEls(p.id)){el.classList.toggle('armor-shield',Number(p.temporaryShield)>0);let badge=el.querySelector('.armor-shield-value');if(p.temporaryShield>0){if(!badge){badge=document.createElement('span');badge.className='armor-shield-value';el.appendChild(badge);}badge.textContent='護盾 '+p.temporaryShield;}else badge?.remove();}document.querySelectorAll('[data-combat-target]').forEach(el=>{const e=room.combat?.enemies?.find(e=>e.instanceId===el.dataset.combatTarget);el.classList.toggle('armor-shield',Number(e?.shield)>0);});}
+ function apply(room){requestAnimationFrame(()=>shield(room));const fx=room.visualEffect;if(room.id!==lastRoom){lastRoom=room.id;lastEffect=fx?.id;return;}if(fx?.id&&fx.id!==lastEffect){lastEffect=fx.id;requestAnimationFrame(()=>playerEls(fx.playerId).forEach(el=>effect(el,'heal','+'+fx.amount+' HP')));}}
+ socket.on('room:update',apply);window.KBMCombatVFX={apply,attack,death,shield,effect,playerEls};
 })();

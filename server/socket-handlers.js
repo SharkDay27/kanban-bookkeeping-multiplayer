@@ -12,6 +12,7 @@ const {buyShopItem,shopReady}=require('./shop/shop-manager');
 const {learnSkill}=require('./skills/skill-manager');
 const {upgradeSkill}=require('./skills/skill-upgrades');
 const {chooseRelic,pendingRelicChoices}=require('./relics/relic-manager');
+const {sell}=require('./shop/shop-sales');
 const {equipFromInventory,unequip}=require('./equipment/equipment-manager');
 
 function gameDataPayload(){return {areas:AREAS,sinners:SINNERS,statusEffects:STATUS_EFFECTS,sinnerSkills:SINNER_SKILLS,relics:EXPEDITION_RELICS,buildTags:BUILD_TAGS,skillUpgradeOptions:Object.fromEntries(SINNER_SKILLS.map(s=>[s.id,upgradeOptionsFor(s)]))};}
@@ -47,6 +48,7 @@ function registerSocketHandlers(io){
     socket.on('equipment:equip',({roomId,index},ack=()=>{})=>{try{const {room,player}=withRoom(roomId,socket);const result=equipFromInventory(room,player,Number(index));emitRoom(io,room);ack({ok:true,...result});}catch(e){ack({ok:false,error:e.message});}});
     socket.on('equipment:unequip',({roomId,slot},ack=()=>{})=>{try{const {room,player}=withRoom(roomId,socket);const item=unequip(room,player,String(slot||''));emitRoom(io,room);ack({ok:true,item});}catch(e){ack({ok:false,error:e.message});}});
 
+    socket.on('shop:sell',({roomId,...selection},ack=()=>{})=>{try{const {room,player}=withRoom(roomId,socket);const result=sell(room,player,selection);emitRoom(io,room);ack({ok:true,...result});}catch(e){ack({ok:false,error:e.message});}});
     socket.on('shop:buy',({roomId,offerId},ack=()=>{})=>{try{const {room,player}=withRoom(roomId,socket);const result=buyShopItem(room,player,offerId);emitRoom(io,room);ack({ok:true,...result});}catch(e){ack({ok:false,error:e.message});}});
     socket.on('shop:ready',({roomId},ack=()=>{})=>{try{const {room,player}=withRoom(roomId,socket);const done=shopReady(room,player);if(done)primeFogAfterResolution(room);emitRoom(io,room);ack({ok:true,done});}catch(e){ack({ok:false,error:e.message});}});
     socket.on('event:next',({roomId},ack=()=>{})=>{try{const {room,player}=withRoom(roomId,socket);if(player.id!==room.hostId)throw new Error('只有房主可以推進章節。');if(pendingRelicChoices(room))throw new Error('仍有玩家尚未選擇 Boss 遺物。');if(!room.eventResult?.nextAreaAvailable)throw new Error('現在請由隊伍投票選擇下一節點。');advanceChapterAfterBoss(room);emitRoom(io,room);ack({ok:true});}catch(e){ack({ok:false,error:e.message});}});

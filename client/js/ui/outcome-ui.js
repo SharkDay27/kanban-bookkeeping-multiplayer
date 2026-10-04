@@ -14,7 +14,7 @@
     ensure();const overlay=document.getElementById('expeditionOutcomeOverlay'),word=document.getElementById('outcomeWord'),count=document.getElementById('outcomeCountdown'),prompt=document.getElementById('outcomePrompt');overlay.classList.remove('hidden','victory','fail');overlay.classList.add(room.phase==='victory'?'victory':'fail');word.textContent=room.phase==='victory'?'VICTORY':'FAIL';prompt.classList.add('hidden');let left=3;count.textContent=`${left}`;if(window.KBMCombatSounds){room.phase==='victory'?window.KBMCombatSounds.victory():window.KBMCombatSounds.hurt();}
     if(timer)clearInterval(timer);timer=setInterval(()=>{left-=1;if(left>0){count.textContent=`${left}`;return;}clearInterval(timer);timer=null;count.textContent='';showPrompt(room);},1000);
   }
-  function apply(room){ensure();if(!['victory','defeat'].includes(room?.phase)){shownKey='';hide();return;}const key=`${room.id}:${room.run}:${room.phase}`;if(key===shownKey)return;shownKey=key;show(room);}
+  function apply(room){if(document.body.classList.contains('battle-playing'))return;ensure();if(!['victory','defeat'].includes(room?.phase)){shownKey='';hide();return;}const key=`${room.id}:${room.run}:${room.phase}`;if(key===shownKey)return;shownKey=key;show(room);}
   socket.on('room:update',room=>requestAnimationFrame(()=>apply(room)));requestAnimationFrame(()=>state?.room&&apply(state.room));
   window.KBMOutcomeUI={apply};
 })();

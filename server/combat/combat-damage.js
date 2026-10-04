@@ -1,5 +1,5 @@
 const {sinnerOf,statFor,addStatus,applyDamageToPlayer}=require('../status/status-manager');
-const {combatModifier,combatDefense}=require('../../shared/check-rules');
+const {combatModifier,combatDefense,attackDc}=require('../../shared/check-rules');
 const {randomFrom}=require('../expedition/danger-system');
 const {applySkillUtility}=require('../skills/skill-effects');
 const {actionForPlayer,estimateDamage}=require('./combat-actions');
@@ -13,7 +13,7 @@ function soundTypeFor(action){if(action?.soundType)return action.soundType;if(ac
 function reduceOneCooldown(combat,player,amount){amount=Math.max(0,Math.round(amount||0));if(!amount)return null;const map=combat.cooldowns[player.id]||{},keys=Object.keys(map).filter(k=>Number(map[k])>0);if(!keys.length)return null;const key=randomFrom(keys);map[key]=Math.max(0,Number(map[key])-amount);return key;}
 function addEnemyStatus(target,id,duration=2){if(!target||!id)return;target.statuses=Array.isArray(target.statuses)?target.statuses:[];const old=target.statuses.find(s=>s.id===id);if(old)old.remaining=Math.max(Number(old.remaining||0),duration);else target.statuses.push({id,remaining:duration});}
 function damageTarget(room,combat,player,action,target,part,die,total){
-  const preview=estimateDamage(room,player,action,target,part),defense=combatDefense(target,action,player?.relics);
+  const preview=estimateDamage(room,player,action,target,part),defense=attackDc(statFor(player,action.stat||'combat'),target,action,player?.relics);
   if(die!==20&&total<defense)return {dealt:0,hpDamage:0,shieldAbsorbed:0,shieldBroken:false,partDestroyed:false,killed:false,preview};
   const beforeHp=Number(target.currentHp||0),rolled=preview.min+Math.floor(Math.random()*Math.max(1,preview.max-preview.min+1));
   const beforeShield=Math.max(0,Number(target.shield||0)),shieldAbsorbed=Math.min(beforeShield,rolled);target.shield=Math.max(0,beforeShield-shieldAbsorbed);const hpDamage=Math.max(0,rolled-shieldAbsorbed),shieldBroken=beforeShield>0&&target.shield<=0;
@@ -27,17 +27,20 @@ function damageTarget(room,combat,player,action,target,part,die,total){
 }
 function resolvePlayerAction(room,player,selection,guards,records){
   const combat=room.combat,action=actionForPlayer(player,selection.actionId),target=ensureTarget(combat,selection.targetId);if(!action||(!target&&action.kind!=='guard'))return;
+  const hitTargets=[];const hpBefore=Object.fromEntries(room.players.map(p=>[p.id,p.hp]));
   const part=findPart(target,selection.partId),stat=statFor(player,action.stat||'combat'),die=1+Math.floor(Math.random()*20),total=die+(action.kind==='analyze'?Math.round(stat/2):combatModifier(stat));let dealt=0,hpDamage=0,shieldAbsorbed=0,shieldBroken=false,partDestroyed=false,preview=selection.preview||null;
   if(action.kind==='guard')guards.add(player.id);
   else if(action.kind==='analyze'){if(total>=10+Math.floor(room.exploration.danger/2)&&target){target.defensePenalty=Math.min(8,(target.defensePenalty||0)+1);room.exploration.clues+=1;}}
   else if(action.kind==='aoe'||action.kind==='aoe-debuff'){
-    for(const enemy of aliveEnemies(combat)){const hit=damageTarget(room,combat,player,action,enemy,null,die,total);dealt+=hit.dealt;hpDamage+=hit.hpDamage;shieldAbsorbed+=hit.shieldAbsorbed;shieldBroken=shieldBroken||hit.shieldBroken;partDestroyed=partDestroyed||hit.partDestroyed;preview=hit.preview;}
+    for(const enemy of aliveEnemies(combat)){const hit=damageTarget(room,combat,player,action,enemy,null,die,total);if(hit.dealt>0)hitTargets.push(enemy.instanceId);dealt+=hit.dealt;hpDamage+=hit.hpDamage;shieldAbsorbed+=hit.shieldAbsorbed;shieldBroken=shieldBroken||hit.shieldBroken;partDestroyed=partDestroyed||hit.partDestroyed;preview=hit.preview;}
     applySkillUtility(room,player,action,target,dealt);
   }
   else if(action.kind==='heal'||action.kind==='team-buff')applySkillUtility(room,player,action,target,0);
   else {const hit=damageTarget(room,combat,player,action,target,part,die,total);dealt=hit.dealt;hpDamage=hit.hpDamage;shieldAbsorbed=hit.shieldAbsorbed;shieldBroken=hit.shieldBroken;partDestroyed=hit.partDestroyed;preview=hit.preview;applySkillUtility(room,player,action,target,dealt);}
   if(action.skillId){combat.cooldowns[player.id]=combat.cooldowns[player.id]||{};const baseCd=2,reduce=Number(action.cooldownReduction||0)+cooldownReduction(player);combat.cooldowns[player.id][action.id]=Math.max(0,baseCd-reduce);}
-  records.push({playerId:player.id,sinner:sinnerOf(player)?.name||player.name,action:action.label||action.name,target:target?.name||'',targetId:target?.instanceId||null,part:part?.name||'',partId:part?.id||null,die,total,dealt,hpDamage,shieldAbsorbed,shieldBroken,partDestroyed,damageType:action.damageType||null,soundType:soundTypeFor(action),resistance:preview?.resistance??1,relation:preview?.relation||'普通'});
+  const defeatedTargets=(combat.enemies||[]).filter(e=>e.currentHp<=0).map(e=>e.instanceId);
+  const healing=room.players.map(p=>({playerId:p.id,amount:Math.max(0,Number(p.hp||0)-Number(hpBefore[p.id]||0))})).filter(x=>x.amount>0);
+  records.push({hitTargets,kind:action.kind,healing,defeatedTargets,playerId:player.id,sinner:sinnerOf(player)?.name||player.name,action:action.label||action.name,target:target?.name||'',targetId:target?.instanceId||null,part:part?.name||'',partId:part?.id||null,die,total,dealt,hpDamage,shieldAbsorbed,shieldBroken,partDestroyed,damageType:action.damageType||null,soundType:soundTypeFor(action),resistance:preview?.resistance??1,relation:preview?.relation||'普通'});
 }
 function tickEnemyStatuses(enemy){let damage=0;for(const s of enemy.statuses||[]){if(s.id==='bleeding')damage+=4;s.remaining=Number(s.remaining||0)-1;}enemy.statuses=(enemy.statuses||[]).filter(s=>s.remaining>0);if(damage>0)enemy.currentHp=Math.max(0,enemy.currentHp-damage);return damage;}
 function resolveEnemyActions(room,guards){
