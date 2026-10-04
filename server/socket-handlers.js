@@ -2,7 +2,7 @@ const {AREAS,SINNERS,STATUS_EFFECTS,SINNER_SKILLS}=require('../shared/game-data'
 const {
   createRoom,joinRoom,resumeRoom,restoreRoom,markDisconnected,removeExpiredPlayer,
   toggleArea,setSinner,publicRoom,rooms,RECONNECT_GRACE_MS,signRecovery,recoverySnapshot,
-  persist,resetForStart
+  persist,resetForStart,restartRoom
 }=require('./room/room-manager');
 const {selectCombatAction,confirmCombatAction,cancelCombatConfirm,useConsumable}=require('./combat/combat-manager');
 const {enterCurrentNode,resolveEvent,advanceChapterAfterBoss}=require('./expedition/expedition-manager');
@@ -29,6 +29,7 @@ function registerSocketHandlers(io){
     socket.on('room:map-toggle',toggleMap);socket.on('room:area-toggle',toggleMap);
     socket.on('player:sinner',({roomId,sinnerId},ack=()=>{})=>{try{const {room,player}=withRoom(roomId,socket);setSinner(room,player,sinnerId);emitRoom(io,room);ack({ok:true});}catch(e){ack({ok:false,error:e.message});}});
     socket.on('room:start',({roomId},ack=()=>{})=>{try{const {room,player}=withRoom(roomId,socket);if(player.id!==room.hostId)throw new Error('只有房主可以開始。');if(room.players.some(p=>!p.connected))throw new Error('有玩家目前離線。');if(room.players.some(p=>!p.sinnerId))throw new Error('每位玩家都要先選擇罪人。');resetForStart(room);prepareInitialRoute(room);emitRoom(io,room);ack({ok:true});}catch(e){ack({ok:false,error:e.message});}});
+    socket.on('room:restart',({roomId},ack=()=>{})=>{try{const {room,player}=withRoom(roomId,socket);restartRoom(room,player);emitRoom(io,room);ack({ok:true});}catch(e){ack({ok:false,error:e.message});}});
 
     socket.on('route:vote',({roomId,choiceId},ack=()=>{})=>{try{const {room,player}=withRoom(roomId,socket);if(room.phase!=='exploration')throw new Error('目前不在遠征中。');if(room.combat&&!room.eventResult)throw new Error('戰鬥尚未結束。');if(room.currentEvent&&!room.eventResult)throw new Error('事件尚未結束。');if(room.shop&&!room.eventResult)throw new Error('商店尚未完成。');const result=resolveRouteVote(room,player,choiceId);if(result.resolved)enterCurrentNode(room);emitRoom(io,room);ack({ok:true,resolved:result.resolved,tied:result.tied});}catch(e){ack({ok:false,error:e.message});}});
     socket.on('event:vote',({roomId,optionId},ack=()=>{})=>{try{const {room,player}=withRoom(roomId,socket);if(room.phase!=='exploration')throw new Error('目前不在遠征中。');if(room.combat)throw new Error('戰鬥行動請使用確認制。');const options=room.currentEvent?.options;if(!options?.some(o=>o.id===optionId))throw new Error('無效行動。');room.votes[player.id]=optionId;persist();resolveEvent(room);emitRoom(io,room);ack({ok:true});}catch(e){ack({ok:false,error:e.message});}});
