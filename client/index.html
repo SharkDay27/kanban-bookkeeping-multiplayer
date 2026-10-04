@@ -9,11 +9,12 @@
   <link rel="stylesheet" href="/css/combat-enhancements.css" />
   <link rel="stylesheet" href="/css/v083.css" />
   <link rel="stylesheet" href="/css/v09.css" />
+  <link rel="stylesheet" href="/css/v10.css" />
 </head>
 <body>
   <main class="shell">
     <header class="topbar">
-      <div><div class="eyebrow">MULTIPLAYER EXPEDITION · v0.9.0</div><h1>探索遊戲｜多人 TRPG</h1></div>
+      <div><div class="eyebrow">MULTIPLAYER EXPEDITION · v0.10.0</div><h1>探索遊戲｜多人 TRPG</h1></div>
       <div class="top-statuses"><div id="connection" class="status">連線中…</div><div id="deployMode" class="status subtle">WEB</div><button id="forgetSession" class="status host-clear hidden">清除本機聯機資料</button></div>
     </header>
     <div id="reconnectBanner" class="reconnect-banner hidden">連線暫時中斷，伺服器會保留你的席位並自動重新連線。</div>
@@ -51,30 +52,11 @@
           <div id="routePanel" class="route-panel"></div>
           <div id="explorationMeters" class="exploration-meters"></div>
           <div id="eventPanel" class="gm-panel hidden">
-            <div class="event-kicker" id="eventArea"></div>
-            <div class="gm-label">GM / 場景描述</div>
-            <h2 id="eventName"></h2>
-            <p id="eventDescription" class="scene-text"></p>
-            <div class="action-prompt">你打算怎麼處理？</div>
-            <div id="eventOptions" class="event-options"></div>
-            <div id="eventResult" class="event-result hidden"></div>
-            <button id="nextEvent" class="hidden">前往下一節點</button>
+            <div class="event-kicker" id="eventArea"></div><div class="gm-label">GM / 場景描述</div><h2 id="eventName"></h2><p id="eventDescription" class="scene-text"></p><div class="action-prompt">你打算怎麼處理？</div><div id="eventOptions" class="event-options"></div><div id="eventResult" class="event-result hidden"></div><button id="nextEvent" class="hidden">前往下一節點</button>
           </div>
           <div id="combatPanel" class="combat-panel hidden">
-            <div id="combatStage" class="combat-stage">
-              <div class="combat-heading-row"><div id="enemyKind" class="enemy-kind"></div><div id="combatRound" class="combat-round"></div></div>
-              <div id="bossPhase" class="boss-phase hidden"></div>
-              <h2 id="enemyName"></h2>
-              <p id="enemyTrait" class="enemy-trait"></p>
-              <div class="enemy-hp-line"><div class="enemy-hp-copy"><span>HP</span><strong id="enemyHpText"></strong></div><div class="enemy-hp-track"><i id="enemyHpBar"></i></div></div>
-              <div id="enemyIntent" class="enemy-intent"></div>
-              <div id="combatFx" class="combat-fx" aria-hidden="true"></div>
-            </div>
-            <div class="action-prompt">本回合行動</div>
-            <div id="combatOptions" class="event-options"></div>
-            <div id="combatLog" class="combat-log"></div>
-            <div id="combatResult" class="event-result hidden"></div>
-            <button id="nextCombatNode" class="hidden">前往下一節點</button>
+            <div id="combatStage" class="combat-stage"><div class="combat-heading-row"><div id="enemyKind" class="enemy-kind"></div><div id="combatRound" class="combat-round"></div></div><div id="bossPhase" class="boss-phase hidden"></div><h2 id="enemyName"></h2><p id="enemyTrait" class="enemy-trait"></p><div class="enemy-hp-line"><div class="enemy-hp-copy"><span>主要目標 HP</span><strong id="enemyHpText"></strong></div><div class="enemy-hp-track"><i id="enemyHpBar"></i></div></div><div id="enemyIntent" class="enemy-intent"></div><div id="combatFx" class="combat-fx" aria-hidden="true"></div></div>
+            <div class="action-prompt">選擇行動與目標，確認後才會鎖定</div><div id="combatOptions" class="event-options"></div><div id="combatLog" class="combat-log"></div><div id="combatResult" class="event-result hidden"></div><button id="nextCombatNode" class="hidden">前往下一節點</button>
           </div>
           <div id="endingPanel" class="ending-panel hidden"></div>
         </div>
@@ -90,5 +72,6 @@
   <script src="/js/combat-enhancements.js"></script>
   <script src="/js/v083-ui.js"></script>
   <script src="/js/v09-ui.js"></script>
+  <script src="/js/v10-ui.js"></script>
 </body>
 </html>
