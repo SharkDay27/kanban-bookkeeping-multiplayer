@@ -38,6 +38,13 @@ function resetForStart(room){
   }
   legacy.persist();
 }
+function restartRoom(room,player){
+  if(player.id!==room.hostId)throw new Error('只有房主可以重新開始。');
+  if(!['victory','defeat'].includes(room.phase))throw new Error('目前還不能重新開始。');
+  room.phase='lobby';room.selectedAreas=[];room.areaIndex=0;room.areaId='';room.run=0;room.sharedInventory=[];room.currentEvent=null;room.eventResult=null;room.combat=null;room.shop=null;room.nodeReward=null;room.votes={};room.routeVotes={};room.exploration=legacy.freshExploration(0,0);
+  for(const p of room.players){p.hp=p.maxHp;p.gold=0;p.sinnerId='';p.ready=false;p.inventory=[];p.equipment={weapon:null,armor:null,accessory:null};p.equipmentInventory=[];p.statuses=[];p.temporaryShield=0;p.learnedSkills=[];}
+  legacy.persist();return room;
+}
 function loadPersistedRooms(){
   const count=legacy.loadPersistedRooms();
   for(const room of legacy.rooms.values())for(const player of room.players){ensurePlayerEquipment(player);if(!player.equipment.weapon&&player.sinnerId)applyStarterWeapon(player);}
@@ -45,4 +52,4 @@ function loadPersistedRooms(){
   return count;
 }
 
-module.exports={...legacy,createRoom,joinRoom,resumeRoom,restoreRoom,setSinner,resetForStart,loadPersistedRooms,ensurePlayerEquipment,applyStarterWeapon};
+module.exports={...legacy,createRoom,joinRoom,resumeRoom,restoreRoom,setSinner,resetForStart,restartRoom,loadPersistedRooms,ensurePlayerEquipment,applyStarterWeapon};
