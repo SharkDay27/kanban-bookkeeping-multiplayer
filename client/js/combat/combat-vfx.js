@@ -12,7 +12,8 @@
   }
   function styleFor(rec){if(rec?.soundType==='gun')return'gun';if(['slash','blunt','pierce'].includes(rec?.damageType))return rec.damageType;return'anomaly';}
   function play(res){let delay=160;for(const rec of res?.players||[]){if(rec.dealt>0){setTimeout(()=>addFx(targetEl(rec.targetId),styleFor(rec)),delay);}delay+=850;}}
-  function apply(room){const res=room?.combat?.lastResolution;if(!res?.serial||res.serial===lastSerial)return;lastSerial=res.serial;play(res);}
+  function markSummons(){document.querySelectorAll('.intent-card').forEach(card=>{const label=card.querySelector('b')?.textContent||'',summon=label.includes('呼叫增援');card.classList.toggle('summon-intent',summon);let tag=card.querySelector('.summon-warning-tag');if(summon&&!tag){tag=document.createElement('em');tag.className='summon-warning-tag';tag.textContent='下回合召喚手下';card.appendChild(tag);}else if(!summon&&tag)tag.remove();});}
+  function apply(room){markSummons();const res=room?.combat?.lastResolution;if(!res?.serial||res.serial===lastSerial)return;lastSerial=res.serial;play(res);}
   socket.on('room:update',room=>requestAnimationFrame(()=>apply(room)));requestAnimationFrame(()=>state?.room&&apply(state.room));
   window.KBMCombatVFX={apply};
 })();
