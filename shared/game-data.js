@@ -12,6 +12,8 @@ const { CONSUMABLES } = require('./consumables');
 const { STATUS_EFFECTS, getStatus } = require('./status-effects');
 const { SHOP_RULES, SHOP_PRICE_BASE, shopBasePrice } = require('./shop');
 const { SINNER_SKILLS, skillsForSinner, getSinnerSkill } = require('./sinner-skills');
+const { applySkillTuning } = require('./sinner-skill-tuning');
+applySkillTuning(SINNER_SKILLS);
 
 module.exports = {
   AREAS,SINNERS,EVENTS,NORMAL_ENEMIES,ELITE_ENEMIES,BOSSES,SUPPLIES,REST_NODES,
