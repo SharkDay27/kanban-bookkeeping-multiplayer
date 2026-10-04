@@ -87,6 +87,36 @@ const SINNER_SKILLS=[
   S('greg-lament','13','莊嚴哀悼',110,'finisher','observe',1.65,'高精度強力攻擊，對 Boss 與精英傷害提高。',{bossBonus:.25})
 ];
 
+const DEFAULT_DAMAGE_TYPE={
+  '01':'slash','02':'slash','03':'pierce','04':'slash','05':'pierce','06':'slash',
+  '07':'blunt','08':'blunt','09':'slash','11':'slash','12':'slash','13':'blunt'
+};
+const DAMAGE_TYPE_OVERRIDES={
+  'ys-dimension':'pierce','ys-cairn':'blunt','ys-sunshower':'pierce',
+  'faust-nail':'pierce','faust-lasso':'blunt','faust-telepole':'blunt','faust-92':'blunt',
+  'don-cairn':'blunt','don-scream':'blunt','don-telepole':'blunt',
+  'ryo-open':'pierce','ryo-red-eyes':'slash',
+  'meur-regret':'blunt','meur-capote':'blunt','meur-scream':'blunt','meur-wallop':'blunt',
+  'hong-dimension':'pierce','hong-wail':'blunt','hong-corrosion':'blunt',
+  'heath-fell':'pierce','heath-aedd':'blunt','heath-telepole':'blunt',
+  'ish-snag':'pierce','ish-rose':'pierce','ish-ardor':'slash','ish-blind':'blunt',
+  'rod-rime':'blunt','rod-corrosion':'blunt','rod-mirror':'blunt',
+  'sin-branch':'pierce','sin-92':'blunt','sin-scream':'blunt',
+  'outis-pathos':'pierce','outis-ebony':'slash','outis-sunshower':'pierce','outis-dimension':'pierce','outis-binds':'blunt',
+  'greg-aedd':'blunt','greg-thorns':'pierce','greg-lament':'pierce'
+};
+const SOUND_OVERRIDES={
+  'faust-92':'anomaly','faust-telepole':'anomaly','don-scream':'anomaly','don-telepole':'anomaly',
+  'heath-aedd':'anomaly','heath-telepole':'anomaly','sin-92':'anomaly','sin-scream':'anomaly','greg-aedd':'anomaly',
+  'outis-pathos':'gun','outis-ebony':'gun','greg-lament':'gun'
+};
+for(const skill of SINNER_SKILLS){
+  if(Number(skill.power)>0){
+    skill.damageType=skill.damageType||DAMAGE_TYPE_OVERRIDES[skill.id]||DEFAULT_DAMAGE_TYPE[skill.sinnerId]||'blunt';
+    skill.soundType=skill.soundType||SOUND_OVERRIDES[skill.id]||skill.damageType;
+  }
+}
+
 function skillsForSinner(sinnerId){return SINNER_SKILLS.filter(s=>s.sinnerId===sinnerId);}
 function getSinnerSkill(id){return SINNER_SKILLS.find(s=>s.id===id)||null;}
 module.exports={SINNER_SKILLS,skillsForSinner,getSinnerSkill};
