@@ -17,7 +17,7 @@
 <body>
   <main class="shell">
     <header class="topbar">
-      <div><div class="eyebrow">MULTIPLAYER EXPEDITION · v0.13.0</div><h1>探索遊戲｜多人 TRPG</h1></div>
+      <div><div class="eyebrow">MULTIPLAYER EXPEDITION · v0.14.0</div><h1>探索遊戲｜多人 TRPG</h1></div>
       <div class="top-statuses"><div id="connection" class="status">連線中…</div><div id="deployMode" class="status subtle">WEB</div><button id="forgetSession" class="status host-clear hidden">清除本機聯機資料</button></div>
     </header>
     <div id="reconnectBanner" class="reconnect-banner hidden">連線暫時中斷，伺服器會保留你的席位並自動重新連線。</div>
@@ -40,6 +40,11 @@
       <aside class="card side-card party-panel"><details class="mobile-collapsible" open><summary class="section-title">MY SINNER / 我的罪人</summary><div id="mySinner"></div></details><details class="mobile-collapsible team-collapsible"><summary class="section-title">PARTY / 隊伍狀態</summary><div id="teamInfo" class="muted">等待玩家加入。</div></details></aside>
     </section>
   </main>
-  <script src="/socket.io/socket.io.js"></script><script src="/js/multiplayer.js"></script><script src="/js/combat-enhancements.js"></script><script src="/js/v083-ui.js"></script><script src="/js/v09-ui.js"></script><script src="/js/v10-ui.js"></script><script src="/js/v10-fixes.js"></script><script src="/js/v11-combat-ui.js"></script><script src="/js/v12-combat-state.js"></script><script src="/js/v13-feedback-audio.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/multiplayer.js"></script>
+  <script src="/js/combat-enhancements.js"></script>
+  <script src="/js/ui/expedition-ui.js"></script>
+  <script src="/js/combat/combat-ui.js"></script>
+  <script src="/js/audio/audio-manager.js"></script>
 </body>
 </html>
