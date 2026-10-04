@@ -44,6 +44,7 @@ function resolveEvent(room){
   }else{
     const check=resolveEventCheck(room,room.currentEvent,room.votes,active),outcome=outcomeForDegree(room,check.degree,check.balance),loot=grantEventReward(room,room.currentEvent,check);const baseText=['critical','success','mixed'].includes(check.degree)?room.currentEvent.success:room.currentEvent.failure,lootText=loot?` ${loot.playerName} 取得「${loot.item.name}」。`:'';room.eventResult={degree:check.degree,scope:'group',die:check.die,modifier:check.modifier,total:check.total,dc:check.dc,text:`${baseText}${lootText}`,contributions:check.contributions,loot,...outcome};
   }
+  room.eventResult.cardLootByPlayer={};for(const p of active.filter(p=>p.hp>0)){const degree=room.eventResult.degree==='personal'?room.eventResult.personalResults.find(r=>r.playerId===p.id)?.degree:room.eventResult.degree;if(['critical','success','mixed'].includes(degree)&&Math.random()<(degree==='critical'?.5:degree==='success'?.3:.15)){const card=grantCard(p,randomFrom(COLLECTIBLE));if(card)room.eventResult.cardLootByPlayer[p.id]=card;}}
   markCurrentNodeResolved(room);tickStatuses(room.players,{combatRound:false});checkDefeat(room);if(room.phase==='exploration')primeFogAfterResolution(room);persist();return room.eventResult;
 }
 function advanceChapterAfterBoss(room){if(room.exploration.position!==BOSS_INDEX||room.eventResult?.degree!=='boss-victory')return false;if(beginNextArea(room)){prepareInitialRoute(room);return true;}room.phase='victory';persist();return true;}

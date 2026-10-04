@@ -54,4 +54,5 @@ const EQUIPMENT=[
   {id:'eq-vector-lens',name:'向量預測鏡',slot:'accessory',rarity:'rare',mods:{observe:3,mobility:2,stability:-2},description:'觀察 +3、機動 +2、穩定 -2。'}
 ];
 
+const armorProfiles=[[12,0],[6,4],[8,3],[10,1],[18,3],[12,7],[10,8],[24,0],[20,8],[16,10],[28,4],[12,14]];EQUIPMENT.filter(x=>x.slot==='armor').forEach((x,i)=>{const [maxHp,startShield]=armorProfiles[i];x.mods={};x.survival={maxHp,startShield};x.description=`生命上限 +${maxHp}；每場戰鬥初始護盾 +${startShield}。`;});
 module.exports={EQUIPMENT,STARTER_WEAPONS,DAMAGE_TYPES:DAMAGE_TYPE_LABELS,starterWeaponFor};

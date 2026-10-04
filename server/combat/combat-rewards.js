@@ -18,7 +18,6 @@ function finishVictory(room){
   const hasNextArea=room.areaIndex<room.selectedAreas.length-1;
   room.relicChoices={};room.eventResult.lootByPlayer={};room.eventResult.cardLootByPlayer={};
   for(const player of room.players.filter(p=>p.connected&&p.hp>0)){
-    if(!(combat.kind==='boss'&&!hasNextArea)&&Math.random()<(combat.kind==='combat'?.45:.8)){const card=grantCard(player,pickReward(COLLECTIBLE,room.exploration.danger,player,room.areaIndex));if(card)room.eventResult.cardLootByPlayer[player.id]=card;}
     const relicChance=combat.kind==='combat'?.18:1;
     if(Math.random()<relicChance && !(combat.kind==='boss'&&!hasNextArea)){
       const choices=choicesForPlayer(player,combat.kind,3).map(r=>r.id);
@@ -28,6 +27,7 @@ function finishVictory(room){
     if(Math.random()<equipmentChance){const item=addEquipment(player,pickReward(EQUIPMENT,room.exploration.danger,player,room.areaIndex));room.eventResult.lootByPlayer[player.id]={type:'equipment',item};}
   }
 
+  require('../cards/card-rewards').createChoices(room);
   if(combat.kind==='boss'){if(hasNextArea)room.eventResult.nextAreaAvailable=true;else room.phase='victory';}
   return room.eventResult;
 }

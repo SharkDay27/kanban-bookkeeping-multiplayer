@@ -70,8 +70,8 @@
   function render(room){
     if(playing)return;ensure();const c=room?.combat;if(!c)return;const pending=!!c.lastResolution?.serial&&c.lastResolution.serial!==lastSerial;const ended=!!c.ended||['combat-victory','boss-victory'].includes(room.eventResult?.degree),strip=document.getElementById('combatStatusStrip');if(strip){strip.innerHTML=ended?'<span>戰鬥結束</span>':`<span>${c.kind==='boss'?'BOSS':c.kind==='elite'?'精英戰':'戰鬥中'}</span><b>ROUND ${Number(c.round||1)}</b><em>敵方 ${alive(c).length}</em>`;strip.classList.toggle('ended',ended);}
     document.getElementById('combatStage')?.classList.add('hidden');
-    if(!ended||pending){renderEnemies(room);renderTeam(room);}if(!ended){renderActions(room);renderConfirm(room);}['combatEnemyRoster','combatOptions','teamActions','confirmBar','roundProgress'].forEach(id=>document.getElementById(id)?.classList.toggle('combat-ended-hidden',ended&&!pending));document.querySelectorAll('#combatPanel .action-prompt').forEach(el=>el.classList.toggle('combat-ended-hidden',ended&&!pending));
-    renderLog(room);renderResult(room);renderSkills(room);
+    if(!ended||pending){renderEnemies(room);renderTeam(room);}if(!ended){renderActions(room);renderConfirm(room);}['combatEnemyRoster','combatOptions','teamActions','confirmBar','roundProgress','combatStatusStrip','battleLog','combatLog'].forEach(id=>document.getElementById(id)?.classList.toggle('combat-ended-hidden',ended&&!pending));document.querySelectorAll('#combatPanel .action-prompt').forEach(el=>el.classList.toggle('combat-ended-hidden',ended&&!pending));
+    renderLog(room);document.getElementById('combatLog')?.closest('details')?.classList.toggle('combat-ended-hidden',ended&&!pending);renderResult(room);renderSkills(room);
     if(c.kind==='boss'&&!c._clientBossWarned){c._clientBossWarned=true;window.KBMCombatSounds?.bossWarning();}
     const r=c.lastResolution;if(r?.serial&&r.serial!==lastSerial){document.body.classList.add('battle-playing');lastSerial=r.serial;setTimeout(()=>playResolution(room,r),100);}
   }
