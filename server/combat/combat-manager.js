@@ -16,10 +16,11 @@ function assertCombatOpen(room){if(!room?.combat)throw new Error('目前不在�
 function selectCombatAction(room,player,{actionId,targetId,partId}){
   assertCombatOpen(room);const combat=room.combat,selected=combat.selections?.[player.id];if(selected?.confirmed)throw new Error('請先取消確認再修改行動。');
   const action=actionForPlayer(player,actionId);if(!action)throw new Error('無效的戰鬥行動。');
-  if(action.id!=='attack'&&!BASIC_ACTIONS.some(a=>a.id===action.id)&&!(player.learnedSkills||[]).includes(action.id))throw new Error('尚未學會此技能。');
+  const isBasic=BASIC_ACTIONS.some(a=>a.id===action.id)||action.kind==='weapon-attack';
+  if(!isBasic&&!(player.learnedSkills||[]).includes(action.id))throw new Error('尚未學會此技能。');
   const cooldown=Number(combat.cooldowns?.[player.id]?.[action.id]||0);if(cooldown>0)throw new Error(`技能冷卻中，剩餘 ${cooldown} 回合。`);
   const target=ensureTarget(combat,targetId),part=findPart(target,partId);
-  combat.selections[player.id]={actionId:action.id,targetId:target?.instanceId||null,partId:part?.id||null,confirmed:false,preview:estimateDamage(room,player,action,target,part),label:action.label||action.name};
+  combat.selections[player.id]={actionId:action.id,targetId:target?.instanceId||null,partId:part?.id||null,confirmed:false,preview:estimateDamage(room,player,action,target,part),label:action.label||action.name,damageType:action.damageType||null};
   persist();return combat.selections[player.id];
 }
 function cancelCombatConfirm(room,player){assertCombatOpen(room);const selection=room.combat.selections?.[player.id];if(selection)selection.confirmed=false;persist();}
