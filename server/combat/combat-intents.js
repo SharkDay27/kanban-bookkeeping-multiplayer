@@ -1,8 +1,10 @@
 const {randomFrom}=require('../expedition/danger-system');
 const {aliveEnemies,primaryEnemy}=require('./combat-enemies');
+const {canSummon}=require('./combat-summon');
 
 function rollIntent(enemy,combat){
   const base=Math.max(2,Math.round(enemy.attack*(enemy.role==='boss'?.78:enemy.role==='elite'?.72:.62))),parts=(enemy.parts||[]).filter(p=>!p.destroyed),canCharge=parts.some(p=>p.name==='攻擊部位');
+  if(canSummon(combat,enemy)&&combat.round>=2&&Math.random()<(enemy.role==='boss'?.2:.13))return {type:'summon',label:'呼叫增援',damage:0,target:'none',description:'下一個敵方行動會召喚 1 名手下；本次召喚本身不造成直接傷害。'};
   if(canCharge&&combat.round%3===0&&enemy.role!=='minion'){
     const p=parts.find(x=>x.name==='攻擊部位');return {type:'charged',label:'蓄力部位攻擊',damage:Math.round(base*1.7),target:'all',partId:p.id,blockRequired:Math.max(8,Math.round(p.maxHp*.48)),description:'在本回合對指定部位造成足夠傷害即可阻擋。'};
   }
