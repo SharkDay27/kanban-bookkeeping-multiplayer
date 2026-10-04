@@ -1,10 +1,8 @@
-/* Canonical stylesheet entrypoint. Versioned styles are temporary compatibility layers. */
+/* Canonical stylesheet entrypoint. */
 @import url('/css/multiplayer.css');
 @import url('/css/combat-enhancements.css');
-@import url('/css/v083.css');
-@import url('/css/v09.css');
-@import url('/css/v10.css');
-@import url('/css/v11.css');
-@import url('/css/v12.css');
-@import url('/css/v13.css');
+@import url('/css/expedition.css');
+@import url('/css/combat.css');
+@import url('/css/inventory.css');
 @import url('/css/audio.css');
+@import url('/css/responsive.css');
