@@ -2,6 +2,7 @@ const {
   AREAS,EVENTS,NORMAL_ENEMIES,ELITE_ENEMIES,BOSSES,EQUIPMENT,CONSUMABLES,STATUS_EFFECTS
 }=require('../../shared/game-data');
 const {playerLootBonus}=require('../status/status-manager');
+const {weightForItem}=require('../builds/build-affinity');
 
 const CHAPTER_BALANCE=[
   {enemyHp:.78,enemyAtk:.76,enemyDef:-1,eventDc:-2,eventDamage:.70,dangerGain:.65,eliteBias:-5,bossAtk:.82},
@@ -14,43 +15,14 @@ function randomFrom(list){return list[Math.floor(Math.random()*list.length)];}
 function weightedPick(entries){const usable=entries.filter(e=>Number(e.weight)>0),total=usable.reduce((s,e)=>s+Number(e.weight),0);if(!usable.length||total<=0)return entries[0]?.value;let roll=Math.random()*total;for(const entry of usable){roll-=Number(entry.weight);if(roll<=0)return entry.value;}return usable[usable.length-1].value;}
 function areaOf(room){return AREAS.find(a=>a.id===room.areaId)||AREAS[0];}
 function rarityWeight(rarity,danger,lootBonus=0,chapter=0){const effective=Math.max(0,Math.min(10,Number(danger||0)+chapter*1.5));if(rarity==='rare')return 5+effective*7+lootBonus*100;if(rarity==='uncommon')return 28+effective*3;return Math.max(10,67-effective*6);}
-function pickReward(pool,danger,player,chapter){return weightedPick(pool.map(item=>({value:item,weight:rarityWeight(item.rarity||'common',danger,playerLootBonus(player),chapter)})));}
-function nodeWeights(room,index=0){
-  const danger=Math.max(0,Math.min(8,room.exploration.danger)),chapter=room.areaIndex||0,b=balance(room),safety=chapter===0?7:chapter===1?0:-4,early=index<=2,late=index>=9;
-  return [
-    {value:'event',weight:38-danger*2.2+safety+(early?6:0)},
-    {value:'combat',weight:24+danger*2+chapter*3+(late?4:0)},
-    {value:'supply',weight:18-danger*.5+(chapter===0?4:0)+(early?3:0)},
-    {value:'rest',weight:14-danger*.9+(chapter===0?4:chapter===1?1:0)+(late?-2:0)},
-    {value:'shop',weight:index===0?0:8+(index>=4?3:0)+(chapter===0?1:0)},
-    {value:'elite',weight:index<3?0:Math.max(2,3+danger*2.6+b.eliteBias+(late?4:0))}
-  ];
-}
+function pickReward(pool,danger,player,chapter){return weightedPick(pool.map(item=>({value:item,weight:weightForItem(player,item,rarityWeight(item.rarity||'common',danger,playerLootBonus(player),chapter))})));}
+function nodeWeights(room,index=0){const danger=Math.max(0,Math.min(8,room.exploration.danger)),chapter=room.areaIndex||0,b=balance(room),safety=chapter===0?7:chapter===1?0:-4,early=index<=2,late=index>=9;return [{value:'event',weight:38-danger*2.2+safety+(early?6:0)},{value:'combat',weight:24+danger*2+chapter*3+(late?4:0)},{value:'supply',weight:18-danger*.5+(chapter===0?4:0)+(early?3:0)},{value:'rest',weight:14-danger*.9+(chapter===0?4:chapter===1?1:0)+(late?-2:0)},{value:'shop',weight:index===0?0:8+(index>=4?3:0)+(chapter===0?1:0)},{value:'elite',weight:index<3?0:Math.max(2,3+danger*2.6+b.eliteBias+(late?4:0))}];}
 function chooseNextNodeType(room,index=0,exclude=[]){const blocked=new Set(exclude);return weightedPick(nodeWeights(room,index).map(entry=>({...entry,weight:blocked.has(entry.value)?0:entry.weight})));}
 function fallbackEvent(area){return {area:area.id,id:`fallback-${area.id}-${Date.now()}`,name:`${area.name}：未確認異常`,theme:'unknown',scope:'group',difficulty:5,description:'前方出現尚未歸檔的異常徵兆。',success:'你們確認安全路線並繼續深入。',failure:'判斷失誤讓局勢惡化。'};}
 function pickEvent(room,eventOptions){const area=areaOf(room),pool=EVENTS.filter(e=>e.area===area.id);if(!pool.length){const f=fallbackEvent(area);return {...f,sceneType:'event',options:eventOptions(f)};}const target=2+room.exploration.danger*1.2+(room.areaIndex||0)*2,event=weightedPick(pool.map(e=>({value:e,weight:Math.max(2,22-Math.abs(Number(e.difficulty||0)-target)*3)})));return {...event,scope:event.scope||'group',sceneType:'event',options:eventOptions(event)};}
 function ensureEncounterMemory(room){room.exploration=room.exploration||{};if(!Array.isArray(room.exploration.seenEliteIds))room.exploration.seenEliteIds=[];if(typeof room.exploration.bossId!=='string')room.exploration.bossId='';return room.exploration;}
-function pickEnemy(room,type){
-  const ex=ensureEncounterMemory(room),source=type==='boss'?BOSSES:type==='elite'?ELITE_ENEMIES:NORMAL_ENEMIES,areaPool=source.filter(e=>e.area===room.areaId),pool=areaPool.length?areaPool:source;
-  if(type==='boss'){
-    let chosen=pool.find(e=>e.id===ex.bossId);
-    if(!chosen){chosen=randomFrom(pool);ex.bossId=chosen?.id||'';}
-    return {...chosen};
-  }
-  if(type==='elite'){
-    const unseen=pool.filter(e=>!ex.seenEliteIds.includes(e.id));
-    if(unseen.length){const chosen=randomFrom(unseen);ex.seenEliteIds.push(chosen.id);return {...chosen};}
-    const normalPool=NORMAL_ENEMIES.filter(e=>e.area===room.areaId);
-    const base=randomFrom(normalPool.length?normalPool:NORMAL_ENEMIES);
-    return {...base,id:`${base.id}-veteran-${Date.now()}`,name:`${base.name}・變異強敵`,hp:Math.round(base.hp*1.75),attack:Math.round(base.attack*1.35),defense:base.defense+2,trait:`精英已全部遭遇，本次出現高危變異體。${base.trait||''}`};
-  }
-  return {...randomFrom(pool)};
-}
-function scaledEnemy(room,type){
-  const base=pickEnemy(room,type),danger=room.exploration.danger,b=balance(room),partyCount=Math.max(1,Math.min(4,room.players.filter(p=>p.connected).length||room.players.length||1)),pScale=PARTY_SCALE[partyCount]||PARTY_SCALE[4];
-  const hpDanger=1+danger*(type==='boss'?.06:type==='elite'?.055:.04),hpMult=b.enemyHp*hpDanger*pScale.hp,atkMult=(type==='boss'?b.bossAtk:b.enemyAtk)*(1+danger*.035)*pScale.atk;
-  return {...base,hp:Math.max(12,Math.round(base.hp*hpMult)),attack:Math.max(3,Math.round(base.attack*atkMult)),defense:Math.max(7,Math.round(base.defense+b.enemyDef+danger*.3)),partyScale:{count:partyCount,hp:pScale.hp,atk:pScale.atk}};
-}
+function pickEnemy(room,type){const ex=ensureEncounterMemory(room),source=type==='boss'?BOSSES:type==='elite'?ELITE_ENEMIES:NORMAL_ENEMIES,areaPool=source.filter(e=>e.area===room.areaId),pool=areaPool.length?areaPool:source;if(type==='boss'){let chosen=pool.find(e=>e.id===ex.bossId);if(!chosen){chosen=randomFrom(pool);ex.bossId=chosen?.id||'';}return {...chosen};}if(type==='elite'){const unseen=pool.filter(e=>!ex.seenEliteIds.includes(e.id));if(unseen.length){const chosen=randomFrom(unseen);ex.seenEliteIds.push(chosen.id);return {...chosen};}const normalPool=NORMAL_ENEMIES.filter(e=>e.area===room.areaId),base=randomFrom(normalPool.length?normalPool:NORMAL_ENEMIES);return {...base,id:`${base.id}-veteran-${Date.now()}`,name:`${base.name}・變異強敵`,hp:Math.round(base.hp*1.75),attack:Math.round(base.attack*1.35),defense:base.defense+2,trait:`精英已全部遭遇，本次出現高危變異體。${base.trait||''}`};}return {...randomFrom(pool)};}
+function scaledEnemy(room,type){const base=pickEnemy(room,type),danger=room.exploration.danger,b=balance(room),partyCount=Math.max(1,Math.min(4,room.players.filter(p=>p.connected).length||room.players.length||1)),pScale=PARTY_SCALE[partyCount]||PARTY_SCALE[4];const hpDanger=1+danger*(type==='boss'?.06:type==='elite'?.055:.04),hpMult=b.enemyHp*hpDanger*pScale.hp,atkMult=(type==='boss'?b.bossAtk:b.enemyAtk)*(1+danger*.035)*pScale.atk;return {...base,hp:Math.max(12,Math.round(base.hp*hpMult)),attack:Math.max(3,Math.round(base.attack*atkMult)),defense:Math.max(7,Math.round(base.defense+b.enemyDef+danger*.3)),partyScale:{count:partyCount,hp:pScale.hp,atk:pScale.atk}};}
 function pickPositiveStatus(room,player){const danger=room.exploration.danger,chapter=room.areaIndex||0,buffs=STATUS_EFFECTS.filter(s=>s.type==='buff');return weightedPick(buffs.map(s=>({value:s,weight:rarityWeight(s.rarity||'common',danger,playerLootBonus(player),chapter)})));}
 function rewardChoice(room,player,{bonusDanger=0,equipmentBias=0}={}){const danger=Math.min(10,room.exploration.danger+bonusDanger),chapter=room.areaIndex||0,equipmentChance=Math.min(.78,.32+danger*.05+chapter*.04+equipmentBias);if(Math.random()<equipmentChance)return {...pickReward(EQUIPMENT,danger,player,chapter)};return {...pickReward(CONSUMABLES,danger,player,chapter)};}
 module.exports={CHAPTER_BALANCE,PARTY_SCALE,balance,randomFrom,weightedPick,areaOf,rarityWeight,pickReward,nodeWeights,chooseNextNodeType,pickEvent,pickEnemy,scaledEnemy,pickPositiveStatus,rewardChoice};
