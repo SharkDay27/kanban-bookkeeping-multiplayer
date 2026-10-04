@@ -9,6 +9,7 @@ const CHAPTER_BALANCE=[
   {enemyHp:1,enemyAtk:1,enemyDef:0,eventDc:0,eventDamage:1,dangerGain:1,eliteBias:0,bossAtk:1},
   {enemyHp:1.22,enemyAtk:1.18,enemyDef:2,eventDc:2,eventDamage:1.2,dangerGain:1.15,eliteBias:7,bossAtk:1.18}
 ];
+const PARTY_SCALE={1:{hp:.52,atk:.78},2:{hp:.74,atk:.88},3:{hp:.9,atk:.95},4:{hp:1,atk:1}};
 
 function balance(room){ return CHAPTER_BALANCE[Math.max(0,Math.min(2,room.areaIndex||0))]; }
 function randomFrom(list){ return list[Math.floor(Math.random()*list.length)]; }
@@ -65,13 +66,16 @@ function pickEnemy(room,type){
 }
 function scaledEnemy(room,type){
   const base=pickEnemy(room,type),danger=room.exploration.danger,b=balance(room);
+  const partyCount=Math.max(1,Math.min(4,room.players.filter((p)=>p.connected).length||room.players.length||1));
+  const pScale=PARTY_SCALE[partyCount]||PARTY_SCALE[4];
   const hpDanger=1+danger*(type==='boss'?.06:type==='elite'?.055:.04);
-  const hpMult=b.enemyHp*hpDanger;
-  const atkMult=(type==='boss'?b.bossAtk:b.enemyAtk)*(1+danger*.035);
+  const hpMult=b.enemyHp*hpDanger*pScale.hp;
+  const atkMult=(type==='boss'?b.bossAtk:b.enemyAtk)*(1+danger*.035)*pScale.atk;
   return {...base,
     hp:Math.max(12,Math.round(base.hp*hpMult)),
     attack:Math.max(3,Math.round(base.attack*atkMult)),
-    defense:Math.max(7,Math.round(base.defense+b.enemyDef+danger*.3))
+    defense:Math.max(7,Math.round(base.defense+b.enemyDef+danger*.3)),
+    partyScale:{count:partyCount,hp:pScale.hp,atk:pScale.atk}
   };
 }
 function pickPositiveStatus(room,player){
@@ -87,6 +91,6 @@ function rewardChoice(room,player,{bonusDanger=0,equipmentBias=0}={}){
 }
 
 module.exports={
-  CHAPTER_BALANCE,balance,randomFrom,weightedPick,areaOf,rarityWeight,pickReward,
+  CHAPTER_BALANCE,PARTY_SCALE,balance,randomFrom,weightedPick,areaOf,rarityWeight,pickReward,
   chooseNextNodeType,revealNode,pickEvent,scaledEnemy,pickPositiveStatus,rewardChoice
 };
