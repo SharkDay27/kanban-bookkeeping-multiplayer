@@ -20,7 +20,7 @@
     details.querySelectorAll('[data-equip-index]').forEach(b=>b.onclick=()=>action('equipment:equip',{roomId:room.id,index:Number(b.dataset.equipIndex)}));
   }
   function bindItems(room,root){
-    root.querySelectorAll('[data-item-index]').forEach(b=>{b.onclick=()=>action('item:use',{roomId:room.id,slot:Number(b.dataset.itemIndex)});});
+    root.querySelectorAll('[data-item-index]').forEach(b=>{const item=room.players.find(p=>p.id===state.selfId)?.inventory?.[Number(b.dataset.itemIndex)];if(item?.kind==='guard'&&(!room.combat||room.combat.ended)){b.disabled=true;b.title='護盾道具僅限戰鬥使用';}b.onclick=()=>action('item:use',{roomId:room.id,slot:Number(b.dataset.itemIndex)});});
   }
   function apply(room){const player=room?.players?.find(p=>p.id===state.selfId),root=document.getElementById('mySinner');if(!player||!root||!player.sinnerId)return;renderEquipped(room,player,root);renderInventory(room,player,root);bindItems(room,root);}
   socket.on('room:update',room=>requestAnimationFrame(()=>apply(room)));
