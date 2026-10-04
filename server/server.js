@@ -4,7 +4,7 @@ const express=require('express');
 const {Server}=require('socket.io');
 const {AREAS,SINNERS,STATUS_EFFECTS,SINNER_SKILLS}=require('../shared/game-data');
 const {createRoom,joinRoom,resumeRoom,restoreRoom,markDisconnected,removeExpiredPlayer,toggleArea,setSinner,publicRoom,rooms,RECONNECT_GRACE_MS,signRecovery,recoverySnapshot,persist,loadPersistedRooms,resetForStart}=require('./room-manager');
-const {selectCombatAction,confirmCombatAction,cancelCombatConfirm,useConsumable}=require('./runtime-combat-v10');
+const {selectCombatAction,confirmCombatAction,cancelCombatConfirm,useConsumable}=require('./runtime-combat-v12');
 const {enterCurrentNode,resolveEvent,advanceChapterAfterBoss}=require('./runtime-expedition-v09');
 const {prepareInitialRoute,resolveRouteVote,primeFogAfterResolution}=require('./runtime-route');
 const {buyShopItem,shopReady}=require('./runtime-shop');
@@ -12,7 +12,7 @@ const {learnSkill}=require('./runtime-skills');
 
 const PORT=Number(process.env.PORT||3000);const app=express();const server=http.createServer(app);const io=new Server(server,{cors:{origin:'*'}});
 loadPersistedRooms();app.use(express.json({limit:'1mb'}));app.use(express.static(path.join(__dirname,'..','client')));
-app.get('/health',(_req,res)=>res.json({ok:true,rooms:rooms.size,version:'0.10.0'}));
+app.get('/health',(_req,res)=>res.json({ok:true,rooms:rooms.size,version:'0.12.0'}));
 app.get('/api/game-data',(_req,res)=>res.json({areas:AREAS,sinners:SINNERS,statusEffects:STATUS_EFFECTS,sinnerSkills:SINNER_SKILLS}));
 function getContext(room,socket){const player=room?.players.find(p=>p.socketId===socket.id&&p.connected);if(!room||!player)throw new Error('你不在這個房間。');return player;}
 function sessionPayload(room,player){return {ok:true,room:publicRoom(room),selfId:player.id,reconnectToken:player.reconnectToken,recoveryToken:player.id===room.hostId?signRecovery(room):null,recoverySnapshot:player.id===room.hostId?recoverySnapshot(room):null,gameData:{areas:AREAS,sinners:SINNERS,statusEffects:STATUS_EFFECTS,sinnerSkills:SINNER_SKILLS}};}
@@ -39,4 +39,4 @@ io.on('connection',(socket)=>{
   socket.on('event:next',({roomId},ack=()=>{})=>{try{const {room,player}=withRoom(roomId,socket);if(player.id!==room.hostId)throw new Error('只有房主可以推進章節。');if(!room.eventResult?.nextAreaAvailable)throw new Error('現在請由隊伍投票選擇下一節點。');advanceChapterAfterBoss(room);emitRoom(room);ack({ok:true});}catch(e){ack({ok:false,error:e.message});}});
   socket.on('disconnect',()=>{const result=markDisconnected(socket.id);if(!result?.room)return;emitRoom(result.room);const roomId=result.room.id,playerId=result.player.id,disconnectedAt=result.player.disconnectedAt;setTimeout(()=>{const removed=removeExpiredPlayer(roomId,playerId,disconnectedAt);if(removed?.room)emitRoom(removed.room);},RECONNECT_GRACE_MS+1000);});
 });
-server.listen(PORT,()=>console.log(`Multiplayer v0.10.0: http://localhost:${PORT}`));
+server.listen(PORT,()=>console.log(`Multiplayer v0.12.0: http://localhost:${PORT}`));
