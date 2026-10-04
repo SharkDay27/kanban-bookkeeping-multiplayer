@@ -4,7 +4,7 @@ const { ELITE_ENEMIES } = require('./elite-enemies');
 const { BOSSES } = require('./bosses');
 const { SUPPLIES } = require('./supplies');
 const { REST_NODES } = require('./rest');
-const { EQUIPMENT } = require('./equipment');
+const { EQUIPMENT, STARTER_WEAPONS, DAMAGE_TYPES, starterWeaponFor } = require('./equipment');
 const { CONSUMABLES } = require('./consumables');
 const { STATUS_EFFECTS, getStatus } = require('./status-effects');
 const { SHOP_RULES, SHOP_PRICE_BASE, shopBasePrice } = require('./shop');
@@ -36,4 +36,4 @@ const SINNERS = [
   { id:'13', name:'格里高爾', stats:{combat:7,observe:6,mobility:5,stability:9}, specialty:'生存韌性' }
 ];
 
-module.exports = { AREAS, SINNERS, EVENTS, NORMAL_ENEMIES, ELITE_ENEMIES, BOSSES, SUPPLIES, REST_NODES, EQUIPMENT, CONSUMABLES, STATUS_EFFECTS, getStatus, SHOP_RULES, SHOP_PRICE_BASE, shopBasePrice, SINNER_SKILLS, skillsForSinner, getSinnerSkill };
+module.exports = { AREAS, SINNERS, EVENTS, NORMAL_ENEMIES, ELITE_ENEMIES, BOSSES, SUPPLIES, REST_NODES, EQUIPMENT, STARTER_WEAPONS, DAMAGE_TYPES, starterWeaponFor, CONSUMABLES, STATUS_EFFECTS, getStatus, SHOP_RULES, SHOP_PRICE_BASE, shopBasePrice, SINNER_SKILLS, skillsForSinner, getSinnerSkill };
