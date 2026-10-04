@@ -5,8 +5,8 @@ function grantShield(player,amount){const value=Math.max(0,Math.round(Number(amo
 function applySkillUtility(room,player,action,target,dealt){
   if(action.shield)grantShield(player,action.shield);
   if(action.teamShield)for(const ally of room.players.filter(p=>p.hp>0))grantShield(ally,action.teamShield);
-  if(action.buff)addStatus(player,action.buff,2);
-  if(action.statusId&&target)target.statuses=(target.statuses||[]).concat([{id:action.statusId,remaining:2}]);
+  if(action.buff)addStatus(player,action.buff,Number(action.buffDuration||2));
+  if(action.statusId&&target)target.statuses=(target.statuses||[]).concat([{id:action.statusId,remaining:Number(action.statusDuration||2)}]);
   if(action.defenseDown&&target)target.defensePenalty=Math.min(8,Number(target.defensePenalty||0)+action.defenseDown);
   if(action.attackDown&&target)target.attackMultiplier=Math.max(.45,Number(target.attackMultiplier||1)*(1-action.attackDown));
   if(action.enemyDamageMult)for(const enemy of aliveEnemies(room.combat))enemy.attackMultiplier=Math.max(.45,Number(enemy.attackMultiplier||1)*action.enemyDamageMult);
