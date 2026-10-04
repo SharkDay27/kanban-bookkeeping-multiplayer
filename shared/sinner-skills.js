@@ -2,14 +2,14 @@ const S=(id,sinnerId,name,cost,kind,stat,power,description,extra={})=>({id,sinne
 
 const SINNER_SKILLS=[
   // 李箱
-  S('ys-crow','01','烏瞰刀',55,'team-buff','observe',1.15,'攻擊後提高全隊下一回合的觀察與命中。',{buff:'focus'}),
+  S('ys-crow','01','烏瞰刀',55,'team-buff','observe',1.15,'提高全隊下一回合的觀察。',{buff:'focus'}),
   S('ys-bygone','01','往昔',65,'debuff','observe',1.05,'削弱目標防禦，若目標已有弱點則追加傷害。',{defenseDown:2}),
   S('ys-match','01','第四根火柴',75,'heavy','combat',1.65,'高傷害單體攻擊，對已受傷目標傷害提高。'),
   S('ys-cairn','01','許願石',70,'guard-break','stability',1.2,'攻擊部位並提高破壞／阻擋檢定效率。',{breakBonus:6}),
   S('ys-dimension','01','次元撕裂者',90,'pierce','mobility',1.45,'無視部分防禦並可直接攻擊後排或部位。',{ignoreDefense:3}),
   S('ys-sunshower','01','狐雨',100,'aoe','observe',1.0,'對所有敵人造成傷害並有機率施加動搖。',{statusId:'shaken'}),
   // 浮士德
-  S('faust-emitter','02','表象放射器',55,'team-buff','observe',.9,'攻擊後提升全隊下一回合的判定穩定度。',{buff:'steady-mind'}),
+  S('faust-emitter','02','表象放射器',55,'team-buff','observe',.9,'提升全隊下一回合的判定穩定度。',{buff:'steady-mind'}),
   S('faust-nail','02','詛咒之釘',70,'debuff','observe',1.15,'標記目標，使其承受更多傷害。',{statusId:'marked'}),
   S('faust-92','02','9:2',75,'aoe','combat',1.0,'對所有敵人造成中等傷害。'),
   S('faust-lasso','02','套索',70,'control','observe',1.05,'降低目標攻擊並提高部位破壞效率。',{attackDown:.15,breakBonus:4}),
@@ -33,7 +33,7 @@ const SINNER_SKILLS=[
   S('meur-chain','05','他人之鎖',55,'control','stability',1.0,'降低目標攻擊與防禦，自己獲得防護。',{attackDown:.12,defenseDown:1,shield:8}),
   S('meur-regret','05','悔恨',70,'guard-break','combat',1.25,'對部位與防禦型敵人造成更多破壞。',{breakBonus:7}),
   S('meur-capote','05','鬥牛披風',75,'heavy','combat',1.5,'穩定的高傷害單體攻擊。'),
-  S('meur-pursuance','05','執行',90,'heal','stability',.9,'攻擊後治療最低 HP 隊友。',{heal:24}),
+  S('meur-pursuance','05','執行',90,'heal','stability',.9,'恢復自身 HP。',{heal:24}),
   S('meur-scream','05','電擊尖叫',80,'debuff','stability',1.1,'削弱敵人下一回合傷害。',{enemyDamageMult:.78}),
   S('meur-wallop','05','螺絲鬆動重擊',100,'heavy','combat',1.8,'極高單體傷害，但自身下回合機動下降。',{selfStatus:'slowed'}),
   // 鴻璐
@@ -73,7 +73,7 @@ const SINNER_SKILLS=[
   S('sin-scream','11','電擊尖叫',95,'debuff','combat',1.25,'攻擊並大幅降低目標下一回合傷害。',{enemyDamageMult:.72}),
   // 奧提斯
   S('outis-pathos','12','To Páthos Máthos',55,'heavy','combat',1.45,'可靠的高傷害單體攻擊。'),
-  S('outis-holiday','12','假日',65,'team-buff','stability',.9,'攻擊後提高隊伍穩定。',{buff:'steady-mind'}),
+  S('outis-holiday','12','假日',65,'team-buff','stability',.9,'提高隊伍穩定。',{buff:'steady-mind'}),
   S('outis-ebony','12','黑檀枝幹',75,'aoe','combat',1.05,'攻擊所有敵人並降低防禦。',{defenseDown:1}),
   S('outis-sunshower','12','狐雨',85,'aoe-debuff','observe',1.0,'攻擊全體並施加動搖。',{statusId:'shaken'}),
   S('outis-dimension','12','次元撕裂者',95,'pierce','mobility',1.45,'無視部分防禦並可直接攻擊部位。',{ignoreDefense:3}),
