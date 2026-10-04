@@ -53,7 +53,7 @@
   async function playResolution(room,res){
     if(playing)return;playing=true;document.body.classList.add('battle-playing');document.getElementById('combatPanel')?.classList.add('combat-resolving');
     try{
-      const clashes=[...(res.players||[]).flatMap(rec=>(rec.clashes||[]).map(x=>({...x,name:rec.sinner+' · '+rec.action+' → '+x.target,color:rec.sinnerColor}))),...(res.enemyResults||[]).flatMap(rec=>(rec.clashes||[]).map(x=>({...x,color:x.sinnerColor,name:(room.combat.enemies.find(e=>e.instanceId===rec.enemyId)?.name||'敵方')+' → '+x.target})))];if(clashes.length)await window.KBMDice?.playClashes(clashes);
+      const clashes=[...(res.players||[]).flatMap(rec=>(rec.clashes||[]).map(x=>({...x,name:rec.sinner+' · '+rec.action+' → '+x.target,color:rec.sinnerColor}))),...(res.enemyResults||[]).flatMap(rec=>(rec.clashes||[]).map(x=>({...x,color:'#111111',attackerName:room.combat.enemies.find(e=>e.instanceId===rec.enemyId)?.name||'敵方',targetName:x.target,targetColor:x.sinnerColor,name:(room.combat.enemies.find(e=>e.instanceId===rec.enemyId)?.name||'敵方')+' → '+x.target})))];if(clashes.length)await window.KBMDice?.playClashes(clashes);
       const rolledPlayers=new Set();
       for(const rec of res.players||[]){
         if(!rec.cardBased&&Number(rec.die)>0)await window.KBMDice?.play([{name:rec.sinner,die:rec.die,total:rec.total}],rec.cardBased?'卡牌傷害擲骰':'戰鬥擲骰');

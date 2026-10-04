@@ -21,7 +21,7 @@
   const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   for(const r of records){if(!animations)break;
    const panel=document.createElement('section');panel.className='dice-toast binary-clash';panel.setAttribute('role','status');panel.style.setProperty('--dice-color',r.color||'#6F92A8');
-   const title=document.createElement('strong');title.textContent=r.name;panel.appendChild(title);
+   const title=document.createElement('strong');if(r.targetName){title.appendChild(document.createTextNode((r.attackerName||'敵方')+' → '));const target=document.createElement('span');target.className='dice-target-name';target.textContent=r.targetName;target.style.color=r.targetColor||'#6F92A8';title.appendChild(target);}else title.textContent=r.name;panel.appendChild(title);
    const trays=[];
    for(const [label,rolls] of [['攻擊骰',r.attackRolls],['防禦骰',r.defenseRolls]]){
     const side=document.createElement('div');side.className='binary-side';const h=document.createElement('small');h.textContent=label;const tray=document.createElement('div');tray.className='binary-tray';
