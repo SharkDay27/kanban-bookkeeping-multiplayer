@@ -30,7 +30,7 @@ function cooldownReduction(player){return Math.round(effectSum(player,'firstSkil
 function debuffDurationBonus(player){return Math.round(effectSum(player,'debuffDurationBonus'));}
 function bleedChanceOnSlash(player){return Math.max(0,Math.min(.9,effectSum(player,'onSlashBleedChance')));}
 function bleedCooldownChance(player){return Math.max(0,Math.min(.9,effectSum(player,'bleedCooldownChance')));}
-function cooldownOnKill(player,minion=false){return Math.round(effectSum(player,minion?'cooldownOnMinionKill':'cooldownOnKill')+effectSum(player,'cooldownOnKill'));}
+function cooldownOnKill(player,minion=false){return Math.round(effectSum(player,'cooldownOnKill')+(minion?effectSum(player,'cooldownOnMinionKill'):0));}
 function cooldownOnBlock(player){return Math.round(effectSum(player,'cooldownOnBlock'));}
 function shieldOnPartBreak(player){return Math.round(effectSum(player,'shieldOnPartBreak'));}
 function incomingMultiplier(player,enemy){if((enemy?.statuses||[]).length&&hasRelic(player,'relic-static-cage'))return .90;return 1;}
