@@ -1,6 +1,7 @@
 const legacy=require('../room-manager');
 const {starterWeaponFor}=require('../../shared/starter-equipment');
 const {loadRooms}=require('../persistence');
+const {profileForPlayer}=require('../builds/build-affinity');
 
 function cloneItem(item){return item?JSON.parse(JSON.stringify(item)):null;}
 function ensureEncounterMemory(room,source=null){room.exploration=room.exploration||legacy.freshExploration(0,room.areaIndex||0);const from=source?.exploration||source||{};room.exploration.bossId=String(from.bossId??room.exploration.bossId??'');room.exploration.seenEliteIds=Array.isArray(from.seenEliteIds)?from.seenEliteIds.map(String).slice(0,20):(Array.isArray(room.exploration.seenEliteIds)?room.exploration.seenEliteIds:[]);return room;}
@@ -18,6 +19,6 @@ function resetForStart(room){legacy.resetForStart(room);resetEncounterMemory(roo
 function beginNextArea(room){const ok=legacy.beginNextArea(room);if(ok){resetEncounterMemory(room);room.relicChoices={};legacy.persist();}return ok;}
 function restartRoom(room,player){if(player.id!==room.hostId)throw new Error('只有房主可以重新開始。');if(!['victory','defeat'].includes(room.phase))throw new Error('目前還不能重新開始。');room.phase='lobby';room.selectedAreas=[];room.areaIndex=0;room.areaId='';room.run=0;room.sharedInventory=[];room.currentEvent=null;room.eventResult=null;room.combat=null;room.shop=null;room.nodeReward=null;room.votes={};room.routeVotes={};room.relicChoices={};room.exploration=legacy.freshExploration(0,0);resetEncounterMemory(room);for(const p of room.players){p.hp=p.maxHp;p.gold=0;p.sinnerId='';p.ready=false;p.inventory=[];p.equipment={weapon:null,armor:null,accessory:null};p.equipmentInventory=[];p.statuses=[];p.temporaryShield=0;p.learnedSkills=[];p.relics=[];p.skillUpgrades={};}legacy.persist();return room;}
 function loadPersistedRooms(){const rawSnapshots=loadRooms(),rawById=new Map(rawSnapshots.map(r=>[String(r?.id||''),r]));const count=legacy.loadPersistedRooms();for(const room of legacy.rooms.values()){const raw=rawById.get(room.id);ensureEncounterMemory(room,raw);ensureRoomBuild(room,raw);const savedPlayers=new Map((raw?.players||[]).map(p=>[String(p.id),p]));for(const player of room.players){ensurePlayerEquipment(player);ensurePlayerBuild(player,savedPlayers.get(String(player.id)));if(!player.equipment.weapon&&player.sinnerId)applyStarterWeapon(player);}}if(count)legacy.persist();return count;}
-function publicRoom(room){const base=legacy.publicRoom(room);return {...base,relicChoices:room.relicChoices||{}};}
+function publicRoom(room){const base=legacy.publicRoom(room);return {...base,relicChoices:room.relicChoices||{},buildProfiles:Object.fromEntries(room.players.map(p=>[p.id,profileForPlayer(p)]))};}
 
 module.exports={...legacy,createRoom,joinRoom,resumeRoom,restoreRoom,setSinner,resetForStart,beginNextArea,restartRoom,loadPersistedRooms,publicRoom,ensurePlayerEquipment,applyStarterWeapon,ensureEncounterMemory,resetEncounterMemory,ensurePlayerBuild,ensureRoomBuild};
