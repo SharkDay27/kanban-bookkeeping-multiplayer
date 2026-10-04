@@ -7,7 +7,7 @@ const {openShop}=require('../shop/shop-manager');
 const {primeFogAfterResolution,prepareInitialRoute}=require('./route-generator');
 const {addEquipment}=require('../equipment/equipment-manager');
 const {EVENT_ACTIONS,eventOptions,resolveEventCheck}=require('../events/event-checks');
-const {maybePositiveStatus,outcomeForDegree,awardGoldToParty}=require('../events/event-rewards');
+const {maybePositiveStatus,outcomeForDegree,awardGoldToParty,grantEventReward}=require('../events/event-rewards');
 
 function currentNode(room){return room.exploration.route[room.exploration.position];}
 function markCurrentNodeResolved(room){const node=currentNode(room);if(node)node.resolved=true;}
@@ -40,8 +40,9 @@ function enterCurrentNode(room){
 }
 function resolveEvent(room){
   if(!room.currentEvent)return null;const active=room.players.filter(p=>p.connected&&p.hp>0);if(!active.length||active.some(p=>!room.votes[p.id]))return null;
-  const check=resolveEventCheck(room,room.currentEvent,room.votes,active),outcome=outcomeForDegree(room,check.degree,check.balance);
-  room.eventResult={degree:check.degree,die:check.die,modifier:check.modifier,total:check.total,dc:check.dc,text:['critical','success','mixed'].includes(check.degree)?room.currentEvent.success:room.currentEvent.failure,contributions:check.contributions,...outcome};
+  const check=resolveEventCheck(room,room.currentEvent,room.votes,active),outcome=outcomeForDegree(room,check.degree,check.balance),loot=grantEventReward(room,room.currentEvent,check);
+  const baseText=['critical','success','mixed'].includes(check.degree)?room.currentEvent.success:room.currentEvent.failure,lootText=loot?` ${loot.playerName} 取得「${loot.item.name}」。`:'';
+  room.eventResult={degree:check.degree,die:check.die,modifier:check.modifier,total:check.total,dc:check.dc,text:`${baseText}${lootText}`,contributions:check.contributions,loot,...outcome};
   markCurrentNodeResolved(room);tickStatuses(room.players,{combatRound:false});checkDefeat(room);if(room.phase==='exploration')primeFogAfterResolution(room);persist();return room.eventResult;
 }
 function advanceChapterAfterBoss(room){if(room.exploration.position!==BOSS_INDEX||room.eventResult?.degree!=='boss-victory')return false;if(beginNextArea(room)){prepareInitialRoute(room);return true;}room.phase='victory';persist();return true;}
