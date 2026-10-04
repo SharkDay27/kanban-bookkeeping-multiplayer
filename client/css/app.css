@@ -4,4 +4,8 @@
 @import url('/css/combat.css');
 @import url('/css/inventory.css');
 @import url('/css/audio.css');
+@import url('/css/visual-feedback.css');
+@import url('/css/combat-vfx.css');
+@import url('/css/manual.css');
+@import url('/css/outcome.css');
 @import url('/css/responsive.css');
