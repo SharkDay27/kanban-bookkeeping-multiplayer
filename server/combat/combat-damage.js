@@ -7,6 +7,7 @@ const {findPart,applyPartDamage}=require('./combat-parts');
 const {rollIntent}=require('./combat-intents');
 const {maybeSummon}=require('./combat-summon');
 
+function soundTypeFor(action){if(action?.soundType)return action.soundType;if(action?.damageType)return action.damageType;const label=String(action?.label||action?.name||'');if(/火銃|槍擊|射擊|彈|砲|銃/.test(label))return'gun';if(action?.skillId)return'anomaly';return'anomaly';}
 function damageTarget(room,combat,player,action,target,part,die,total){
   const preview=estimateDamage(room,player,action,target,part),defense=Math.max(5,target.defense-(action.ignoreDefense||0)-(target.defensePenalty||0));
   if(die!==20&&total<defense)return {dealt:0,preview};
@@ -26,7 +27,7 @@ function resolvePlayerAction(room,player,selection,guards,records){
   else if(action.kind==='heal'||action.kind==='team-buff')applySkillUtility(room,player,action,target,0);
   else {const hit=damageTarget(room,combat,player,action,target,part,die,total);dealt=hit.dealt;preview=hit.preview;applySkillUtility(room,player,action,target,dealt);}
   if(action.skillId){combat.cooldowns[player.id]=combat.cooldowns[player.id]||{};combat.cooldowns[player.id][action.id]=2;}
-  records.push({playerId:player.id,sinner:sinnerOf(player)?.name||player.name,action:action.label||action.name,target:target?.name||'',targetId:target?.instanceId||null,part:part?.name||'',partId:part?.id||null,die,total,dealt,damageType:action.damageType||null,resistance:preview?.resistance??1,relation:preview?.relation||'普通'});
+  records.push({playerId:player.id,sinner:sinnerOf(player)?.name||player.name,action:action.label||action.name,target:target?.name||'',targetId:target?.instanceId||null,part:part?.name||'',partId:part?.id||null,die,total,dealt,damageType:action.damageType||null,soundType:soundTypeFor(action),resistance:preview?.resistance??1,relation:preview?.relation||'普通'});
 }
 function resolveEnemyActions(room,guards){
   const combat=room.combat,active=room.players.filter(p=>p.connected&&p.hp>0),results=[];let total=0;
@@ -40,4 +41,4 @@ function resolveEnemyActions(room,guards){
   }
   return {total,results};
 }
-module.exports={damageTarget,resolvePlayerAction,resolveEnemyActions};
+module.exports={damageTarget,resolvePlayerAction,resolveEnemyActions,soundTypeFor};
