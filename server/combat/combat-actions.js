@@ -2,6 +2,7 @@ const {getSinnerSkill,applyUpgrade}=require('../../shared/game-data');
 const {DAMAGE_TYPE_LABELS,multiplier,relation}=require('../../shared/damage-types');
 const {statFor}=require('../status/status-manager');
 const {damageMultiplier}=require('../relics/relic-effects');
+const {combatModifier,combatDefense}=require('../../shared/check-rules');
 
 const BASIC_ACTIONS=[
   {id:'guard',label:'防禦',stat:'stability',statLabel:'穩定',desc:'本回合受到的傷害大幅降低。',kind:'guard'},
@@ -26,7 +27,7 @@ function estimateDamage(room,player,action,target,part){
   if(action.dangerScale){const m=1+room.exploration.danger*action.dangerScale;min=Math.round(min*m);max=Math.round(max*m);}
   const typeMult=action.damageType?multiplier(target?.resistances,action.damageType):1,relicMult=damageMultiplier(player,{action,target,part,room});
   min=Math.max(1,Math.round(min*typeMult*relicMult));max=Math.max(min,Math.round(max*typeMult*relicMult));
-  const relicIgnore=(player?.relics||[]).includes('relic-needle-eye')&&action.damageType==='pierce'?1:0,defense=Math.max(5,(target?.defense||10)-(action.ignoreDefense||0)-relicIgnore-(target?.defensePenalty||0)),mod=Math.round(stat/2);let hits=0;
+  const defense=combatDefense(target,action,player?.relics),mod=combatModifier(stat);let hits=0;
   for(let d=1;d<=20;d++)if(d===20||d+mod>=defense)hits++;
   return {min,max,hit:Math.round(hits/20*100),damageType:action.damageType||null,resistance:typeMult,relation:action.damageType?relation(typeMult):'普通',relicMultiplier:relicMult};
 }

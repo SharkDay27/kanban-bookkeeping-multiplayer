@@ -10,7 +10,7 @@
 <body>
   <main class="shell">
     <header class="topbar">
-      <div><div class="eyebrow">LIMBUS COMPANY FAN EXPEDITION · v0.18.0</div><h1>邊獄公司 同人探索遊戲</h1></div>
+      <div><div class="eyebrow">LIMBUS COMPANY FAN EXPEDITION · v0.19.0</div><h1>邊獄公司 同人探索遊戲</h1></div>
       <div class="top-statuses"><div id="connection" class="status">連線中…</div><div id="deployMode" class="status subtle">WEB</div><button id="forgetSession" class="status host-clear hidden">清除本機聯機資料</button></div>
     </header>
     <div id="reconnectBanner" class="reconnect-banner hidden">連線暫時中斷，伺服器會保留你的席位並自動重新連線。</div>
@@ -30,12 +30,14 @@
           <div id="endingPanel" class="ending-panel hidden"></div>
         </div>
       </section>
-      <aside class="card side-card party-panel"><details class="mobile-collapsible" open><summary class="section-title">MY SINNER / 我的罪人</summary><div id="mySinner"></div></details><details class="mobile-collapsible team-collapsible"><summary class="section-title">PARTY / 隊伍狀態</summary><div id="teamInfo" class="muted">等待玩家加入。</div></details></aside>
+      <aside class="card side-card party-panel"><details class="mobile-collapsible" open><summary class="section-title">罪人資訊</summary><div id="mySinner"></div></details><details class="mobile-collapsible team-collapsible"><summary class="section-title">PARTY / 隊伍狀態</summary><div id="teamInfo" class="muted">等待玩家加入。</div></details></aside>
     </section>
   </main>
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/systems/session.js"></script>
+  <script src="/shared/check-rules.js"></script>
   <script src="/js/app.js"></script>
+  <script src="/js/ui/dice-ui.js"></script>
   <script src="/js/systems/skill-normalizer.js"></script>
   <script src="/js/ui/lobby-ui.js"></script>
   <script src="/js/ui/sinner-ui.js"></script>

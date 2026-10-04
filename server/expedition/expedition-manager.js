@@ -38,7 +38,7 @@ function resolveEvent(room){
   if(!room.currentEvent)return null;const active=room.players.filter(p=>p.connected&&p.hp>0);if(!active.length||active.some(p=>!room.votes[p.id]))return null;
   if(room.currentEvent.scope==='personal'){
     const checks=resolveIndividualEventChecks(room,room.currentEvent,room.votes,active),personalResults=checks.map(check=>{const player=active.find(p=>p.id===check.playerId);return {...check,...personalOutcome(room,player,check)};});
-    room.eventResult={degree:'personal',scope:'personal',text:'個人事件結算完成；每位玩家各自承擔自己的結果，本事件不改變全隊危險度。',personalResults,damage:personalResults.reduce((s,r)=>s+Number(r.damage||0),0),dangerDelta:0,gold:personalResults.reduce((s,r)=>s+Number(r.gold||0),0)};
+    room.eventResult={degree:'personal',scope:'personal',text:'',personalResults,damage:personalResults.reduce((s,r)=>s+Number(r.damage||0),0),dangerDelta:0,gold:personalResults.reduce((s,r)=>s+Number(r.gold||0),0)};
   }else{
     const check=resolveEventCheck(room,room.currentEvent,room.votes,active),outcome=outcomeForDegree(room,check.degree,check.balance),loot=grantEventReward(room,room.currentEvent,check);const baseText=['critical','success','mixed'].includes(check.degree)?room.currentEvent.success:room.currentEvent.failure,lootText=loot?` ${loot.playerName} 取得「${loot.item.name}」。`:'';room.eventResult={degree:check.degree,scope:'group',die:check.die,modifier:check.modifier,total:check.total,dc:check.dc,text:`${baseText}${lootText}`,contributions:check.contributions,loot,...outcome};
   }

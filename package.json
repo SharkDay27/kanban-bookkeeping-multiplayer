@@ -1,11 +1,11 @@
 {
   "name": "kanban-bookkeeping-multiplayer",
-  "version": "0.5.0",
+  "version": "0.19.0",
   "private": true,
   "description": "Independent multiplayer exploration game with reconnection, signed room recovery, autosave, invite links and Render support.",
   "scripts": {
     "start": "node server/server.js",
-    "check": "node --check server/server.js && node --check server/room-manager.js && node --check server/persistence.js && node --check client/js/multiplayer.js && node --check shared/game-data.js"
+    "check": "node --check server/server.js && node --check server/room-manager.js && node --check server/persistence.js && node --check client/js/app.js && node --check shared/game-data.js"
   },
   "dependencies": {
     "express": "^4.21.2",
