@@ -17,7 +17,7 @@ function uniq(list){return [...new Set((list||[]).filter(Boolean))];}
 function inferTags(item){
   if(!item)return[];if(Array.isArray(item.buildTags))return uniq(item.buildTags);
   const tags=[],text=`${item.name||''} ${item.description||''} ${item.kind||''}`;
-  if(item.attackTypes?.length>1||item.damageType)tags.push('weakness');
+  if((Array.isArray(item.attackTypes)&&item.attackTypes.length>1)||item.weaknessBonus||/弱點|抗性|攻擊性質/.test(text))tags.push('weakness');
   if(item.partBonus||item.breakBonus||/部位|破壞|護甲/.test(text))tags.push('break');
   if(item.shield||item.kind==='guard'||/護盾|防護|反擊/.test(text))tags.push('shield');
   if(item.statusId==='bleeding'||/流血|出血/.test(text))tags.push('bleed');
@@ -38,8 +38,6 @@ function buildScoreFromPlayer(player,{skills=[],relics=[]}={}){
   for(const id of player?.relics||[])add(inferTags(relics.find(r=>r.id===id)),1.35);
   return score;
 }
-function affinityMultiplier(item,score={},strength=.045,maxBonus=.20){
-  const tags=inferTags(item);if(!tags.length)return 1;const points=tags.reduce((n,t)=>n+Number(score[t]||0),0)/tags.length;return 1+Math.min(maxBonus,points*strength);
-}
+function affinityMultiplier(item,score={},strength=.045,maxBonus=.20){const tags=inferTags(item);if(!tags.length)return 1;const points=tags.reduce((n,t)=>n+Number(score[t]||0),0)/tags.length;return 1+Math.min(maxBonus,points*strength);}
 function topBuildTags(score={},limit=3){return Object.entries(score).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,limit).map(([id,value])=>({...(BUILD_TAGS[id]||{id,name:id}),value}));}
 module.exports={BUILD_TAGS,inferTags,buildScoreFromPlayer,affinityMultiplier,topBuildTags};
