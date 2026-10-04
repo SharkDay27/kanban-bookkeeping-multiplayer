@@ -20,58 +20,23 @@
     <div id="reconnectBanner" class="reconnect-banner hidden">連線暫時中斷，伺服器會保留你的席位並自動重新連線。</div>
     <div id="resumeStatus" class="resume-status" aria-live="polite"></div>
     <section id="entry" class="card entry-grid">
-      <label>玩家名稱<input id="playerName" maxlength="16" value="探索者" /></label>
-      <button id="createRoom">建立房間</button>
+      <label>玩家名稱<input id="playerName" maxlength="16" value="探索者" /></label><button id="createRoom">建立房間</button>
       <div id="inviteNotice" class="invite-notice hidden">已從邀請連結帶入房號 <strong id="inviteRoomCode"></strong>，輸入名稱即可加入。</div>
-      <div class="join-row"><input id="roomId" maxlength="4" placeholder="房號" autocomplete="off" /><button id="joinRoom" class="secondary">加入房間</button></div>
-      <p id="entryError" class="error"></p>
+      <div class="join-row"><input id="roomId" maxlength="4" placeholder="房號" autocomplete="off" /><button id="joinRoom" class="secondary">加入房間</button></div><p id="entryError" class="error"></p>
     </section>
     <section id="game" class="game-grid hidden">
-      <div class="left-stack">
-        <aside class="card side-card session-panel">
-          <div class="section-title">SESSION / 房間 <strong id="roomCode">----</strong></div>
-          <div class="room-tools"><button id="copyInvite" class="secondary compact">複製邀請連結</button><span id="copyInviteStatus" class="copy-status"></span></div>
-          <div id="areaSummary" class="area-summary"></div>
-          <div id="playerList" class="player-list"></div>
-          <button id="startGame" class="hidden">開始遠征</button>
-        </aside>
-        <aside id="hostTools" class="hidden" aria-hidden="true"></aside>
-      </div>
+      <div class="left-stack"><aside class="card side-card session-panel"><div class="section-title">SESSION / 房間 <strong id="roomCode">----</strong></div><div class="room-tools"><button id="copyInvite" class="secondary compact">複製邀請連結</button><span id="copyInviteStatus" class="copy-status"></span></div><div id="areaSummary" class="area-summary"></div><div id="playerList" class="player-list"></div><button id="startGame" class="hidden">開始遠征</button></aside><aside id="hostTools" class="hidden" aria-hidden="true"></aside></div>
       <section class="card center-card main-panel">
-        <div id="lobbySetup">
-          <div class="section-title">SESSION ZERO / 探索準備</div>
-          <h2>選擇三個探索地區</h2>
-          <p id="mapSelectionNote" class="subcopy">房主依序選 3 個地區：第 1 張為初級、第 2 張為中級、第 3 張為高級。</p>
-          <div id="areaList" class="area-list"></div>
-          <h2>選擇你的罪人</h2>
-          <div id="sinnerList" class="sinner-list"></div>
-        </div>
-        <div id="explorationPanel" class="hidden">
-          <div class="section-title">EXPEDITION / 遠征 · <span id="runNumber">#1</span></div>
-          <div id="chapterBar" class="chapter-bar"></div>
-          <div id="routePanel" class="route-panel"></div>
-          <div id="explorationMeters" class="exploration-meters"></div>
-          <div id="eventPanel" class="gm-panel hidden">
-            <div class="event-kicker" id="eventArea"></div><div class="gm-label">GM / 場景描述</div><h2 id="eventName"></h2><p id="eventDescription" class="scene-text"></p><div class="action-prompt">你打算怎麼處理？</div><div id="eventOptions" class="event-options"></div><div id="eventResult" class="event-result hidden"></div><button id="nextEvent" class="hidden">前往下一節點</button>
-          </div>
-          <div id="combatPanel" class="combat-panel hidden">
-            <div id="combatStage" class="combat-stage"><div class="combat-heading-row"><div id="enemyKind" class="enemy-kind"></div><div id="combatRound" class="combat-round"></div></div><div id="bossPhase" class="boss-phase hidden"></div><h2 id="enemyName"></h2><p id="enemyTrait" class="enemy-trait"></p><div class="enemy-hp-line"><div class="enemy-hp-copy"><span>主要目標 HP</span><strong id="enemyHpText"></strong></div><div class="enemy-hp-track"><i id="enemyHpBar"></i></div></div><div id="enemyIntent" class="enemy-intent"></div><div id="combatFx" class="combat-fx" aria-hidden="true"></div></div>
-            <div class="action-prompt">選擇行動與目標，確認後才會鎖定</div><div id="combatOptions" class="event-options"></div><div id="combatLog" class="combat-log"></div><div id="combatResult" class="event-result hidden"></div><button id="nextCombatNode" class="hidden">前往下一節點</button>
-          </div>
+        <div id="lobbySetup"><div class="section-title">SESSION ZERO / 探索準備</div><h2>選擇三個探索地區</h2><p id="mapSelectionNote" class="subcopy">房主依序選 3 個地區：第 1 張為初級、第 2 張為中級、第 3 張為高級。</p><div id="areaList" class="area-list"></div><h2>選擇你的罪人</h2><div id="sinnerList" class="sinner-list"></div></div>
+        <div id="explorationPanel" class="hidden"><div class="section-title">EXPEDITION / 遠征 · <span id="runNumber">#1</span></div><div id="chapterBar" class="chapter-bar"></div><div id="routePanel" class="route-panel"></div><div id="explorationMeters" class="exploration-meters"></div>
+          <div id="eventPanel" class="gm-panel hidden"><div class="event-kicker" id="eventArea"></div><div class="gm-label">GM / 場景描述</div><h2 id="eventName"></h2><p id="eventDescription" class="scene-text"></p><div class="action-prompt">你打算怎麼處理？</div><div id="eventOptions" class="event-options"></div><div id="eventResult" class="event-result hidden"></div><button id="nextEvent" class="hidden">前往下一節點</button></div>
+          <div id="combatPanel" class="combat-panel hidden"><div id="combatStage" class="combat-stage"><div class="combat-heading-row"><div id="enemyKind" class="enemy-kind"></div><div id="combatRound" class="combat-round"></div></div><div id="bossPhase" class="boss-phase hidden"></div><h2 id="enemyName"></h2><p id="enemyTrait" class="enemy-trait"></p><div class="enemy-hp-line"><div class="enemy-hp-copy"><span>主要目標 HP</span><strong id="enemyHpText"></strong></div><div class="enemy-hp-track"><i id="enemyHpBar"></i></div></div><div id="enemyIntent" class="enemy-intent"></div><div id="combatFx" class="combat-fx" aria-hidden="true"></div></div><div class="action-prompt">選擇行動與目標，確認後才會鎖定</div><div id="combatOptions" class="event-options"></div><div id="combatLog" class="combat-log"></div><div id="combatResult" class="event-result hidden"></div><button id="nextCombatNode" class="hidden">前往下一節點</button></div>
           <div id="endingPanel" class="ending-panel hidden"></div>
         </div>
       </section>
-      <aside class="card side-card party-panel">
-        <details class="mobile-collapsible" open><summary class="section-title">MY SINNER / 我的罪人</summary><div id="mySinner"></div></details>
-        <details class="mobile-collapsible team-collapsible"><summary class="section-title">PARTY / 隊伍狀態</summary><div id="teamInfo" class="muted">等待玩家加入。</div></details>
-      </aside>
+      <aside class="card side-card party-panel"><details class="mobile-collapsible" open><summary class="section-title">MY SINNER / 我的罪人</summary><div id="mySinner"></div></details><details class="mobile-collapsible team-collapsible"><summary class="section-title">PARTY / 隊伍狀態</summary><div id="teamInfo" class="muted">等待玩家加入。</div></details></aside>
     </section>
   </main>
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="/js/multiplayer.js"></script>
-  <script src="/js/combat-enhancements.js"></script>
-  <script src="/js/v083-ui.js"></script>
-  <script src="/js/v09-ui.js"></script>
-  <script src="/js/v10-ui.js"></script>
+  <script src="/socket.io/socket.io.js"></script><script src="/js/multiplayer.js"></script><script src="/js/combat-enhancements.js"></script><script src="/js/v083-ui.js"></script><script src="/js/v09-ui.js"></script><script src="/js/v10-ui.js"></script><script src="/js/v10-fixes.js"></script>
 </body>
 </html>
