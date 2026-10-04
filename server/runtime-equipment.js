@@ -1,0 +1,8 @@
+const {starterWeaponFor}=require('../shared/game-data');
+const {persist}=require('./room-manager');
+function ensureGear(player){player.equipment=player.equipment||{weapon:null,armor:null,accessory:null};player.equipmentInventory=Array.isArray(player.equipmentInventory)?player.equipmentInventory:[];return player;}
+function initializeStarterGear(player){ensureGear(player);if(!player.sinnerId)return;const starter=starterWeaponFor(player.sinnerId);player.equipment={weapon:starter,armor:null,accessory:null};player.equipmentInventory=[];}
+function addEquipment(player,item){ensureGear(player);player.equipmentInventory.push(JSON.parse(JSON.stringify(item)));return item;}
+function equipFromInventory(room,player,index){if(room.combat&&!room.combat.ended)throw new Error('戰鬥中不能更換裝備。');ensureGear(player);if(!Number.isInteger(index)||index<0||index>=player.equipmentInventory.length)throw new Error('找不到這件裝備。');const next=player.equipmentInventory[index];if(!next?.slot)throw new Error('這不是可裝備物品。');const previous=player.equipment[next.slot]||null;player.equipment[next.slot]=next;player.equipmentInventory.splice(index,1);if(previous)player.equipmentInventory.push(previous);persist();return {equipped:next,stored:previous};}
+function unequip(room,player,slot){if(room.combat&&!room.combat.ended)throw new Error('戰鬥中不能更換裝備。');ensureGear(player);if(!['weapon','armor','accessory'].includes(slot))throw new Error('無效裝備欄。');if(slot==='weapon'&&player.equipment.weapon?.rarity==='starter')throw new Error('至少要保留一把武器。');const item=player.equipment[slot];if(!item)return null;player.equipment[slot]=null;player.equipmentInventory.push(item);persist();return item;}
+module.exports={ensureGear,initializeStarterGear,addEquipment,equipFromInventory,unequip};
