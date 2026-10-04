@@ -7,19 +7,18 @@ const MAX_PLAYERS = 4;
 const ROUTE_LENGTH = 14;
 const BOSS_INDEX = ROUTE_LENGTH - 1;
 const RECONNECT_GRACE_MS = 10 * 60 * 1000;
-const ROOM_SIGNING_SECRET = process.env.ROOM_SIGNING_SECRET || 'local-dev-v0.9-signing-secret-change-me';
+const ROOM_SIGNING_SECRET = process.env.ROOM_SIGNING_SECRET || 'local-dev-v0.10-signing-secret-change-me';
 const NODE_LABELS = { event:'事件', combat:'小怪', supply:'補給', elite:'精英', rest:'休整', shop:'商店', boss:'BOSS', unknown:'迷霧' };
 const CHAPTER_RULES = [
   { key:'beginner', label:'初級', dangerMax:8, dangerCarry:0 },
   { key:'intermediate', label:'中級', dangerMax:8, dangerCarry:1 },
   { key:'advanced', label:'高級', dangerMax:8, dangerCarry:2 }
 ];
-
 function cleanName(name){const value=String(name||'').trim().slice(0,16);return value||'探索者';}
 function clamp(n,min,max){return Math.max(min,Math.min(max,Number(n)||0));}
 function makeRoomId(){const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';for(let attempt=0;attempt<100;attempt++){let id='';for(let i=0;i<4;i++)id+=alphabet[crypto.randomInt(0,alphabet.length)];if(!rooms.has(id))return id;}throw new Error('暫時無法建立房間，請重試。');}
 function emptyEquipment(){return {weapon:null,armor:null,accessory:null};}
-function makePlayer(socketId,playerName,reconnectToken){return {id:crypto.randomUUID(),reconnectToken:reconnectToken||crypto.randomUUID(),socketId,connected:true,disconnectedAt:null,name:cleanName(playerName),hp:100,maxHp:100,gold:0,sinnerId:'',ready:false,inventory:[],equipment:emptyEquipment(),statuses:[],temporaryShield:0};}
+function makePlayer(socketId,playerName,reconnectToken){return {id:crypto.randomUUID(),reconnectToken:reconnectToken||crypto.randomUUID(),socketId,connected:true,disconnectedAt:null,name:cleanName(playerName),hp:100,maxHp:100,gold:0,sinnerId:'',ready:false,inventory:[],equipment:emptyEquipment(),statuses:[],temporaryShield:0,learnedSkills:[]};}
 function makeNode(index,type='unknown'){return {index,type,label:NODE_LABELS[type],resolved:false,revealed:type!=='unknown',selected:false};}
 function blankRoute(){const route=Array.from({length:ROUTE_LENGTH},(_,i)=>makeNode(i,'unknown'));route[BOSS_INDEX]=makeNode(BOSS_INDEX,'boss');route[BOSS_INDEX].revealed=false;return route;}
 function chapterRule(index){return CHAPTER_RULES[clamp(index,0,CHAPTER_RULES.length-1)];}
@@ -30,32 +29,18 @@ function recoverySnapshot(room){return JSON.parse(JSON.stringify(room));}
 function persist(){saveRooms(rooms);}
 function sanitizeEquipment(raw){const source=raw&&typeof raw==='object'?raw:{};return {weapon:source.weapon||null,armor:source.armor||null,accessory:source.accessory||null};}
 function sanitizeStatuses(raw){if(!Array.isArray(raw))return[];return raw.slice(0,12).map((s)=>({id:String(s?.id||''),remaining:clamp(s?.remaining,0,20)})).filter((s)=>s.id&&s.remaining>0);}
-function sanitizeRoute(raw){
-  if(!Array.isArray(raw)||raw.length!==ROUTE_LENGTH)return blankRoute();
-  return raw.map((n,i)=>{const allowed=['event','combat','supply','elite','rest','shop','boss','unknown'];const type=i===BOSS_INDEX?'boss':allowed.includes(n?.type)?n.type:'unknown';return {...makeNode(i,type),resolved:!!n?.resolved,revealed:!!n?.revealed||type!=='unknown',selected:!!n?.selected};});
-}
-function sanitizeChoiceLayers(raw){
-  const out={};if(!raw||typeof raw!=='object')return out;
-  for(const [key,list] of Object.entries(raw)){
-    const index=Number(key);if(!Number.isInteger(index)||index<0||index>=ROUTE_LENGTH||!Array.isArray(list))continue;
-    out[index]=list.slice(0,3).map((c,j)=>({id:String(c?.id||`L${index}-${j}`),type:['event','combat','supply','elite','rest','shop','boss'].includes(c?.type)?c.type:(index===BOSS_INDEX?'boss':'event'),label:String(c?.label||NODE_LABELS[c?.type]||'事件'),revealed:c?.revealed!==false}));
-  }
-  return out;
-}
-
+function sanitizeRoute(raw){if(!Array.isArray(raw)||raw.length!==ROUTE_LENGTH)return blankRoute();return raw.map((n,i)=>{const allowed=['event','combat','supply','elite','rest','shop','boss','unknown'];const type=i===BOSS_INDEX?'boss':allowed.includes(n?.type)?n.type:'unknown';return {...makeNode(i,type),resolved:!!n?.resolved,revealed:!!n?.revealed||type!=='unknown',selected:!!n?.selected};});}
+function sanitizeChoiceLayers(raw){const out={};if(!raw||typeof raw!=='object')return out;for(const [key,list] of Object.entries(raw)){const index=Number(key);if(!Number.isInteger(index)||index<0||index>=ROUTE_LENGTH||!Array.isArray(list))continue;out[index]=list.slice(0,3).map((c,j)=>({id:String(c?.id||`L${index}-${j}`),type:['event','combat','supply','elite','rest','shop','boss'].includes(c?.type)?c.type:(index===BOSS_INDEX?'boss':'event'),label:String(c?.label||NODE_LABELS[c?.type]||'事件'),revealed:c?.revealed!==false}));}return out;}
 function sanitizeRestoredRoom(snapshot){
   if(!snapshot||typeof snapshot!=='object')throw new Error('存檔格式不正確。');
   const id=String(snapshot.id||'').toUpperCase();if(!/^[A-Z2-9]{4}$/.test(id))throw new Error('房號格式不正確。');
   if(!Array.isArray(snapshot.players)||snapshot.players.length<1||snapshot.players.length>MAX_PLAYERS)throw new Error('玩家資料不正確。');
   const selectedAreas=(Array.isArray(snapshot.selectedAreas)?snapshot.selectedAreas:Array.isArray(snapshot.mapOptions)?snapshot.mapOptions:[]).filter((x,i,a)=>AREAS.some((area)=>area.id===x)&&a.indexOf(x)===i).slice(0,3);
-  const areaIndex=clamp(snapshot.areaIndex,0,Math.max(0,selectedAreas.length-1));
-  const areaId=selectedAreas[areaIndex]||selectedAreas[0]||'';
-  const players=snapshot.players.map((p)=>({id:String(p.id||crypto.randomUUID()),reconnectToken:String(p.reconnectToken||crypto.randomUUID()),socketId:'',connected:false,disconnectedAt:Date.now(),name:cleanName(p.name),hp:clamp(p.hp??100,0,100),maxHp:100,gold:clamp(p.gold,0,999999),sinnerId:SINNERS.some((s)=>s.id===p.sinnerId)?p.sinnerId:'',ready:!!p.ready,inventory:Array.isArray(p.inventory)?p.inventory.slice(0,4):[],equipment:sanitizeEquipment(p.equipment),statuses:sanitizeStatuses(p.statuses),temporaryShield:clamp(p.temporaryShield,0,99)}));
-  const hostId=players.some((p)=>p.id===snapshot.hostId)?snapshot.hostId:players[0].id;
-  const rule=chapterRule(areaIndex),ex=snapshot.exploration||{};
+  const areaIndex=clamp(snapshot.areaIndex,0,Math.max(0,selectedAreas.length-1));const areaId=selectedAreas[areaIndex]||selectedAreas[0]||'';
+  const players=snapshot.players.map((p)=>({id:String(p.id||crypto.randomUUID()),reconnectToken:String(p.reconnectToken||crypto.randomUUID()),socketId:'',connected:false,disconnectedAt:Date.now(),name:cleanName(p.name),hp:clamp(p.hp??100,0,100),maxHp:100,gold:clamp(p.gold,0,999999),sinnerId:SINNERS.some((s)=>s.id===p.sinnerId)?p.sinnerId:'',ready:!!p.ready,inventory:Array.isArray(p.inventory)?p.inventory.slice(0,4):[],equipment:sanitizeEquipment(p.equipment),statuses:sanitizeStatuses(p.statuses),temporaryShield:clamp(p.temporaryShield,0,99),learnedSkills:Array.isArray(p.learnedSkills)?p.learnedSkills.map(String).slice(0,3):[]}));
+  const hostId=players.some((p)=>p.id===snapshot.hostId)?snapshot.hostId:players[0].id;const rule=chapterRule(areaIndex),ex=snapshot.exploration||{};
   const exploration={danger:clamp(ex.danger,0,rule.dangerMax),dangerMax:rule.dangerMax,clues:clamp(ex.clues,0,999),scenes:clamp(ex.scenes,0,999),route:sanitizeRoute(ex.route),choiceLayers:sanitizeChoiceLayers(ex.choiceLayers),position:clamp(ex.position,0,BOSS_INDEX),chapter:areaIndex,difficulty:rule.key,difficultyLabel:rule.label};
-  const votes={};for(const p of players)if(typeof snapshot.votes?.[p.id]==='string')votes[p.id]=snapshot.votes[p.id];
-  const routeVotes={};for(const p of players)if(typeof snapshot.routeVotes?.[p.id]==='string')routeVotes[p.id]=snapshot.routeVotes[p.id];
+  const votes={};for(const p of players)if(typeof snapshot.votes?.[p.id]==='string')votes[p.id]=snapshot.votes[p.id];const routeVotes={};for(const p of players)if(typeof snapshot.routeVotes?.[p.id]==='string')routeVotes[p.id]=snapshot.routeVotes[p.id];
   return {id,createdAt:Number(snapshot.createdAt||Date.now()),phase:['exploration','victory','defeat'].includes(snapshot.phase)?snapshot.phase:'lobby',hostId,players,selectedAreas,areaIndex,areaId,run:Math.max(0,Number(snapshot.run||0)),sharedInventory:Array.isArray(snapshot.sharedInventory)?snapshot.sharedInventory.slice(0,100):[],currentEvent:snapshot.currentEvent&&typeof snapshot.currentEvent==='object'?snapshot.currentEvent:null,eventResult:snapshot.eventResult&&typeof snapshot.eventResult==='object'?snapshot.eventResult:null,combat:snapshot.combat&&typeof snapshot.combat==='object'?snapshot.combat:null,shop:snapshot.shop&&typeof snapshot.shop==='object'?snapshot.shop:null,nodeReward:snapshot.nodeReward&&typeof snapshot.nodeReward==='object'?snapshot.nodeReward:null,votes,routeVotes,exploration};
 }
 function restoreRoom(snapshot,recoveryToken,socketId,playerId,reconnectToken){const candidate=sanitizeRestoredRoom(snapshot);if(rooms.has(candidate.id))throw new Error('房間已經存在。');if(!verifyRecovery(candidate.id,candidate.hostId,recoveryToken))throw new Error('房間復原授權無效。');const player=candidate.players.find((p)=>p.id===playerId&&p.reconnectToken===reconnectToken);if(!player||player.id!==candidate.hostId)throw new Error('只有原房主可以復原房間。');player.socketId=socketId;player.connected=true;player.disconnectedAt=null;rooms.set(candidate.id,candidate);persist();return {room:candidate,player};}
@@ -65,10 +50,9 @@ function resumeRoom(roomId,socketId,playerId,reconnectToken){const room=rooms.ge
 function markDisconnected(socketId){for(const room of rooms.values()){const player=room.players.find((p)=>p.socketId===socketId);if(!player)continue;player.socketId='';player.connected=false;player.disconnectedAt=Date.now();persist();return {room,player};}return null;}
 function removeExpiredPlayer(roomId,playerId,disconnectedAt){const room=rooms.get(roomId);if(!room)return null;const index=room.players.findIndex((p)=>p.id===playerId);if(index<0)return null;const player=room.players[index];if(player.connected||player.disconnectedAt!==disconnectedAt||Date.now()-disconnectedAt<RECONNECT_GRACE_MS)return null;room.players.splice(index,1);delete room.votes[player.id];delete room.routeVotes[player.id];if(!room.players.length){rooms.delete(room.id);persist();return {room:null,player};}if(room.hostId===player.id)room.hostId=room.players.find((p)=>p.connected)?.id||room.players[0].id;persist();return {room,player};}
 function toggleArea(room,player,areaId){if(player.id!==room.hostId)throw new Error('只有房主可以選擇地區。');if(room.phase!=='lobby')throw new Error('探索開始後不能更換地區。');if(!AREAS.some((a)=>a.id===areaId))throw new Error('找不到地區。');const idx=room.selectedAreas.indexOf(areaId);if(idx>=0)room.selectedAreas.splice(idx,1);else{if(room.selectedAreas.length>=3)throw new Error('最多只能選擇 3 個地區。');room.selectedAreas.push(areaId);}room.areaId=room.selectedAreas[0]||'';persist();}
-function setSinner(room,player,sinnerId){if(room.phase!=='lobby')throw new Error('探索開始後不能更換罪人。');const sinner=SINNERS.find((s)=>s.id===sinnerId);if(!sinner)throw new Error('找不到罪人。');if(room.players.some((p)=>p.id!==player.id&&p.sinnerId===sinner.id))throw new Error('這名罪人已被其他玩家選擇。');player.sinnerId=sinner.id;player.ready=true;persist();}
-function resetForStart(room){if(room.selectedAreas.length!==3)throw new Error('房主必須先選滿 3 個探索地區。');room.run=1;room.areaIndex=0;room.areaId=room.selectedAreas[0];room.phase='exploration';room.exploration=freshExploration(0,0);room.currentEvent=null;room.eventResult=null;room.combat=null;room.shop=null;room.nodeReward=null;room.votes={};room.routeVotes={};room.players.forEach((p)=>{p.hp=p.maxHp;p.gold=0;p.statuses=[];p.temporaryShield=0;});persist();}
+function setSinner(room,player,sinnerId){if(room.phase!=='lobby')throw new Error('探索開始後不能更換罪人。');const sinner=SINNERS.find((s)=>s.id===sinnerId);if(!sinner)throw new Error('找不到罪人。');if(room.players.some((p)=>p.id!==player.id&&p.sinnerId===sinner.id))throw new Error('這名罪人已被其他玩家選擇。');player.sinnerId=sinner.id;player.learnedSkills=[];player.ready=true;persist();}
+function resetForStart(room){if(room.selectedAreas.length!==3)throw new Error('房主必須先選滿 3 個探索地區。');room.run=1;room.areaIndex=0;room.areaId=room.selectedAreas[0];room.phase='exploration';room.exploration=freshExploration(0,0);room.currentEvent=null;room.eventResult=null;room.combat=null;room.shop=null;room.nodeReward=null;room.votes={};room.routeVotes={};room.players.forEach((p)=>{p.hp=p.maxHp;p.gold=0;p.statuses=[];p.temporaryShield=0;p.learnedSkills=[];});persist();}
 function beginNextArea(room){if(room.areaIndex>=room.selectedAreas.length-1)return false;const previousDanger=room.exploration.danger;room.areaIndex+=1;room.areaId=room.selectedAreas[room.areaIndex];const rule=chapterRule(room.areaIndex);const carryDanger=Math.min(rule.dangerCarry,Math.floor(previousDanger/3));const carryClues=room.exploration.clues;room.exploration=freshExploration(carryDanger,room.areaIndex);room.exploration.clues=carryClues;room.run+=1;room.currentEvent=null;room.eventResult=null;room.combat=null;room.shop=null;room.nodeReward=null;room.votes={};room.routeVotes={};room.players.forEach((p)=>{p.hp=Math.min(p.maxHp,p.hp+20);});persist();return true;}
 function publicRoom(room){return {id:room.id,phase:room.phase,hostId:room.hostId,players:room.players.map(({socketId,reconnectToken,disconnectedAt,...p})=>p),selectedAreas:room.selectedAreas,areaIndex:room.areaIndex,areaId:room.areaId,run:room.run,sharedInventory:room.sharedInventory,currentEvent:room.currentEvent,eventResult:room.eventResult,combat:room.combat,shop:room.shop,nodeReward:room.nodeReward,votes:room.votes,routeVotes:room.routeVotes,exploration:room.exploration||freshExploration()};}
 function loadPersistedRooms(){const snapshots=loadRooms();for(const raw of snapshots){try{const room=sanitizeRestoredRoom(raw);room.players.forEach((p)=>{p.connected=false;p.socketId='';p.disconnectedAt=Date.now();});rooms.set(room.id,room);}catch(error){console.warn('Skipped invalid persisted room:',error.message);}}if(rooms.size)persist();return rooms.size;}
-
 module.exports={rooms,MAX_PLAYERS,ROUTE_LENGTH,BOSS_INDEX,RECONNECT_GRACE_MS,signRecovery,recoverySnapshot,restoreRoom,persist,createRoom,joinRoom,resumeRoom,markDisconnected,removeExpiredPlayer,toggleArea,setSinner,publicRoom,loadPersistedRooms,freshExploration,resetForStart,beginNextArea,NODE_LABELS,CHAPTER_RULES,chapterRule};
