@@ -1,11 +1,11 @@
 const ELITE_ENEMIES = [
-  {area:'zone-1',id:'z1-elite-mannequin',name:'封店模特',hp:92,attack:15,defense:14,trait:'受到觀察成功後會暴露接縫弱點。'},
-  {area:'zone-2',id:'z2-elite-boiler',name:'過壓鍋爐獸',hp:108,attack:18,defense:15,trait:'第三回合會進入高壓爆發。'},
-  {area:'zone-3',id:'z3-elite-twin',name:'雙生觀測體',hp:116,attack:19,defense:16,trait:'每回合會複製一名罪人的能力傾向。'},
-  {area:'zone-4',id:'z4-elite-stalker',name:'無燈追獵者',hp:128,attack:22,defense:17,trait:'未被觀察鎖定前攻擊較難命中。'},
-  {area:'zone-5',id:'z5-elite-anchor',name:'沉錨巨殼',hp:142,attack:24,defense:19,trait:'高防禦，機動行動可削弱其護殼。'},
-  {area:'zone-6',id:'z6-elite-room',name:'活動房間',hp:150,attack:25,defense:18,trait:'場景本身會在回合間改變通路。'},
-  {area:'zone-7',id:'z7-elite-doctor',name:'灰疫宣告者',hp:158,attack:27,defense:18,trait:'會施加感染標記並強化其他敵對單位。'},
-  {area:'zone-8',id:'z8-elite-oracle',name:'逆時預報機',hp:172,attack:29,defense:20,trait:'會提前顯示並改寫下一次攻擊意圖。'}
+  {area:'zone-1',id:'z1-elite-mannequin',name:'封店模特',hp:92,attack:15,defense:14,trait:'受到觀察成功後會暴露接縫弱點。',skills:[{label:'展示櫃突進',type:'heavy',mult:1.45,weight:22,description:'高速撞向一名隊員。'},{label:'無人注視',type:'guard',defenseBoost:4,weight:18,description:'姿態凝固，提高防禦。'}]},
+  {area:'zone-2',id:'z2-elite-boiler',name:'過壓鍋爐獸',hp:108,attack:18,defense:15,trait:'第三回合會進入高壓爆發。',skills:[{label:'蒸汽噴發',type:'sweep',mult:.75,weight:24,description:'高壓蒸汽掃過全隊。'},{label:'超壓蓄能',type:'enrage',attackBoost:.24,weight:16,description:'持續升壓，提高後續攻擊。'}]},
+  {area:'zone-3',id:'z3-elite-twin',name:'雙生觀測體',hp:116,attack:19,defense:16,trait:'每回合會複製一名罪人的能力傾向。',skills:[{label:'雙重投影',type:'sweep-status',mult:.55,statusId:'shaken',weight:22,description:'錯位影像攻擊全隊並擾亂精神。'},{label:'觀測鎖定',type:'status',mult:.6,statusId:'marked',weight:20,description:'鎖定一名隊員。'}]},
+  {area:'zone-4',id:'z4-elite-stalker',name:'無燈追獵者',hp:128,attack:22,defense:17,trait:'未被觀察鎖定前攻擊較難命中。',skills:[{label:'熄燈獵殺',type:'heavy',mult:1.6,weight:24,description:'利用黑暗進行致命突襲。'},{label:'遁入失照',type:'guard',defenseBoost:5,weight:18,description:'消失在失照區，提高防禦。'}]},
+  {area:'zone-5',id:'z5-elite-anchor',name:'沉錨巨殼',hp:142,attack:24,defense:19,trait:'高防禦，機動行動可削弱其護殼。',skills:[{label:'沉錨橫掃',type:'sweep',mult:.8,weight:24,description:'巨大的錨肢橫掃全隊。'},{label:'深殼閉鎖',type:'guard',defenseBoost:5,weight:18,description:'封閉外殼。'}]},
+  {area:'zone-6',id:'z6-elite-room',name:'活動房間',hp:150,attack:25,defense:18,trait:'場景本身會在回合間改變通路。',skills:[{label:'牆面合攏',type:'sweep',mult:.72,weight:24,description:'整個房間向內擠壓。'},{label:'出口錯置',type:'sweep-status',mult:.45,statusId:'slowed',weight:20,description:'錯置出口並使全隊遲滯。'}]},
+  {area:'zone-7',id:'z7-elite-doctor',name:'灰疫宣告者',hp:158,attack:27,defense:18,trait:'會施加感染標記並強化其他敵對單位。',skills:[{label:'診斷：惡化',type:'status',mult:.65,statusId:'contaminated',weight:25,description:'施加污染。'},{label:'強制隔離',type:'status',mult:.7,statusId:'marked',weight:20,description:'標記一名隊員為隔離目標。'}]},
+  {area:'zone-8',id:'z8-elite-oracle',name:'逆時預報機',hp:172,attack:29,defense:20,trait:'會提前顯示並改寫下一次攻擊意圖。',skills:[{label:'預報命中',type:'heavy',mult:1.65,weight:24,description:'先宣告結果，再執行高傷害打擊。'},{label:'時序覆寫',type:'enrage',attackBoost:.28,weight:18,description:'改寫攻擊序列，提升後續威力。'}]}
 ];
 module.exports = { ELITE_ENEMIES };
