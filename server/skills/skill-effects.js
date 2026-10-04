@@ -1,8 +1,10 @@
 const {addStatus,removeStatus,healPlayer}=require('../status/status-manager');
 const {aliveEnemies}=require('../combat/combat-enemies');
 
+function grantShield(player,amount){const value=Math.max(0,Math.round(Number(amount||0)));if(!value)return 0;const before=Number(player.temporaryShield||0);player.temporaryShield=Math.min(99,before+value);return player.temporaryShield-before;}
 function applySkillUtility(room,player,action,target,dealt){
-  if(action.shield)player.temporaryShield=Math.min(99,Number(player.temporaryShield||0)+action.shield);
+  if(action.shield)grantShield(player,action.shield);
+  if(action.teamShield)for(const ally of room.players.filter(p=>p.hp>0))grantShield(ally,action.teamShield);
   if(action.buff)addStatus(player,action.buff,2);
   if(action.statusId&&target)target.statuses=(target.statuses||[]).concat([{id:action.statusId,remaining:2}]);
   if(action.defenseDown&&target)target.defensePenalty=Math.min(8,Number(target.defensePenalty||0)+action.defenseDown);
@@ -14,4 +16,4 @@ function applySkillUtility(room,player,action,target,dealt){
   if(action.dangerDown)room.exploration.danger=Math.max(0,room.exploration.danger-action.dangerDown);
   if(action.clue)room.exploration.clues+=action.clue;
 }
-module.exports={applySkillUtility};
+module.exports={applySkillUtility,grantShield};
