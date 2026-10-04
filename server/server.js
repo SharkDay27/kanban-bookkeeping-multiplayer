@@ -13,8 +13,8 @@ const io=new Server(server,{cors:{origin:'*'}});
 loadPersistedRooms();
 app.use(express.json({limit:'1mb'}));
 app.use(express.static(path.join(__dirname,'..','client')));
-app.get('/health',(_req,res)=>res.json({ok:true,rooms:rooms.size,version:'0.14.0'}));
+app.get('/health',(_req,res)=>res.json({ok:true,rooms:rooms.size,version:'0.15.0'}));
 app.get('/api/game-data',(_req,res)=>res.json(gameDataPayload()));
 
 registerSocketHandlers(io);
-server.listen(PORT,()=>console.log(`Multiplayer v0.14.0: http://localhost:${PORT}`));
+server.listen(PORT,()=>console.log(`Multiplayer v0.15.0: http://localhost:${PORT}`));
