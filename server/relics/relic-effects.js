@@ -18,7 +18,8 @@ function damageMultiplier(player,{action,target,part,room}={}){
 function combatStartShield(player){return Math.round(effectSum(player,'combatStartShield'));}
 function healingMultiplier(player){return effectProduct(player,'healingMult',1);}
 function consumablePowerMultiplier(player){return 1+effectSum(player,'consumablePower');}
+function consumableDiscount(player){return Math.max(0,Math.min(.45,effectSum(player,'consumableDiscount')));}
 function goldMultiplier(player,room){let mult=effectProduct(player,'goldMult',1);if(Number(room?.exploration?.danger||0)>=5)mult*=effectProduct(player,'highDangerGoldMult',1);return mult;}
 function lootBonus(player){return effectSum(player,'lootBonus');}
 function cooldownReduction(player){return Math.round(effectSum(player,'firstSkillCooldownReduction'));}
-module.exports={relicsOf,effectSum,effectProduct,damageMultiplier,combatStartShield,healingMultiplier,consumablePowerMultiplier,goldMultiplier,lootBonus,cooldownReduction};
+module.exports={relicsOf,effectSum,effectProduct,damageMultiplier,combatStartShield,healingMultiplier,consumablePowerMultiplier,consumableDiscount,goldMultiplier,lootBonus,cooldownReduction};
