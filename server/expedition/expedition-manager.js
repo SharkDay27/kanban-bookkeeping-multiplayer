@@ -1,2 +1,48 @@
-// Canonical expedition entrypoint. v14 keeps supply rewards compatible with the equipment inventory system.
-module.exports=require('../runtime-expedition-v14');
+const {SUPPLIES,REST_NODES,getStatus}=require('../../shared/game-data');
+const {persist,beginNextArea,BOSS_INDEX}=require('../room/room-manager');
+const {addStatus,removeStatus,healPlayer,tickStatuses}=require('../status/status-manager');
+const {randomFrom,pickEvent,rewardChoice}=require('./danger-system');
+const {startCombat,checkDefeat}=require('../combat/combat-manager');
+const {openShop}=require('../shop/shop-manager');
+const {primeFogAfterResolution,prepareInitialRoute}=require('./route-generator');
+const {addEquipment}=require('../equipment/equipment-manager');
+const {EVENT_ACTIONS,eventOptions,resolveEventCheck}=require('../events/event-checks');
+const {maybePositiveStatus,outcomeForDegree,awardGoldToParty}=require('../events/event-rewards');
+
+function currentNode(room){return room.exploration.route[room.exploration.position];}
+function markCurrentNodeResolved(room){const node=currentNode(room);if(node)node.resolved=true;}
+function finishImmediateNode(room){markCurrentNodeResolved(room);primeFogAfterResolution(room);persist();}
+function awardSupply(room,bonus=0){
+  const supply=randomFrom(SUPPLIES),recipient=randomFrom(room.players.filter(p=>p.connected)),reward=rewardChoice(room,recipient,{bonusDanger:bonus});
+  if(reward.slot)addEquipment(recipient,reward);else if(recipient.inventory.length<4)recipient.inventory.push(reward);else room.sharedInventory.push(reward);
+  const buff=maybePositiveStatus(room,recipient,.04);
+  room.nodeReward={type:'supply',title:supply.name,text:supply.description,recipientId:recipient.id,reward,quality:reward.rarity||'common',status:buff?.id||null};
+  room.eventResult={degree:'supply',text:`${recipient.name} 取得「${reward.name}」${reward.slot?'，已收入裝備庫':''}${buff?`，並獲得「${buff.name}」`:''}。`,damage:0};
+  finishImmediateNode(room);return reward;
+}
+function resolveRest(room){
+  const rest=randomFrom(REST_NODES),healed=[];
+  for(const player of room.players){
+    const baseHeal=room.areaIndex===0?.34:room.areaIndex===1?.28:.24,amount=healPlayer(player,Math.round(player.maxHp*Math.max(rest.healPercent,baseHeal)));healed.push({playerId:player.id,amount});
+    if(Math.random()<.55){const debuffs=(player.statuses||[]).filter(s=>getStatus(s.id)?.type==='debuff');if(debuffs.length)removeStatus(player,randomFrom(debuffs).id);}
+  }
+  room.exploration.danger=Math.max(0,room.exploration.danger-(room.areaIndex===0?2:1));room.nodeReward={type:'rest',title:rest.name,text:rest.description,healed};room.eventResult={degree:'rest',text:`${rest.description} 全隊恢復狀態，危險度下降。`,damage:0};tickStatuses(room.players,{combatRound:false});finishImmediateNode(room);return healed;
+}
+function enterCurrentNode(room){
+  room.currentEvent=null;room.eventResult=null;room.combat=null;room.shop=null;room.nodeReward=null;room.votes={};const node=currentNode(room);if(!node||!node.selected)return null;
+  room.exploration.scenes+=1;
+  if(node.type==='event')room.currentEvent=pickEvent(room,eventOptions);
+  else if(['combat','elite','boss'].includes(node.type))startCombat(room,node.type);
+  else if(node.type==='supply')return awardSupply(room);
+  else if(node.type==='rest')return resolveRest(room);
+  else if(node.type==='shop')openShop(room);
+  persist();return node;
+}
+function resolveEvent(room){
+  if(!room.currentEvent)return null;const active=room.players.filter(p=>p.connected&&p.hp>0);if(!active.length||active.some(p=>!room.votes[p.id]))return null;
+  const check=resolveEventCheck(room,room.currentEvent,room.votes,active),outcome=outcomeForDegree(room,check.degree,check.balance);
+  room.eventResult={degree:check.degree,die:check.die,modifier:check.modifier,total:check.total,dc:check.dc,text:['critical','success','mixed'].includes(check.degree)?room.currentEvent.success:room.currentEvent.failure,contributions:check.contributions,...outcome};
+  markCurrentNodeResolved(room);tickStatuses(room.players,{combatRound:false});checkDefeat(room);if(room.phase==='exploration')primeFogAfterResolution(room);persist();return room.eventResult;
+}
+function advanceChapterAfterBoss(room){if(room.exploration.position!==BOSS_INDEX||room.eventResult?.degree!=='boss-victory')return false;if(beginNextArea(room)){prepareInitialRoute(room);return true;}room.phase='victory';persist();return true;}
+module.exports={EVENT_ACTIONS,eventOptions,enterCurrentNode,resolveEvent,advanceChapterAfterBoss,awardSupply,resolveRest,awardGoldToParty,currentNode,markCurrentNodeResolved};
