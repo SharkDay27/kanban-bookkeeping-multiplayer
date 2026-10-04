@@ -7,12 +7,13 @@
   <title>探索遊戲｜多人 TRPG</title>
   <link rel="stylesheet" href="/css/multiplayer.css" />
   <link rel="stylesheet" href="/css/combat-enhancements.css" />
+  <link rel="stylesheet" href="/css/v083.css" />
 </head>
 <body>
   <main class="shell">
     <header class="topbar">
-      <div><div class="eyebrow">MULTIPLAYER EXPEDITION · v0.8.2</div><h1>探索遊戲｜多人 TRPG</h1></div>
-      <div class="top-statuses"><div id="connection" class="status">連線中…</div><div id="deployMode" class="status subtle">WEB</div></div>
+      <div><div class="eyebrow">MULTIPLAYER EXPEDITION · v0.8.3</div><h1>探索遊戲｜多人 TRPG</h1></div>
+      <div class="top-statuses"><div id="connection" class="status">連線中…</div><button id="forgetSession" class="status host-clear hidden">清除本機聯機資料</button><div id="deployMode" class="status subtle">WEB</div></div>
     </header>
     <div id="reconnectBanner" class="reconnect-banner hidden">連線暫時中斷，伺服器會保留你的席位並自動重新連線。</div>
     <div id="resumeStatus" class="resume-status" aria-live="polite"></div>
@@ -32,11 +33,7 @@
           <div id="playerList" class="player-list"></div>
           <button id="startGame" class="hidden">開始遠征</button>
         </aside>
-        <aside id="hostTools" class="card host-tools hidden">
-          <div class="section-title">HOST / 房主管理</div>
-          <p>此區只有房主可見。</p>
-          <button id="forgetSession" class="danger-ghost compact">清除本機聯機資料</button>
-        </aside>
+        <aside id="hostTools" class="hidden" aria-hidden="true"></aside>
       </div>
       <section class="card center-card main-panel">
         <div id="lobbySetup">
@@ -65,6 +62,7 @@
           <div id="combatPanel" class="combat-panel hidden">
             <div id="combatStage" class="combat-stage">
               <div class="combat-heading-row"><div id="enemyKind" class="enemy-kind"></div><div id="combatRound" class="combat-round"></div></div>
+              <div id="bossPhase" class="boss-phase hidden"></div>
               <h2 id="enemyName"></h2>
               <p id="enemyTrait" class="enemy-trait"></p>
               <div class="enemy-hp-line"><div class="enemy-hp-copy"><span>HP</span><strong id="enemyHpText"></strong></div><div class="enemy-hp-track"><i id="enemyHpBar"></i></div></div>
@@ -89,5 +87,6 @@
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/multiplayer.js"></script>
   <script src="/js/combat-enhancements.js"></script>
+  <script src="/js/v083-ui.js"></script>
 </body>
 </html>
