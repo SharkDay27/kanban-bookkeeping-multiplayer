@@ -14,7 +14,9 @@
  let animations=true;try{animations=localStorage.getItem('kbm-dice-animation')!=='off';}catch{}
  const enabled=()=>animations;
  function setEnabled(value){animations=!!value;try{localStorage.setItem('kbm-dice-animation',animations?'on':'off');}catch{}}
- function coin(value,used=false){const el=document.createElement('span');el.className='coin-die '+(value?'front':'back')+(used?' spent':'');el.textContent=value?'1':'0';el.setAttribute('aria-label',value?'正面 1 點':'反面 0 點');return el;}
+ function coin(){const el=document.createElement('span');el.className='coin-die waiting';el.setAttribute('aria-label','骰子等待投擲，結果尚未揭示');const inner=document.createElement('span');inner.className='coin-inner';for(const face of ['positive','empty']){const side=document.createElement('i');side.className='coin-face coin-'+face;side.setAttribute('aria-hidden','true');inner.appendChild(side);}el.appendChild(inner);return el;}
+ function reveal(tray,rolls,usedBefore=0){let heads=0;[...tray.children].forEach((el,i)=>{const positive=rolls[i]===1,spent=positive&&heads++<usedBefore;el.classList.remove('waiting');el.classList.add(positive?'front':'back');if(spent)el.classList.add('spent');el.setAttribute('aria-label',spent?'已消耗的有效骰子':positive?'有效骰子':'無效骰子');});}
+ async function toss(tray,rolls,reduced,usedBefore=0){if(!reduced&&rolls.length){tray.classList.add('coin-rolling');await wait(850);tray.classList.remove('coin-rolling');}reveal(tray,rolls,usedBefore);}
  async function showClashes(records){
   const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   for(const r of records){if(!animations)break;
@@ -22,12 +24,14 @@
    const title=document.createElement('strong');title.textContent=r.name;panel.appendChild(title);
    const trays=[];
    for(const [label,rolls] of [['攻擊骰',r.attackRolls],['防禦骰',r.defenseRolls]]){
-    const side=document.createElement('div');side.className='binary-side';const h=document.createElement('small');h.textContent=label;const tray=document.createElement('div');tray.className='binary-tray';let heads=0;
-    rolls.forEach(n=>{const used=label==='防禦骰'&&n&&heads++<Number(r.defenseUsedBefore||0);tray.appendChild(coin(n,used));});side.append(h,tray);panel.appendChild(side);trays.push(tray);
+    const side=document.createElement('div');side.className='binary-side';const h=document.createElement('small');h.textContent=label;const tray=document.createElement('div');tray.className='binary-tray';
+    rolls.forEach(()=>tray.appendChild(coin()));side.append(h,tray);panel.appendChild(side);trays.push(tray);
    }
    const result=document.createElement('p');result.className='coin-result';result.textContent='攻擊擲骰…';panel.appendChild(result);document.body.appendChild(panel);
    try{
-    if(!reduced){trays[0].classList.add('coin-rolling');await wait(450);trays[0].classList.remove('coin-rolling');result.textContent='防禦擲骰…';if(r.defenseFresh!==false){trays[1].classList.add('coin-rolling');await wait(450);trays[1].classList.remove('coin-rolling');}}
+    if(r.defenseFresh===false)reveal(trays[1],r.defenseRolls,Number(r.defenseUsedBefore||0));
+    await toss(trays[0],r.attackRolls,reduced);result.textContent=r.defenseFresh===false?'沿用本回合防禦骰…':'防禦擲骰…';
+    if(r.defenseFresh!==false)await toss(trays[1],r.defenseRolls,reduced,Number(r.defenseUsedBefore||0));
     result.textContent=`攻擊 ${r.attackTotal} − 防禦 ${r.defenseTotal} → 抵消 ${Math.min(r.attackTotal,r.defenseTotal)} 對`;
     const attack=[...trays[0].querySelectorAll('.front:not(.spent)')],defense=[...trays[1].querySelectorAll('.front:not(.spent)')];
     for(let i=0;i<Math.min(attack.length,defense.length);i++){attack[i].classList.add('coin-cut');defense[i].classList.add('coin-cut');}
