@@ -68,7 +68,9 @@
       if(res.victory){focus('victory','戰鬥結束','敵方已被擊破',`+${res.gold||0} 金幣`);window.KBMCombatSounds?.victory();await sleep(800);}
     }finally{playing=false;document.body.classList.remove('battle-playing');document.getElementById('combatPanel')?.classList.remove('combat-resolving');document.getElementById('battleFocus')?.classList.add('hidden');render(state.room);window.KBMCombatVFX?.shield(state.room);window.KBMBuildEconomyUI?.apply(state.room);window.KBMDeckUI?.apply(state.room);window.KBMOutcomeUI?.apply(state.room);}
   }
+  function isResolving(room){return playing||!!(room?.combat?.lastResolution?.serial&&room.combat.lastResolution.serial!==lastSerial);}
   function render(room){
+    document.body.classList.toggle('combat-active',!!room?.combat&&!room.shop&&room.phase!=='lobby'&&(!room.combat.ended||isResolving(room)));
     if(playing)return;ensure();const c=room?.combat;if(!c)return;const pending=!!c.lastResolution?.serial&&c.lastResolution.serial!==lastSerial;const ended=room.phase==='defeat'||!!c.ended||['combat-victory','boss-victory'].includes(room.eventResult?.degree),strip=document.getElementById('combatStatusStrip');if(strip){strip.innerHTML=ended?'<span>戰鬥結束</span>':`<span>${c.kind==='boss'?'BOSS':c.kind==='elite'?'精英戰':'戰鬥中'}</span><b>ROUND ${Number(c.round||1)}</b><em>敵方 ${alive(c).length}</em>`;strip.classList.toggle('ended',ended);}
     document.getElementById('combatPanel')?.classList.toggle('combat-result-only',ended&&!pending);
     document.getElementById('combatStage')?.classList.add('hidden');
@@ -79,5 +81,5 @@
   }
   socket.on('room:update',room=>requestAnimationFrame(()=>render(room)));
   requestAnimationFrame(()=>state?.room?.combat&&render(state.room));
-  window.KBMCombatUI={render};
+  window.KBMCombatUI={render,isResolving};
 })();

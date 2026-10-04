@@ -7,3 +7,12 @@
 #combatPanel.combat-result-only>:not(#combatResult){display:none!important}#combatPanel.combat-result-only{padding:0;border:0;background:none;box-shadow:none}.deck-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:5px 0}.deck-card{min-width:0;position:relative}.deck-card .card-surface{height:142px;cursor:default}.deck-card .card-center{font-size:8px}.deck-card-count{position:absolute;top:4px;right:4px;z-index:1;padding:2px 5px;border:1px solid #bdb1a2;background:#fffaf0;border-radius:6px;color:#564e42;font-size:11px;font-weight:800}.deck-card>small{display:block;font-size:9px;line-height:1.4;margin:3px 0}.deck-card .ability-face>strong{font-size:11px}.card-sell-count{font-size:10px;color:#7a6a55}
 
 .enemy-played-cards{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}.enemy-played-cards>span{font-size:9px;border-top:3px solid var(--sin);background:#f7f2e9;border-radius:4px;padding:4px 6px;color:#514a42}.enemy-played-cards>small{width:100%;font-size:8px;color:#827568}.clash-toast{width:min(520px,calc(100vw - 28px))}.clash-side .dice-tray{gap:5px;padding:5px}.clash-side .dice-stage,.clash-side .dice-flat{width:30px;height:30px}.clash-side .cube-face{padding:5px;gap:2px}.clash-side.attack .cube-face{background:#f1e8dc;border-color:#c8b29a}.clash-side.defense .cube-face{background:#e3ece7;border-color:#a4bcb0}
+
+/* Keep touch confirmation in reach and remove the exploration overview during mobile combat. */
+@media(max-width:760px){
+ body.combat-active #expeditionOverview{display:none}
+ body.combat-active #combatPanel{overflow-anchor:none}
+ #combatPanel:not(.combat-result-only) .confirm-bar{position:sticky;bottom:0;z-index:35;grid-template-columns:1fr;background:#faf7f1f5;border:1px solid #d8e3dc;border-radius:10px;padding:8px 8px calc(8px + env(safe-area-inset-bottom))!important;box-shadow:0 -4px 18px #62564b12;backdrop-filter:blur(8px);min-height:74px}
+ #combatPanel .confirm-bar>button{min-height:48px!important;font-size:13px!important;touch-action:manipulation}
+ #combatPanel .confirm-bar>span{font-size:9px!important;line-height:1.4}
+}
