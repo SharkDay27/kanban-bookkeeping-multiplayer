@@ -17,3 +17,8 @@
 .enemy-card-head .enemy-shield-chip{order:1}
 .enemy-card .combat-hp{margin:5px 0 0!important}
 @media(max-width:380px){.enemy-card-head{gap:4px!important}.enemy-card-head .intent-card{gap:3px}.enemy-card-head .intent-card>span,.enemy-card-head .intent-copy{padding:2px 3px}.enemy-card-head>div.enemy-identity:first-child{max-width:29%}}
+
+/* Save and volume stay together on one responsive row. */
+.top-statuses .save-audio-row{display:flex;align-items:center;justify-content:flex-end;gap:6px;flex-wrap:nowrap;width:100%;min-width:0}
+.save-audio-row #sfxControls{width:auto;flex:0 1 auto;flex-wrap:nowrap}.save-audio-row #forgetSession{flex:0 0 auto;white-space:nowrap}.save-audio-row .v14-volume{flex:0 1 auto;max-width:none}.save-audio-row .v14-volume span{display:inline}.save-audio-row .v14-volume input{width:88px;min-width:48px}
+@media(max-width:640px){.save-audio-row .v14-volume input{width:68px}.save-audio-row .v14-volume{padding:0 8px}.save-audio-row #forgetSession{font-size:9px}}
