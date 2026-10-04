@@ -1,6 +1,7 @@
 const {persist}=require('../room/room-manager');
 const {addEquipment}=require('../equipment/equipment-manager');
 const {generateShopStock}=require('./shop-generator');
+const {consumableDiscount}=require('../relics/relic-effects');
 
 function openShop(room){
   room.shop={title:'行商補給站',stock:generateShopStock(room),ready:{},openedAt:Date.now()};
@@ -11,9 +12,10 @@ function buyShopItem(room,player,offerId){
   if(room.shop.ready?.[player.id])throw new Error('你已經完成購物。');
   const offer=room.shop.stock.find(o=>o.offerId===offerId);if(!offer)throw new Error('找不到這件商品。');
   if(offer.soldTo)throw new Error('這件商品已售出。');
-  if(player.gold<offer.price)throw new Error('金幣不足。');
-  const item={...offer.item};if(!item.slot&&player.inventory.length>=4)throw new Error('消耗品欄已滿。');
-  player.gold-=offer.price;if(item.slot)addEquipment(player,item);else player.inventory.push(item);offer.soldTo=player.id;persist();return {item,price:offer.price};
+  const item={...offer.item},discount=item.slot?0:consumableDiscount(player),price=Math.max(1,Math.round(Number(offer.price||0)*(1-discount)));
+  if(player.gold<price)throw new Error('金幣不足。');
+  if(!item.slot&&player.inventory.length>=4)throw new Error('消耗品欄已滿。');
+  player.gold-=price;if(item.slot)addEquipment(player,item);else player.inventory.push(item);offer.soldTo=player.id;persist();return {item,price,discount};
 }
 function shopReady(room,player){
   if(!room.shop)throw new Error('目前不在商店。');room.shop.ready[player.id]=true;
