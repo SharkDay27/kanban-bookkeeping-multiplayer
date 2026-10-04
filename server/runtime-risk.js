@@ -31,23 +31,23 @@ function rarityWeight(rarity,danger,lootBonus=0,chapter=0){
 function pickReward(pool,danger,player,chapter){
   return weightedPick(pool.map((item)=>({value:item,weight:rarityWeight(item.rarity||'common',danger,playerLootBonus(player),chapter)})));
 }
-function chooseNextNodeType(room){
+function nodeWeights(room,index=0){
   const danger=Math.max(0,Math.min(8,room.exploration.danger));
   const chapter=room.areaIndex||0,b=balance(room);
   const safety=chapter===0?7:chapter===1?0:-4;
-  return weightedPick([
-    {value:'event',weight:38-danger*2.2+safety},
-    {value:'combat',weight:24+danger*2+chapter*3},
-    {value:'supply',weight:18-danger*.5+(chapter===0?4:0)},
-    {value:'rest',weight:14-danger*.9+(chapter===0?4:chapter===1?1:0)},
-    {value:'elite',weight:Math.max(2,3+danger*2.6+b.eliteBias)}
-  ]);
+  const early=index<=2,late=index>=9;
+  return [
+    {value:'event',weight:38-danger*2.2+safety+(early?6:0)},
+    {value:'combat',weight:24+danger*2+chapter*3+(late?4:0)},
+    {value:'supply',weight:18-danger*.5+(chapter===0?4:0)+(early?3:0)},
+    {value:'rest',weight:14-danger*.9+(chapter===0?4:chapter===1?1:0)+(late?-2:0)},
+    {value:'shop',weight:index===0?0:8+(index>=4?3:0)+(chapter===0?1:0)},
+    {value:'elite',weight:index<3?0:Math.max(2,3+danger*2.6+b.eliteBias+(late?4:0))}
+  ];
 }
-function revealNode(room,index,NODE_LABELS){
-  const node=room.exploration.route[index];
-  if(!node||node.revealed) return node;
-  if(index===9){ node.type='boss'; node.label='BOSS'; node.revealed=true; return node; }
-  node.type=chooseNextNodeType(room); node.label=NODE_LABELS[node.type]; node.revealed=true; return node;
+function chooseNextNodeType(room,index=0,exclude=[]){
+  const blocked=new Set(exclude);
+  return weightedPick(nodeWeights(room,index).map((entry)=>({...entry,weight:blocked.has(entry.value)?0:entry.weight})));
 }
 function fallbackEvent(area){
   return {area:area.id,id:`fallback-${area.id}-${Date.now()}`,name:`${area.name}：未確認異常`,theme:'unknown',difficulty:5,description:'前方出現尚未歸檔的異常徵兆。',success:'你們確認安全路線並繼續深入。',failure:'判斷失誤讓局勢惡化。'};
@@ -92,5 +92,5 @@ function rewardChoice(room,player,{bonusDanger=0,equipmentBias=0}={}){
 
 module.exports={
   CHAPTER_BALANCE,PARTY_SCALE,balance,randomFrom,weightedPick,areaOf,rarityWeight,pickReward,
-  chooseNextNodeType,revealNode,pickEvent,scaledEnemy,pickPositiveStatus,rewardChoice
+  nodeWeights,chooseNextNodeType,pickEvent,scaledEnemy,pickPositiveStatus,rewardChoice
 };
