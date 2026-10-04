@@ -4,7 +4,7 @@ const {
   toggleArea,setSinner,publicRoom,rooms,RECONNECT_GRACE_MS,signRecovery,recoverySnapshot,
   persist,resetForStart,restartRoom
 }=require('./room/room-manager');
-const {selectCombatAction,confirmCombatAction,cancelCombatConfirm,useConsumable}=require('./combat/combat-manager');
+const {selectCombatAction,selectCombatCards,useAbilityCard,confirmCombatAction,cancelCombatConfirm,useConsumable}=require('./combat/combat-manager');
 const {enterCurrentNode,resolveEvent,advanceChapterAfterBoss}=require('./expedition/expedition-manager');
 const {prepareInitialRoute,primeFogAfterResolution}=require('./expedition/route-generator');
 const {resolveRouteVote}=require('./expedition/route-voting');
@@ -15,7 +15,8 @@ const {chooseRelic,pendingRelicChoices}=require('./relics/relic-manager');
 const {sell}=require('./shop/shop-sales');
 const {equipFromInventory,unequip}=require('./equipment/equipment-manager');
 
-function gameDataPayload(){return {areas:AREAS,sinners:SINNERS,statusEffects:STATUS_EFFECTS,sinnerSkills:SINNER_SKILLS,relics:EXPEDITION_RELICS,buildTags:BUILD_TAGS,skillUpgradeOptions:Object.fromEntries(SINNER_SKILLS.map(s=>[s.id,upgradeOptionsFor(s)]))};}
+const Cards=require('../shared/cards');
+function gameDataPayload(){return {cards:Cards.COLLECTIBLE,cardSins:Cards.SINS,lcbDecks:Cards.LCB,areas:AREAS,sinners:SINNERS,statusEffects:STATUS_EFFECTS,sinnerSkills:SINNER_SKILLS.map(s=>({...s,cardRequirement:Cards.requirement(s,SINNER_SKILLS.filter(x=>x.sinnerId===s.sinnerId).findIndex(x=>x.id===s.id))})),relics:EXPEDITION_RELICS,buildTags:BUILD_TAGS,skillUpgradeOptions:Object.fromEntries(SINNER_SKILLS.map(s=>[s.id,upgradeOptionsFor(s)]))};}
 function getContext(room,socket){const player=room?.players.find(p=>p.socketId===socket.id&&p.connected);if(!room||!player)throw new Error('你不在這個房間。');return player;}
 function sessionPayload(room,player){return {ok:true,room:publicRoom(room),selfId:player.id,reconnectToken:player.reconnectToken,recoveryToken:player.id===room.hostId?signRecovery(room):null,recoverySnapshot:player.id===room.hostId?recoverySnapshot(room):null,gameData:gameDataPayload()};}
 function emitRoom(io,room){io.to(room.id).emit('room:update',publicRoom(room));const host=room.players.find(p=>p.id===room.hostId&&p.connected&&p.socketId);if(host)io.to(host.socketId).emit('room:recovery',{recoveryToken:signRecovery(room),recoverySnapshot:recoverySnapshot(room)});}
@@ -38,6 +39,8 @@ function registerSocketHandlers(io){
     socket.on('event:vote',({roomId,optionId},ack=()=>{})=>{try{const {room,player}=withRoom(roomId,socket);if(room.phase!=='exploration')throw new Error('目前不在遠征中。');if(room.combat)throw new Error('戰鬥行動請使用確認制。');const options=room.currentEvent?.options;if(!options?.some(o=>o.id===optionId))throw new Error('無效行動。');room.votes[player.id]=optionId;persist();resolveEvent(room);emitRoom(io,room);ack({ok:true});}catch(e){ack({ok:false,error:e.message});}});
 
     socket.on('combat:select',({roomId,actionId,targetId,partId},ack=()=>{})=>{try{const {room,player}=withRoom(roomId,socket);const selection=selectCombatAction(room,player,{actionId,targetId,partId});emitRoom(io,room);ack({ok:true,selection});}catch(e){ack({ok:false,error:e.message});}});
+    socket.on('combat:cards',({roomId,...data},ack=()=>{})=>{try{const {room,player}=withRoom(roomId,socket);const selection=selectCombatCards(room,player,data);emitRoom(io,room);ack({ok:true,selection});}catch(e){ack({ok:false,error:e.message});}});
+    socket.on('combat:ability',({roomId,...data},ack=()=>{})=>{try{const {room,player}=withRoom(roomId,socket);const result=useAbilityCard(room,player,data);emitRoom(io,room);ack({ok:true,...result});}catch(e){ack({ok:false,error:e.message});}});
     socket.on('combat:confirm',({roomId},ack=()=>{})=>{try{const {room,player}=withRoom(roomId,socket);const result=confirmCombatAction(room,player);emitRoom(io,room);ack({ok:true,resolved:!!result});}catch(e){ack({ok:false,error:e.message});}});
     socket.on('combat:cancel-confirm',({roomId},ack=()=>{})=>{try{const {room,player}=withRoom(roomId,socket);cancelCombatConfirm(room,player);emitRoom(io,room);ack({ok:true});}catch(e){ack({ok:false,error:e.message});}});
 

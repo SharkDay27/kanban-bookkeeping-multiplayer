@@ -10,7 +10,7 @@ function upgradeOptionsFor(skillOrId){
   ];
   if(kind==='team-buff')return [
     branch(`${s.id}:long`,'持續強化','增益持續時間 +1 回合。',{buffDurationAdd:1},50),
-    branch(`${s.id}:tempo`,'快速循環','技能冷卻 -1。',{cooldownReduction:1},55)
+    branch(`${s.id}:tempo`,'快速循環','此技能發動後，下回合多抽 1 張（額外抽牌合計上限 2）。',{cooldownReduction:1},55)
   ];
   if(type==='slash')return [
     branch(`${s.id}:power`,'斬擊深化',`威力提高${power>0?'，更適合直接爆發':''}。`,{powerMult:1.18},50),
@@ -26,7 +26,7 @@ function upgradeOptionsFor(skillOrId){
   ];
   return [
     branch(`${s.id}:power`,'強化式','提高技能主要效果。',{powerMult:1.16,healAdd:4,shieldAdd:4},50),
-    branch(`${s.id}:tempo`,'循環式','技能冷卻 -1。',{cooldownReduction:1},55)
+    branch(`${s.id}:tempo`,'循環式','此技能發動後，下回合多抽 1 張（額外抽牌合計上限 2）。',{cooldownReduction:1},55)
   ];
 }
 function applyUpgrade(skill,upgradeId){

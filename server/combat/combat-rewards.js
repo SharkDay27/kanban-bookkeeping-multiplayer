@@ -1,3 +1,5 @@
+const {grantCard}=require('../cards/card-manager');
+const {COLLECTIBLE}=require('../../shared/cards');
 const {combatGoldReward}=require('../economy');
 const {primeFogAfterResolution}=require('../expedition/route-generator');
 const {goldMultiplier,extraGoldFromLostHp}=require('../relics/relic-effects');
@@ -14,8 +16,9 @@ function finishVictory(room){
   room.eventResult={degree:combat.kind==='boss'?'boss-victory':'combat-victory',text:`戰鬥勝利。隊伍取得戰鬥金幣。`,gold:baseGold,goldByPlayer};
   markCurrentNodeResolved(room);primeFogAfterResolution(room);
   const hasNextArea=room.areaIndex<room.selectedAreas.length-1;
-  room.relicChoices={};room.eventResult.lootByPlayer={};
+  room.relicChoices={};room.eventResult.lootByPlayer={};room.eventResult.cardLootByPlayer={};
   for(const player of room.players.filter(p=>p.connected&&p.hp>0)){
+    if(!(combat.kind==='boss'&&!hasNextArea)&&Math.random()<(combat.kind==='combat'?.45:.8)){const card=grantCard(player,pickReward(COLLECTIBLE,room.exploration.danger,player,room.areaIndex));if(card)room.eventResult.cardLootByPlayer[player.id]=card;}
     const relicChance=combat.kind==='combat'?.18:1;
     if(Math.random()<relicChance && !(combat.kind==='boss'&&!hasNextArea)){
       const choices=choicesForPlayer(player,combat.kind,3).map(r=>r.id);

@@ -1,3 +1,5 @@
+const {grantCard}=require('../cards/card-manager');
+const {COLLECTIBLE}=require('../../shared/cards');
 const {SUPPLIES,REST_NODES,getStatus}=require('../../shared/game-data');
 const {persist,beginNextArea,BOSS_INDEX}=require('../room/room-manager');
 const {addStatus,removeStatus,healPlayer,tickStatuses}=require('../status/status-manager');
@@ -14,7 +16,7 @@ function markCurrentNodeResolved(room){const node=currentNode(room);if(node)node
 function finishImmediateNode(room){markCurrentNodeResolved(room);primeFogAfterResolution(room);persist();}
 function awardSupply(room,bonus=0){
   const supply=randomFrom(SUPPLIES),recipients=room.players.filter(p=>p.connected),rewards=[];
-  for(const recipient of recipients){const reward=rewardChoice(room,recipient,{bonusDanger:bonus});if(reward.slot)addEquipment(recipient,reward);else if(recipient.inventory.length<4)recipient.inventory.push(reward);else room.sharedInventory.push(reward);const buff=maybePositiveStatus(room,recipient,.04);rewards.push({playerId:recipient.id,playerName:recipient.name,reward,quality:reward.rarity||'common',status:buff?.id||null,statusName:buff?.name||''});}
+  for(const recipient of recipients){const reward=rewardChoice(room,recipient,{bonusDanger:bonus});if(reward.slot)addEquipment(recipient,reward);else if(recipient.inventory.length<4)recipient.inventory.push(reward);else room.sharedInventory.push(reward);const card=Math.random()<.5?grantCard(recipient,randomFrom(COLLECTIBLE)):null;const buff=maybePositiveStatus(room,recipient,.04);rewards.push({playerId:recipient.id,playerName:recipient.name,reward,card,quality:reward.rarity||'common',status:buff?.id||null,statusName:buff?.name||''});}
   room.nodeReward={type:'supply',title:supply.name,text:supply.description,rewards};
   room.eventResult={degree:'supply',text:`${supply.description} 每位在線隊員都取得 1 份補給。`,damage:0,rewards};
   finishImmediateNode(room);return rewards;

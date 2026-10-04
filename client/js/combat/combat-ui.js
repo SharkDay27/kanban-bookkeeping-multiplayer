@@ -19,25 +19,6 @@
     const c=room.combat,sel=currentSelection(room),id=sel?.targetId||draftTarget;
     return alive(c).find(e=>e.instanceId===id)||alive(c)[0]||null;
   }
-  function actionsFor(player){
-    const weapon=player?.equipment?.weapon,types=Array.isArray(weapon?.attackTypes)&&weapon.attackTypes.length?weapon.attackTypes:['blunt'];
-    const attacks=types.map(type=>({id:`attack:${type}`,label:`${weapon?.name||'徒手攻擊'}・${TYPE_LABEL[type]||type}`,stat:'combat',statLabel:'戰鬥',kind:'weapon-attack',damageType:type,power:1.35,desc:`使用目前武器進行${TYPE_LABEL[type]||type}攻擊。`}));
-    const basics=[{id:'guard',label:'防禦',stat:'stability',statLabel:'穩定',kind:'guard',desc:'本回合受到的傷害大幅降低。'},{id:'analyze',label:'觀察弱點',stat:'observe',statLabel:'觀察',kind:'analyze',desc:'降低敵人防禦並增加線索。'}];
-    const skills=(player?.learnedSkills||[]).map(skill).filter(Boolean).map(s=>({...s,label:s.name,skillId:s.id,statLabel:{combat:'戰鬥',observe:'觀察',mobility:'機動',stability:'穩定'}[s.stat]||'技能'}));
-    return [...attacks,...basics,...skills];
-  }
-  function estimate(room,player,a,target,part){
-    if(!a||['guard','analyze'].includes(a.id)||['heal','team-buff'].includes(a.kind))return {text:a?.id==='guard'?'減傷約 52%':a?.id==='analyze'?'降低防禦／取得線索':'輔助技能'};
-    const stat=Math.max(1,playerStat(player,a.stat||'combat')),power=Number(a.power||1.35),flat=a.kind==='weapon-attack'?0:2;
-    let min=Math.max(1,Math.round(stat*power)+flat),max=min+6;
-    if(a.partBonus&&part){min=Math.round(min*(1+a.partBonus));max=Math.round(max*(1+a.partBonus));}
-    if(a.minionBonus&&target?.role==='minion'){min=Math.round(min*(1+a.minionBonus));max=Math.round(max*(1+a.minionBonus));}
-    if(a.bossBonus&&['boss','elite'].includes(target?.role)){min=Math.round(min*(1+a.bossBonus));max=Math.round(max*(1+a.bossBonus));}
-    if(a.dangerScale){const d=1+Number(room.exploration?.danger||0)*a.dangerScale;min=Math.round(min*d);max=Math.round(max*d);}
-    const mult=a.damageType?Number(target?.resistances?.[a.damageType]??1):1;min=Math.max(1,Math.round(min*mult));max=Math.max(min,Math.round(max*mult));
-    const def=KBMCheckRules.attackDc(stat,target,a,player?.relics),mod=KBMCheckRules.combatModifier(stat);let hits=0;for(let d=1;d<=20;d++)if(d===20||d+mod>=def)hits++;
-    return {min,max,hit:Math.round(hits/20*100),mult,relation:relation(mult),text:`${min}～${max} 傷害 · 命中約 ${Math.round(hits/20*100)}%`};
-  }
   function ensure(){
     const panel=document.getElementById('combatPanel');if(!panel)return;
     const stage=document.getElementById('combatStage');stage?.classList.add('combat-stage-compact');
@@ -54,26 +35,16 @@
     const c=room.combat,root=document.getElementById('combatEnemyRoster');if(!root||!c)return;const sel=currentSelection(room),targetId=sel?.targetId||draftTarget||alive(c)[0]?.instanceId;
     root.innerHTML=c.blockChallenge?`<div class="block-warning"><strong>阻擋要求</strong><span>本回合對指定攻擊部位造成至少 <b>${Number(c.blockChallenge.requiredDamage||0)}</b> 傷害，可中斷「${esc(c.blockChallenge.label||'蓄力攻擊')}」。</span></div>`:'';
     root.innerHTML+=`<div class="enemy-grid">${(c.enemies||[]).filter(e=>e.currentHp>0||!deathPlayed.has(e.instanceId)).map(e=>{const intent=c.intents?.[e.instanceId],pct=e.maxHp?Math.max(0,e.currentHp/e.maxHp*100):0,selected=e.instanceId===targetId;return `<article class="enemy-card ${selected?'selected':''} ${esc(e.role)}" data-combat-target="${esc(e.instanceId)}"><div class="enemy-card-head"><div class="enemy-identity"><strong>${esc(e.name)}</strong><small>${e.role==='boss'?'BOSS':e.role==='elite'?'精英':'小怪'}</small></div>${resistanceHtml(e)}<div class="intent-card"><span>下一行動</span><div class="intent-copy"><b>${esc(intent?.label||'觀察中')}</b><small>${esc(intent?.description||'')}</small></div></div><span class="enemy-hp-value">${e.currentHp}/${e.maxHp}</span></div><div class="combat-hp"><i style="width:${pct}%"></i></div>${(e.parts||[]).length?`<div class="part-list">${e.parts.map(p=>`<button class="part-button" data-combat-part="${esc(p.id)}" data-enemy="${esc(e.instanceId)}" ${p.destroyed?'disabled':''}><span>${esc(p.name)}</span><b>${p.destroyed?'已破壞':`${p.currentHp}/${p.maxHp}`}</b><small>${esc(p.effect||'')}</small></button>`).join('')}</div>`:''}</article>`}).join('')}</div>`;
-    root.querySelectorAll('[data-combat-target]').forEach(el=>el.onclick=ev=>{if(ev.target.closest('[data-combat-part]'))return;draftTarget=el.dataset.combatTarget;draftPart=null;const s=currentSelection(room);if(s?.actionId)action('combat:select',{roomId:room.id,actionId:s.actionId,targetId:draftTarget,partId:null});else render(room);});
-    root.querySelectorAll('[data-combat-part]').forEach(btn=>btn.onclick=ev=>{ev.stopPropagation();draftTarget=btn.dataset.enemy;draftPart=btn.dataset.combatPart;const s=currentSelection(room);if(s?.actionId)action('combat:select',{roomId:room.id,actionId:s.actionId,targetId:draftTarget,partId:draftPart});else render(room);});
+    root.querySelectorAll('[data-combat-target]').forEach(el=>el.onclick=ev=>{if(ev.target.closest('[data-combat-part]'))return;draftTarget=el.dataset.combatTarget;draftPart=null;const s=currentSelection(room);window.KBMCardUI?.target(room,draftTarget,null);});
+    root.querySelectorAll('[data-combat-part]').forEach(btn=>btn.onclick=ev=>{ev.stopPropagation();draftTarget=btn.dataset.enemy;draftPart=btn.dataset.combatPart;const s=currentSelection(room);window.KBMCardUI?.target(room,draftTarget,draftPart);});
   }
-  function renderActions(room){
-    const root=document.getElementById('combatOptions'),player=me(room),c=room.combat;if(!root||!player||!c)return;const sel=currentSelection(room),target=currentTarget(room),part=target?.parts?.find(p=>p.id===(sel?.partId||draftPart)&&!p.destroyed)||null;
-    root.innerHTML=actionsFor(player).map(a=>{const cd=Number(c.cooldowns?.[player.id]?.[a.id]||0),selected=sel?.actionId===a.id,locked=!!sel?.confirmed||cd>0,est=estimate(room,player,a,target,part);return `<button class="event-option combat-action type-${esc(a.damageType||'utility')} ${selected?'selected':''}" data-combat-action="${esc(a.id)}" ${locked?'disabled':''}><div class="option-head"><span>${esc(a.label||a.name)}</span><em>${esc(a.damageType?TYPE_LABEL[a.damageType]:a.statLabel||a.stat||'技能')}</em></div><p>${esc(a.desc||a.description||'')}</p><div class="damage-preview">${cd>0?`冷卻 ${cd} 回合`:esc(est.text||'')}</div>${a.damageType&&target?`<div class="damage-relation ${typeClass(est.mult)}">${TYPE_LABEL[a.damageType]} ${est.relation} ×${Number(est.mult||1).toFixed(2)}</div>`:''}</button>`}).join('');
-    root.querySelectorAll('[data-combat-action]').forEach(btn=>btn.onclick=()=>{const targetNow=currentTarget(room)||alive(c)[0];draftTarget=targetNow?.instanceId||null;action('combat:select',{roomId:room.id,actionId:btn.dataset.combatAction,targetId:draftTarget,partId:draftPart});});
-  }
+  function renderActions(room){window.KBMCardUI?.render(room);}
   function renderTeam(room){
     const root=document.getElementById('teamActions'),c=room.combat;if(!root||!c)return;const active=room.players.filter(p=>p.connected&&p.hp>0),confirmed=active.filter(p=>c.selections?.[p.id]?.confirmed).length;
     root.innerHTML=`<div class="team-actions-title">隊伍行動 · ${confirmed}/${active.length} 已確認</div>${active.map(p=>{const s=c.selections?.[p.id],enemy=(c.enemies||[]).find(e=>e.instanceId===s?.targetId),part=enemy?.parts?.find(x=>x.id===s?.partId);return `<div class="team-action-row ${s?.confirmed?'confirmed':''}" data-player-id="${esc(p.id)}"><span>${esc(sinnerById(p.sinnerId)?.name||p.name)}</span><b>${esc(s?.label||'尚未選擇')}</b><small>${enemy?`→ ${esc(enemy.name)}${part?` / ${esc(part.name)}`:''}`:''}</small><em>${s?.confirmed?'已確認':s?'可更改':'思考中'}</em></div>`}).join('')}`;
   }
-  function renderConfirm(room){
-    const root=document.getElementById('confirmBar'),player=me(room),c=room.combat;if(!root||!player||!c)return;const s=c.selections?.[player.id],enemy=(c.enemies||[]).find(e=>e.instanceId===s?.targetId),part=enemy?.parts?.find(p=>p.id===s?.partId);
-    root.innerHTML=s?.confirmed?`<button id="cancelCombatConfirm" class="secondary">取消確認</button><span>等待其他隊員確認…</span>`:`<button id="confirmCombat" ${s?'':'disabled'}>確認本回合行動</button><span>${s?`已選：${esc(s.label)}${enemy?` → ${esc(enemy.name)}`:''}${part?` / ${esc(part.name)}`:''}${s.preview?.max?` · ${s.preview.min}～${s.preview.max} 傷害`:''}`:'先選擇行動與目標'}</span>`;
-    root.querySelector('#confirmCombat')?.addEventListener('click',()=>action('combat:confirm',{roomId:room.id}));root.querySelector('#cancelCombatConfirm')?.addEventListener('click',()=>action('combat:cancel-confirm',{roomId:room.id}));
-  }
-  function renderSkills(room){
-    const player=me(room),root=document.getElementById('mySinner');if(!player||!root||!player.sinnerId)return;root.querySelector('.skill-fold')?.remove();const list=(state.gameData?.sinnerSkills||[]).filter(s=>s.sinnerId===player.sinnerId),learned=player.learnedSkills||[];const d=document.createElement('details');d.className='inventory-fold skill-fold';d.innerHTML=`<summary>罪人技能 <span>${learned.length}/3</span></summary><div class="skill-list">${list.map(s=>{const has=learned.includes(s.id),can=!has&&learned.length<3&&Number(player.gold||0)>=Number(s.cost||0)&&!room.combat;return `<div class="skill-row ${has?'learned':''}"><div><strong>${esc(s.name)}</strong><small>${esc(s.description)}</small><em>${esc(s.stat)} · ${Number(s.cost||0)} 金幣</em></div><button data-learn-skill="${esc(s.id)}" ${can?'':'disabled'}>${has?'已學會':learned.length>=3?'已滿':`${Number(s.cost||0)} 金幣`}</button></div>`}).join('')}</div>`;root.appendChild(d);d.querySelectorAll('[data-learn-skill]').forEach(b=>b.onclick=()=>action('skill:learn',{roomId:room.id,skillId:b.dataset.learnSkill}));
-  }
+  function renderConfirm(room){window.KBMCardUI?.confirm(room);}
+  function renderSkills(room){window.KBMSkillUI?.apply(room);}
   function renderLog(room){const log=document.getElementById('combatLog');if(!log)return;const rows=room.combat?.log||[];log.innerHTML=rows.map(r=>`<div class="combat-log-row"><span>R${Number(r.round||0)}</span><p>${esc(r.text||'')}</p></div>`).join('');const fold=log.closest('.combat-log-fold');if(fold){fold.classList.remove('hidden');if(room.combat?.ended)fold.open=true;}}
   function renderResult(room){const result=document.getElementById('combatResult');if(!result)return;const ended=!!room.combat?.ended||['combat-victory','boss-victory'].includes(room.eventResult?.degree);result.classList.toggle('hidden',!ended);if(!ended)return;const r=room.eventResult||{};result.innerHTML=`<div class="combat-result-head"><span>COMBAT RESULT</span><strong>${r.degree==='boss-victory'?'BOSS 擊破':'戰鬥勝利'}</strong></div><p>${esc(r.text||'敵方已被擊破。')}</p>${Number(r.gold||0)>0?`<div class="combat-reward">每位隊員 +${Number(r.gold)} 金幣</div>`:''}`;}
   function focus(kind,title,body,amount=''){const box=document.getElementById('battleFocus');if(!box)return;box.className=`battle-focus ${kind}`;box.innerHTML=`<span>${esc(title)}</span><strong>${esc(body)}</strong>${amount?`<b>${esc(amount)}</b>`:''}`;}
@@ -82,17 +53,19 @@
   async function playResolution(room,res){
     if(playing)return;playing=true;document.body.classList.add('battle-playing');document.getElementById('combatPanel')?.classList.add('combat-resolving');
     try{
+      const rolledPlayers=new Set();
       for(const rec of res.players||[]){
-        if(Number(rec.die)>0)await window.KBMDice?.play([{name:rec.sinner,die:rec.die,total:rec.total}],"戰鬥擲骰");
-        const enemy=enemyEl(rec.targetId),support=['guard','heal','team-buff'].includes(rec.kind);
-        focus('player',rec.sinner,rec.action,rec.healing?.length?'恢復生命':rec.dealt>0?`-${rec.dealt}`:support?'防護 / 支援':'MISS');
+        if(rec.cardBased&&Number(rec.die)>0&&!rolledPlayers.has(rec.playerId)){rolledPlayers.add(rec.playerId);await window.KBMDice?.play((res.players||[]).filter(x=>x.playerId===rec.playerId&&x.cardBased&&Number(x.die)>0).map(x=>({name:`${x.sinner} · ${x.action}`,die:x.die,total:x.dealt})), '卡牌傷害擲骰');}
+        if(!rec.cardBased&&Number(rec.die)>0)await window.KBMDice?.play([{name:rec.sinner,die:rec.die,total:rec.total}],rec.cardBased?'卡牌傷害擲骰':'戰鬥擲骰');
+        const enemy=enemyEl(rec.targetId),support=['guard','card-guard','heal','team-buff'].includes(rec.kind);
+        focus('player',rec.sinner,rec.action,rec.shieldGained?`護盾 +${rec.shieldGained}`:rec.healing?.length?'恢復生命':rec.dealt>0?`-${rec.dealt}`:support?'防護 / 支援':'MISS');
         if(enemy&&!support){enemy.classList.add('target-focus');fx(enemy,rec.dealt>0?'combat-hit':'combat-block',rec.dealt>0?`-${rec.dealt}`:'MISS');}
         window.KBMCombatVFX?.attack(rec);if(rec.dealt>0)window.KBMCombatSounds?.attack(rec.damageType||'anomaly');else if(!support)window.KBMCombatSounds?.miss();await sleep(600);
         for(const id of rec.defeatedTargets||[]){if(!deathPlayed.has(id)){deathPlayed.add(id);window.KBMCombatVFX?.death(id);await sleep(950);}}enemy?.classList.remove('target-focus');
       }
       for(const er of res.enemyResults||[]){const el=enemyEl(er.enemyId);focus('enemy',el?.querySelector('strong')?.textContent||'敵人',er.label,er.blocked?'BLOCK':`-${er.damage||0}`);if(er.defeated&&!deathPlayed.has(er.enemyId)){deathPlayed.add(er.enemyId);window.KBMCombatVFX?.death(er.enemyId);}for(const id of er.targets||[])window.KBMCombatVFX?.playerEls(id).forEach(p=>{fx(p,'combat-hit',`-${er.damage||0}`);if(er.shieldBroken)window.KBMCombatVFX?.effect(p,'blunt');});await sleep(900);}
       if(res.victory){focus('victory','戰鬥結束','敵方已被擊破',`+${res.gold||0} 金幣`);window.KBMCombatSounds?.victory();await sleep(800);}
-    }finally{playing=false;document.body.classList.remove('battle-playing');document.getElementById('combatPanel')?.classList.remove('combat-resolving');document.getElementById('battleFocus')?.classList.add('hidden');render(state.room);window.KBMCombatVFX?.shield(state.room);window.KBMOutcomeUI?.apply(state.room);}
+    }finally{playing=false;document.body.classList.remove('battle-playing');document.getElementById('combatPanel')?.classList.remove('combat-resolving');document.getElementById('battleFocus')?.classList.add('hidden');render(state.room);window.KBMCombatVFX?.shield(state.room);window.KBMBuildEconomyUI?.apply(state.room);window.KBMDeckUI?.apply(state.room);window.KBMOutcomeUI?.apply(state.room);}
   }
   function render(room){
     if(playing)return;ensure();const c=room?.combat;if(!c)return;const pending=!!c.lastResolution?.serial&&c.lastResolution.serial!==lastSerial;const ended=!!c.ended||['combat-victory','boss-victory'].includes(room.eventResult?.degree),strip=document.getElementById('combatStatusStrip');if(strip){strip.innerHTML=ended?'<span>戰鬥結束</span>':`<span>${c.kind==='boss'?'BOSS':c.kind==='elite'?'精英戰':'戰鬥中'}</span><b>ROUND ${Number(c.round||1)}</b><em>敵方 ${alive(c).length}</em>`;strip.classList.toggle('ended',ended);}
@@ -104,5 +77,5 @@
   }
   socket.on('room:update',room=>requestAnimationFrame(()=>render(room)));
   requestAnimationFrame(()=>state?.room?.combat&&render(state.room));
-  window.KBMCombatUI={render,actionsFor,estimate};
+  window.KBMCombatUI={render};
 })();
