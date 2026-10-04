@@ -1,4 +1,4 @@
-function v12Esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[c]));}
+function v12Esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
 function v12EnsureStrip(){
   const panel=document.getElementById('combatPanel');if(!panel)return null;
   let strip=document.getElementById('v12CombatStrip');
@@ -23,11 +23,10 @@ function v12Apply(room){
   const panel=document.getElementById('combatPanel');if(!panel||!room.combat)return;
   const ended=v12CombatEnded(room),strip=v12EnsureStrip();
   document.getElementById('combatStage')?.classList.add('v12-hide-stage');
-  if(strip){strip.innerHTML=ended?'<span>戰鬥結束</span>':`<span>${room.combat.kind==='boss'?'BOSS':room.combat.kind==='elite'?'精英戰':'戰鬥中'}</span><b>ROUND ${Number(room.combat.round||1)}</b><em>敵方 ${Math.max(0,(room.combat.enemies||[]).filter(e=>e.currentHp>0).length}</em>`;strip.classList.toggle('ended',ended);}
-  const hideWhenEnded=['v10EnemyRoster','combatOptions','v10TeamActions','v10ConfirmBar','v11RoundProgress'];
-  hideWhenEnded.forEach(id=>document.getElementById(id)?.classList.toggle('v12-ended-hidden',ended));
+  if(strip){const alive=Math.max(0,(room.combat.enemies||[]).filter(e=>e.currentHp>0).length);strip.innerHTML=ended?'<span>戰鬥結束</span>':`<span>${room.combat.kind==='boss'?'BOSS':room.combat.kind==='elite'?'精英戰':'戰鬥中'}</span><b>ROUND ${Number(room.combat.round||1)}</b><em>敵方 ${alive}</em>`;strip.classList.toggle('ended',ended);}
+  ['v10EnemyRoster','combatOptions','v10TeamActions','v10ConfirmBar','v11RoundProgress'].forEach(id=>document.getElementById(id)?.classList.toggle('v12-ended-hidden',ended));
   panel.querySelectorAll('.action-prompt').forEach(el=>el.classList.toggle('v12-ended-hidden',ended));
-  const focus=document.getElementById('v11BattleFocus');if(ended&&!window.v11Playing)focus?.classList.add('hidden');
+  if(ended)document.getElementById('v11BattleFocus')?.classList.add('hidden');
   v12RenderResult(room);v12RenderLog(room);
 }
 socket.on('room:update',room=>requestAnimationFrame(()=>v12Apply(room)));
