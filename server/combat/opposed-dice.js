@@ -1,8 +1,8 @@
 const crypto=require('crypto'),{totals}=require('../../shared/cards'),{statFor}=require('../status/status-manager');
-const roll=n=>Array.from({length:Math.max(0,Math.min(16,Math.floor(n)))},()=>crypto.randomInt(1,7));
+const roll=n=>Array.from({length:Math.max(0,Math.min(128,Math.floor(n)))},()=>crypto.randomInt(0,2));
 const sum=a=>a.reduce((n,x)=>n+x,0);
-function guardCount(points,stat=0){return points>0?Math.min(12,points+Math.floor(Math.max(0,stat)/5)):0;}
-function pool(n){const rolls=roll(n),total=sum(rolls);return {rolls,total,remaining:total};}
+function guardCount(points,stat=0){return Math.max(0,Math.floor(Number(points)||0));}
+function pool(n){const rolls=roll(n),total=sum(rolls);return {rolls,total,remaining:total,revealed:false};}
 function prepare(room){const c=room.combat;c.diceDefense={players:{},enemies:{}};c.lockedEnemyTurns=[];for(const p of room.players.filter(p=>p.connected&&p.hp>0)){const s=c.selections[p.id],points=totals(c.cardDecks[p.id].hand,s?.picks||[]).points.guard;c.diceDefense.players[p.id]=pool(guardCount(points,statFor(p,'stability')));}for(const e of c.enemies.filter(e=>e.currentHp>0)){let intent=c.intents[e.instanceId];if(!intent?.cardPlan){require('./combat-intents').setEnemyIntents(c);intent=c.intents[e.instanceId];}c.diceDefense.enemies[e.instanceId]=pool(intent.defenseDice||0);c.lockedEnemyTurns.push({enemyId:e.instanceId,intent:JSON.parse(JSON.stringify(intent)),attackMultiplier:Number(e.attackMultiplier||1),targets:room.players.filter(p=>p.connected&&p.hp>0).map(p=>p.id)});}}
-function clash(attackRolls,defense){const attackTotal=sum(attackRolls),defenseTotal=Math.max(0,Number(defense?.remaining||0)),net=Math.max(0,attackTotal-defenseTotal);if(defense)defense.remaining=Math.max(0,defenseTotal-attackTotal);return {attackRolls,attackTotal,defenseRolls:defense?.rolls||[],defenseTotal,roundDefenseTotal:defense?.total||0,net};}
+function clash(attackRolls,defense){const attackTotal=sum(attackRolls),defenseTotal=Math.max(0,Number(defense?.remaining||0)),net=Math.max(0,attackTotal-defenseTotal);const defenseUsedBefore=(defense?.total||0)-defenseTotal,defenseFresh=!defense?.revealed;if(defense){defense.remaining=Math.max(0,defenseTotal-attackTotal);defense.revealed=true;}return {defenseUsedBefore,defenseFresh,attackRolls,attackTotal,defenseRolls:defense?.rolls||[],defenseTotal,roundDefenseTotal:defense?.total||0,net};}
 module.exports={roll,sum,guardCount,pool,prepare,clash};

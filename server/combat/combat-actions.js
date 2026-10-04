@@ -31,6 +31,6 @@ function estimateDamage(room,player,action,target,part){
   min=Math.max(1,Math.round(min*typeMult*relicMult));max=Math.max(min,Math.round(max*typeMult*relicMult));
   const defense=attackDc(statFor(player,action.stat||'combat'),target,action,player?.relics),mod=combatModifier(stat);let hits=0;
   for(let d=1;d<=20;d++)if(d===20||d+mod>=defense)hits++;
-  return {min,max,hit:action.cardBase!=null||action.cardSkill?100:Math.round(hits/20*100),damageType:action.damageType||null,resistance:typeMult,relation:action.damageType?relation(typeMult):'普通',relicMultiplier:relicMult};
+  const diceCount=action.diceCount??Math.max(1,Math.round(stat*power/3));return {diceCount,min,max,hit:action.cardBase!=null||action.cardSkill?100:Math.round(hits/20*100),damageType:action.damageType||null,resistance:typeMult,relation:action.damageType?relation(typeMult):'普通',relicMultiplier:relicMult};
 }
 module.exports={BASIC_ACTIONS,COMBAT_ACTIONS,weaponActions,skillActions,actionsForPlayer,actionForPlayer,estimateDamage};

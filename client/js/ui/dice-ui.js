@@ -6,16 +6,40 @@
  const positions={1:[5],2:[1,9],3:[1,5,9],4:[1,3,7,9],5:[1,3,5,7,9],6:[1,3,4,6,7,9]};
  function face(value){const f=document.createElement('div');f.className='cube-face';for(let i=1;i<=9;i++){const p=document.createElement('i');p.className=positions[value].includes(i)?'pip':'empty-pip';f.appendChild(p);}return f;}
  function cube(value){const stage=document.createElement('div');stage.className='dice-stage';const c=document.createElement('div');c.className='dice-flat rolling';c.appendChild(face(value));stage.appendChild(c);stage.setAttribute('aria-label',value+' 點');return {stage,c,value};}
- async function show(records,title){if(!records.length)return;
+ async function show(records,title){if(!records.length||!animations)return;
  const panel=document.createElement('section');panel.className='dice-toast';panel.setAttribute('role','status');panel.setAttribute('aria-live','polite');const h=document.createElement('strong');h.textContent=title;panel.appendChild(h);
  const rows=records.map(record=>{const row=document.createElement('div');row.className='dice-row';const name=document.createElement('span');name.textContent=record.name||'團體';const tray=document.createElement('div');tray.className='dice-tray';const parts=split(record.die),cubes=parts.map(cube);cubes.forEach(({stage})=>tray.appendChild(stage));const result=document.createElement('small');result.textContent='擲骰中…';row.append(name,tray,result);panel.appendChild(row);return {record,cubes,result,parts};});
  document.body.appendChild(panel);const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;try{await wait(reduced?0:850);for(const {record,cubes,result,parts} of rows){cubes.forEach(({c})=>c.classList.remove('rolling'));result.textContent=`骰點 ${parts.join('＋')}＝${Number(record.die)} · 合計 ${Number(record.total)}${record.dc!=null?' / DC '+Number(record.dc):''}${record.degree?' · '+(label[record.degree]||record.degree):''}`;}await wait(reduced?1150:1450);}finally{panel.remove();}
  }
- async function showClashes(records){const panel=document.createElement('section');panel.className='dice-toast clash-toast';panel.setAttribute('role','status');panel.innerHTML='<strong>雙方攻防擲骰</strong>';for(const r of records){const row=document.createElement('div');row.className='dice-row';const name=document.createElement('span');name.textContent=r.name;row.appendChild(name);for(const [label,rolls,cls] of [['攻擊',r.attackRolls,'attack'],['防禦',r.defenseRolls,'defense']]){const side=document.createElement('div');side.className='clash-side '+cls;const text=document.createElement('small');text.textContent=label;side.appendChild(text);const tray=document.createElement('div');tray.className='dice-tray';for(const n of rolls)tray.appendChild(cube(n).stage);side.appendChild(tray);row.appendChild(side);}const result=document.createElement('small');result.dataset.outcome=`攻擊 ${r.attackTotal} − 防禦 ${r.defenseTotal} ＝ ${r.net}（最低 0）${r.defenseTotal!==r.roundDefenseTotal?' · 防禦骰本回合已消耗部分點數':''}`;result.textContent='攻防擲骰中…';row.appendChild(result);panel.appendChild(row);}document.body.appendChild(panel);try{await wait(window.matchMedia('(prefers-reduced-motion: reduce)').matches?0:850);panel.querySelectorAll('.rolling').forEach(x=>x.classList.remove('rolling'));panel.querySelectorAll('[data-outcome]').forEach(x=>x.textContent=x.dataset.outcome);await wait(1450);}finally{panel.remove();}}
+ let animations=true;try{animations=localStorage.getItem('kbm-dice-animation')!=='off';}catch{}
+ const enabled=()=>animations;
+ function setEnabled(value){animations=!!value;try{localStorage.setItem('kbm-dice-animation',animations?'on':'off');}catch{}}
+ function coin(value,used=false){const el=document.createElement('span');el.className='coin-die '+(value?'front':'back')+(used?' spent':'');el.textContent=value?'1':'0';el.setAttribute('aria-label',value?'正面 1 點':'反面 0 點');return el;}
+ async function showClashes(records){
+  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  for(const r of records){if(!animations)break;
+   const panel=document.createElement('section');panel.className='dice-toast binary-clash';panel.setAttribute('role','status');panel.style.setProperty('--dice-color',r.color||'#6F92A8');
+   const title=document.createElement('strong');title.textContent=r.name;panel.appendChild(title);
+   const trays=[];
+   for(const [label,rolls] of [['攻擊骰',r.attackRolls],['防禦骰',r.defenseRolls]]){
+    const side=document.createElement('div');side.className='binary-side';const h=document.createElement('small');h.textContent=label;const tray=document.createElement('div');tray.className='binary-tray';let heads=0;
+    rolls.forEach(n=>{const used=label==='防禦骰'&&n&&heads++<Number(r.defenseUsedBefore||0);tray.appendChild(coin(n,used));});side.append(h,tray);panel.appendChild(side);trays.push(tray);
+   }
+   const result=document.createElement('p');result.className='coin-result';result.textContent='攻擊擲骰…';panel.appendChild(result);document.body.appendChild(panel);
+   try{
+    if(!reduced){trays[0].classList.add('coin-rolling');await wait(450);trays[0].classList.remove('coin-rolling');result.textContent='防禦擲骰…';if(r.defenseFresh!==false){trays[1].classList.add('coin-rolling');await wait(450);trays[1].classList.remove('coin-rolling');}}
+    result.textContent=`攻擊 ${r.attackTotal} − 防禦 ${r.defenseTotal} → 抵消 ${Math.min(r.attackTotal,r.defenseTotal)} 對`;
+    const attack=[...trays[0].querySelectorAll('.front:not(.spent)')],defense=[...trays[1].querySelectorAll('.front:not(.spent)')];
+    for(let i=0;i<Math.min(attack.length,defense.length);i++){attack[i].classList.add('coin-cut');defense[i].classList.add('coin-cut');}
+    await wait(reduced?0:500);result.textContent=`攻擊 ${r.attackTotal} − 防禦 ${r.defenseTotal} ＝ 淨 ${r.net} 點`;
+    await wait(1450);
+   }finally{panel.remove();}
+  }
+ }
  function playClashes(records){chain=chain.catch(()=>{}).then(()=>showClashes(records));return chain;}
  function play(records,title='擲骰判定'){chain=chain.catch(()=>{}).then(()=>show(records,title));return chain;}
  function apply(room){const key=room.currentEvent?`${room.id}:${room.run}:${room.areaIndex}:${room.exploration?.position}:${room.currentEvent.id}`:null,r=room.eventResult;if(room.id!==lastRoom){lastRoom=room.id;lastEvent=r&&key?key:null;return;}if(!r){lastEvent=null;return;}if(!key||lastEvent===key)return;lastEvent=key;
  const records=r.degree==='personal'?(r.personalResults||[]).map(x=>({name:x.sinner,die:x.die,total:x.total,dc:x.dc,degree:x.degree})):Number(r.die)>0?[{name:'團體',die:r.die,total:r.total,dc:r.dc,degree:r.degree}]:[];if(records.length)play(records,r.degree==='personal'?'個人事件擲骰':'團體事件擲骰');
  }
- socket.on('room:update',apply);window.KBMDice={play,split,playClashes};
+ socket.on('room:update',apply);window.KBMDice={play,split,playClashes,enabled,setEnabled};
 })();

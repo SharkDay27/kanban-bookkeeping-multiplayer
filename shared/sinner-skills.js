@@ -3,7 +3,7 @@ const S=(id,sinnerId,name,cost,kind,stat,power,description,extra={})=>({id,sinne
 const SINNER_SKILLS=[
   // 李箱
   S('ys-crow','01','烏瞰刀',55,'team-buff','observe',1.15,'攻擊後提高全隊下一回合的觀察與命中。',{buff:'focus'}),
-  S('ys-bygone','01','往日',65,'debuff','observe',1.05,'削弱目標防禦，若目標已有弱點則追加傷害。',{defenseDown:2}),
+  S('ys-bygone','01','往昔',65,'debuff','observe',1.05,'削弱目標防禦，若目標已有弱點則追加傷害。',{defenseDown:2}),
   S('ys-match','01','第四根火柴',75,'heavy','combat',1.65,'高傷害單體攻擊，對已受傷目標傷害提高。'),
   S('ys-cairn','01','許願石',70,'guard-break','stability',1.2,'攻擊部位並提高破壞／阻擋檢定效率。',{breakBonus:6}),
   S('ys-dimension','01','次元撕裂者',90,'pierce','mobility',1.45,'無視部分防禦並可直接攻擊後排或部位。',{ignoreDefense:3}),
@@ -39,7 +39,7 @@ const SINNER_SKILLS=[
   // 鴻璐
   S('hong-illusion','06','虛幻之境',55,'debuff','observe',1.0,'降低目標命中並提高自身迴避。',{enemyDamageMult:.88}),
   S('hong-rose','06','桃色契約',65,'control','observe',1.05,'施加標記，使隊伍對目標傷害提高。',{statusId:'marked'}),
-  S('hong-soda','06','汽水',65,'heal','stability',0,'治療自身並小幅降低危險度。',{heal:20,dangerDown:1}),
+  S('hong-soda','06','汽水',65,'heal','stability',0,'治療自身。',{heal:20}),
   S('hong-wail','06','洞穴哀鳴',75,'aoe-debuff','observe',.95,'攻擊全體並有機率施加動搖。',{statusId:'shaken'}),
   S('hong-dimension','06','次元撕裂者',90,'pierce','mobility',1.45,'可越過前排攻擊後排或部位。',{ignoreDefense:3}),
   S('hong-corrosion','06','泡沫腐蝕',100,'aoe','combat',1.15,'對全體造成傷害，對已有負面狀態者追加傷害。',{debuffBonus:.25}),
@@ -54,7 +54,7 @@ const SINNER_SKILLS=[
   S('ish-snag','08','牽制魚叉',55,'control','combat',1.1,'攻擊並降低目標攻擊。',{attackDown:.12}),
   S('ish-rose','08','桃色契約',65,'debuff','observe',1.05,'標記敵人並提高隊伍對其輸出。',{statusId:'marked'}),
   S('ish-capote','08','鬥牛披風',75,'heavy','combat',1.5,'強力單體攻擊。'),
-  S('ish-bygone','08','往日',75,'team-buff','stability',.9,'攻擊後提高全隊穩定並降低危險度。',{buff:'steady-mind',dangerDown:1}),
+  S('ish-bygone','08','往昔',75,'team-buff','stability',.9,'提高全隊穩定。',{buff:'steady-mind'}),
   S('ish-ardor','08','紅豔煞',90,'aoe','combat',1.1,'攻擊所有敵人；對已受傷敵人效果提高。'),
   S('ish-blind','08','盲目痴迷',110,'aoe-debuff','observe',1.25,'大範圍攻擊並削弱敵方下一回合。',{enemyDamageMult:.75}),
   // 羅佳

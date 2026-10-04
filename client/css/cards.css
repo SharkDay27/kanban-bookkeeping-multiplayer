@@ -16,3 +16,13 @@
  #combatPanel .confirm-bar>button{min-height:48px!important;font-size:13px!important;touch-action:manipulation}
  #combatPanel .confirm-bar>span{font-size:9px!important;line-height:1.4}
 }
+/* Binary dice adopt the acting/defending sinner's palette. */
+.binary-clash{background:color-mix(in srgb,var(--dice-color) 13%,#f4f1e8);border:2px solid var(--dice-color);max-height:85dvh;overflow:auto;width:min(620px,92vw);box-shadow:0 15px 60px #242a3545}
+.binary-clash>strong{color:var(--dice-color);display:block;margin-bottom:14px}
+.binary-side{margin:10px 0}.binary-side>small{display:block;font-weight:700;margin-bottom:6px}.binary-tray{display:flex;flex-wrap:wrap;justify-content:center;gap:7px;min-height:42px}
+.coin-die{width:34px;height:34px;display:grid;place-items:center;border:2px solid var(--dice-color);border-radius:6px;background:var(--dice-color);color:#fff;font-weight:800;position:relative}.coin-die.back{background:transparent;color:var(--dice-color);opacity:.42}.coin-die.spent{opacity:.15}
+.coin-rolling .coin-die{animation:coin-toss .22s ease-in-out infinite alternate}.coin-rolling .coin-die:nth-child(even){animation-delay:.1s}
+.coin-cut{animation:coin-cleave .5s forwards}.coin-cut:after{content:'';position:absolute;width:46px;height:3px;background:#faf9f1;transform:rotate(-45deg);box-shadow:0 0 0 1px var(--dice-color);animation:coin-slash .3s ease-out}
+.coin-result{font-weight:700;margin:15px 0 0;color:#333}.dice-setting{display:flex;align-items:center;gap:10px;padding:16px 0}.dice-setting input{width:22px;height:22px;accent-color:#6F92A8}
+@keyframes coin-toss{from{transform:scaleY(.3)}to{transform:scaleY(1)}}@keyframes coin-cleave{0%{opacity:1}60%{transform:rotate(-16deg) translateY(3px)}100%{opacity:.15;transform:rotate(-16deg) translateY(3px)}}@keyframes coin-slash{from{width:0}to{width:46px}}
+@media(prefers-reduced-motion:reduce){.coin-cut,.coin-rolling .coin-die,.coin-cut:after{animation:none}.coin-cut{opacity:.15}}

@@ -24,7 +24,7 @@ function awardSupply(room,bonus=0){
 function resolveRest(room){
   const rest=randomFrom(REST_NODES),healed=[];
   for(const player of room.players){const baseHeal=room.areaIndex===0?.34:room.areaIndex===1?.28:.24,amount=healPlayer(player,Math.round(player.maxHp*Math.max(rest.healPercent,baseHeal)));healed.push({playerId:player.id,amount});if(Math.random()<.55){const debuffs=(player.statuses||[]).filter(s=>getStatus(s.id)?.type==='debuff');if(debuffs.length)removeStatus(player,randomFrom(debuffs).id);}}
-  room.exploration.danger=Math.max(0,room.exploration.danger-(room.areaIndex===0?2:1));room.nodeReward={type:'rest',title:rest.name,text:rest.description,healed};room.eventResult={degree:'rest',text:`${rest.description} 全隊恢復狀態，危險度下降。`,damage:0};tickStatuses(room.players,{combatRound:false});finishImmediateNode(room);return healed;
+  room.nodeReward={type:'rest',title:rest.name,text:rest.description,healed};room.eventResult={degree:'rest',text:`${rest.description} 全隊恢復狀態。`,damage:0};tickStatuses(room.players,{combatRound:false});finishImmediateNode(room);return healed;
 }
 function enterCurrentNode(room){
   room.currentEvent=null;room.eventResult=null;room.combat=null;room.shop=null;room.nodeReward=null;room.votes={};const node=currentNode(room);if(!node||!node.selected)return null;

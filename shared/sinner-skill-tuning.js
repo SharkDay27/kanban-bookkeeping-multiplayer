@@ -6,7 +6,7 @@ const SKILL_NAMES={
  'meur-chain':'他人之鎖','meur-regret':'悔恨','meur-capote':'鬥牛披風','meur-pursuance':'執行','meur-scream':'電子哀鳴','meur-wallop':'脫線一擊',
  'hong-illusion':'太虛幻境','hong-rose':'粉紅慾望','hong-soda':'美味蘇打','hong-wail':'低泣','hong-dimension':'次元撕裂者','hong-corrosion':'沸騰腐蝕',
  'heath-bag':'屍袋','heath-holiday':'悲慘假日','heath-aedd':'AEDD','heath-fell':'凶彈','heath-movein':'遷居申請','heath-telepole':'電線桿',
- 'ish-snag':'捕鯨叉','ish-rose':'粉紅慾望','ish-capote':'鬥牛披風','ish-bygone':'往日','ish-ardor':'紅豔煞','ish-blind':'盲目',
+ 'ish-snag':'捕鯨叉','ish-rose':'粉紅慾望','ish-capote':'鬥牛披風','ish-bygone':'往昔','ish-ardor':'紅豔煞','ish-blind':'盲目',
  'rod-cast':'覆水難收','rod-sunset':'步入晚霞','rod-rime':'冰結之爪','rod-corrosion':'沸騰腐蝕','rod-mirror':'鏡反射觸覺','rod-match':'第四根火柴之焰',
  'sin-branch':'知識樹之枝','sin-day':'迫近之日','sin-stew':'一生燉菜','sin-lantern':'提燈','sin-92':'9章2節','sin-scream':'和聲',
  'outis-pathos':'致智慧與苦難','outis-holiday':'悲慘假日','outis-ebony':'黑檀枝幹','outis-sunshower':'狐雨','outis-dimension':'次元撕裂者','outis-binds':'拘束',

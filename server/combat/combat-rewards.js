@@ -18,8 +18,8 @@ function finishVictory(room){
   const hasNextArea=room.areaIndex<room.selectedAreas.length-1;
   room.relicChoices={};room.eventResult.lootByPlayer={};room.eventResult.cardLootByPlayer={};
   for(const player of room.players.filter(p=>p.connected&&p.hp>0)){
-    const relicChance=combat.kind==='combat'?.18:1;
-    if(Math.random()<relicChance && !(combat.kind==='boss'&&!hasNextArea)){
+    const relicChance=['elite','boss'].includes(combat.kind)?1:0;
+    if(Math.random()<relicChance){
       const choices=choicesForPlayer(player,combat.kind,3).map(r=>r.id);
       if(choices.length){room.relicChoices[player.id]=choices;room.eventResult.relicReward=true;room.eventResult.lootByPlayer[player.id]={type:'relic-choice'};continue;}
     }
