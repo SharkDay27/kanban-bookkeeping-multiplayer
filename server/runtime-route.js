@@ -60,18 +60,14 @@ function resolveRouteVote(room,player,choiceId){
   for(const p of voters){const id=room.routeVotes[p.id];counts.set(id,(counts.get(id)||0)+1);}
   const max=Math.max(...counts.values());
   const tied=[...counts.entries()].filter(([,n])=>n===max).map(([id])=>id);
-  let winner=tied[0];
-  if(tied.length>1){
-    const hostVote=room.routeVotes[room.hostId];
-    if(tied.includes(hostVote))winner=hostVote;
-  }
+  const winner=tied.length===1?tied[0]:tied[Math.floor(Math.random()*tied.length)];
   const selected=choices.find((c)=>c.id===winner)||choice;
   const node=room.exploration.route[index];
   node.type=selected.type;node.label=selected.label;node.revealed=true;node.selected=true;node.resolved=false;
   room.exploration.position=index;
   room.routeVotes={};
   persist();
-  return {resolved:true,index,node,choice:selected};
+  return {resolved:true,index,node,choice:selected,tied:tied.length>1};
 }
 function routeVoteSummary(room){
   const {index,choices}=currentChoiceLayer(room);
