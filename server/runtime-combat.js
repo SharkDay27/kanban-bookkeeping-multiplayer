@@ -1,9 +1,10 @@
-const { CONSUMABLES, STATUS_EFFECTS, getStatus }=require('../shared/game-data');
+const { CONSUMABLES }=require('../shared/game-data');
 const { persist, chapterRule }=require('./room-manager');
 const {
   sinnerOf,statFor,addStatus,removeStatus,applyDamageToPlayer,healPlayer,tickStatuses,statusName
 }=require('./runtime-status');
 const { randomFrom,weightedPick,areaOf,scaledEnemy,rewardChoice,pickPositiveStatus }=require('./runtime-risk');
+const { primeFogAfterResolution }=require('./runtime-route');
 
 const COMBAT_ACTIONS=[
   {id:'attack',label:'攻擊',stat:'combat',statLabel:'戰鬥',desc:'直接攻擊敵人。'},
@@ -20,7 +21,7 @@ function checkDefeat(room){
 function giveReward(room,player,reward){
   if(reward.slot){ player.equipment[reward.slot]=reward; }
   else if(player.inventory.length<4) player.inventory.push(reward);
-  else room.sharedInventory.push(reward);
+  else room.sharedInventory.push(reward;
 }
 function maybePositiveStatus(room,player,bonus=0){
   const chance=.08+room.exploration.danger*.035+(room.areaIndex||0)*.04+bonus;
@@ -35,6 +36,14 @@ function awardCombatLoot(room,kind){
   giveReward(room,recipient,reward);
   const buff=maybePositiveStatus(room,recipient,kind==='boss'?.2:kind==='elite'?.1:0);
   return {recipientId:recipient.id,reward,status:buff?.id||null,text:`${recipient.name} 獲得「${reward.name}」${buff?`與「${buff.name}」`:''}。`};
+}
+function combatGold(room,kind){
+  const danger=Number(room.exploration.danger||0),chapter=room.areaIndex||0;
+  const base=kind==='boss'?46:kind==='elite'?27:12;
+  const spread=kind==='boss'?14:kind==='elite'?9:6;
+  const amount=base+chapter*5+Math.floor(danger*1.5)+Math.floor(Math.random()*(spread+1));
+  for(const p of room.players)p.gold=Math.max(0,Number(p.gold||0)+amount);
+  return amount;
 }
 function activeBossPhase(enemy){
   if(!Array.isArray(enemy.phases)||!enemy.phases.length)return null;
@@ -137,11 +146,13 @@ function resolveCombatRound(room){
   }
   combat.enemy.temporaryDefense=0; combat.enemy.currentHp=Math.max(0,combat.enemy.currentHp-teamDamage);
   if(combat.enemy.currentHp<=0){
-    const loot=awardCombatLoot(room,combat.kind);
-    combat.log.push({round:combat.round,text:`隊伍造成 ${teamDamage} 傷害，擊敗 ${combat.enemy.name}。${loot?` ${loot.text}`:''}`});
-    room.eventResult={degree:combat.kind==='boss'?'boss-victory':'combat-victory',text:`擊敗 ${combat.enemy.name}。${loot?` ${loot.text}`:''}`,damage:0,rolls,loot};
-    markCurrentNodeResolved(room);room.votes={};combat.lastResolution={serial:Date.now(),teamDamage,incoming:0,enemyDefeated:true,rolls,loot};
-    if(combat.kind==='boss'){if(room.areaIndex<room.selectedAreas.length-1)room.eventResult.nextAreaAvailable=true;else room.phase='victory';}
+    const loot=awardCombatLoot(room,combat.kind),gold=combatGold(room,combat.kind);
+    combat.log.push({round:combat.round,text:`隊伍造成 ${teamDamage} 傷害，擊敗 ${combat.enemy.name}。每位玩家獲得 ${gold} 金幣。${loot?` ${loot.text}`:''}`});
+    room.eventResult={degree:combat.kind==='boss'?'boss-victory':'combat-victory',text:`擊敗 ${combat.enemy.name}。每位玩家獲得 ${gold} 金幣。${loot?` ${loot.text}`:''}`,damage:0,gold,rolls,loot};
+    markCurrentNodeResolved(room);room.votes={};combat.lastResolution={serial:Date.now(),teamDamage,incoming:0,enemyDefeated:true,gold,rolls,loot};
+    if(combat.kind==='boss'){
+      if(room.areaIndex<room.selectedAreas.length-1)room.eventResult.nextAreaAvailable=true;else room.phase='victory';
+    }else primeFogAfterResolution(room);
     persist();return room.eventResult;
   }
   const phaseChanged=detectPhaseTransition(combat);
@@ -172,4 +183,4 @@ function useConsumable(room,player,slot){
   player.inventory.splice(slot,1);if(room.combat)room.combat.log.push({round:room.combat.round,text:message});persist();return message;
 }
 
-module.exports={COMBAT_ACTIONS,startCombat,resolveCombatRound,useConsumable,checkDefeat,awardCombatLoot};
+module.exports={COMBAT_ACTIONS,startCombat,resolveCombatRound,useConsumable,checkDefeat,awardCombatLoot,combatGold};
