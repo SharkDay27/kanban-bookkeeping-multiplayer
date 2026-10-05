@@ -60,7 +60,7 @@
         const enemy=enemyEl(rec.targetId),support=['guard','card-guard','heal','team-buff'].includes(rec.kind);
         focus('player',rec.sinner,rec.action,rec.shieldGained?`護盾 +${rec.shieldGained}`:rec.healing?.length?'恢復生命':rec.dealt>0?`-${rec.dealt}`:support?'防護 / 支援':'抵擋');
         if(enemy&&!support){enemy.classList.add('target-focus');fx(enemy,rec.dealt>0?'combat-hit':'combat-block',rec.dealt>0?`-${rec.dealt}`:'抵擋');}
-        window.KBMCombatVFX?.attack(rec);if(rec.dealt>0)window.KBMCombatSounds?.attack(rec.damageType||'anomaly');else if(!support)window.KBMCombatSounds?.miss();await sleep(600);
+        window.KBMCombatVFX?.attack(rec);if(rec.dealt>0)window.KBMCombatSounds?.attack(rec.damageType||'anomaly');else if(!support)window.KBMCombatSounds?.blocked();await sleep(600);
         for(const id of rec.defeatedTargets||[]){if(!deathPlayed.has(id)){deathPlayed.add(id);window.KBMCombatVFX?.death(id);await sleep(950);}}enemy?.classList.remove('target-focus');
       }
       for(const er of res.enemyResults||[]){const el=enemyEl(er.enemyId);focus('enemy',el?.querySelector('strong')?.textContent||'敵人',er.label+(er.targets?.length?' → '+er.targets.map(id=>{const p=room.players.find(p=>p.id===id);return state.gameData.sinners.find(s=>s.id===p?.sinnerId)?.name||'罪人';}).join('、'):'')+(er.summoned?' · 增援：'+er.summoned:''),er.blocked?'BLOCK':`-${er.damage||0}`);if(er.defeated&&!deathPlayed.has(er.enemyId)){deathPlayed.add(er.enemyId);window.KBMCombatVFX?.death(er.enemyId);}for(const id of er.targets||[])window.KBMCombatVFX?.playerEls(id).forEach(p=>{fx(p,'combat-hit',`-${er.damage||0}`);if(er.shieldBroken)window.KBMCombatVFX?.effect(p,'blunt');});await sleep(900);}

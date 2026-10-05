@@ -1,7 +1,7 @@
 const Dice=require('./opposed-dice');
 const Cards=require('../cards/card-manager');
 const {sinnerOf,statFor,addStatus,applyDamageToPlayer}=require('../status/status-manager');
-const {combatModifier,combatDefense,attackDc}=require('../../shared/check-rules');
+const {combatModifier}=require('../../shared/check-rules');
 const {randomFrom}=require('../expedition/danger-system');
 const {applySkillUtility}=require('../skills/skill-effects');
 const {actionForPlayer,estimateDamage}=require('./combat-actions');
@@ -15,8 +15,7 @@ function soundTypeFor(action){if(action?.soundType)return action.soundType;if(ac
 function reduceOneCooldown(combat,player,amount){amount=Math.max(0,Math.round(amount||0));if(!amount)return null;if(combat.cardMode){const deck=combat.cardDecks?.[player.id];if(deck)deck.nextDrawBonus=Math.min(2,Number(deck.nextDrawBonus||0)+amount);return 'next-draw';}const map=combat.cooldowns[player.id]||{},keys=Object.keys(map).filter(k=>Number(map[k])>0);if(!keys.length)return null;const key=randomFrom(keys);map[key]=Math.max(0,Number(map[key])-amount);return key;}
 function addEnemyStatus(target,id,duration=2){if(!target||!id)return;target.statuses=Array.isArray(target.statuses)?target.statuses:[];const old=target.statuses.find(s=>s.id===id);if(old)old.remaining=Math.max(Number(old.remaining||0),duration);else target.statuses.push({id,remaining:duration});}
 function damageTarget(room,combat,player,action,target,part,die,total){
-  const preview=estimateDamage(room,player,action,target,part),defense=attackDc(statFor(player,action.stat||'combat'),target,action,player?.relics);
-  if(!action.cardSkill&&action.cardBase==null&&die!==20&&total<defense)return {dealt:0,hpDamage:0,shieldAbsorbed:0,shieldBroken:false,partDestroyed:false,killed:false,preview};
+  const preview=estimateDamage(room,player,action,target,part);
   const beforeHp=Number(target.currentHp||0);const isOpposed=combat.cardMode&&(action.cardSkill||action.cardBase!=null),clash=isOpposed?Dice.clash(Dice.roll(preview.diceCount),combat.diceDefense?.enemies?.[target.instanceId]):null;const rolled=clash?Math.round(clash.net*(preview.min+preview.max)/Math.max(1,preview.diceCount)):action.cardSkill||action.cardBase!=null?preview.min+Math.round((die-1)/5*(preview.max-preview.min)):preview.min+Math.floor(Math.random()*Math.max(1,preview.max-preview.min+1));
   const beforeShield=Math.max(0,Number(target.shield||0)),shieldAbsorbed=Math.min(beforeShield,rolled);target.shield=Math.max(0,beforeShield-shieldAbsorbed);const hpDamage=Math.max(0,rolled-shieldAbsorbed),shieldBroken=beforeShield>0&&target.shield<=0;
   let partDestroyed=false;if(hpDamage>0){if(part&&!part.destroyed){const result=applyPartDamage(combat,target,part,hpDamage);partDestroyed=!!result.destroyed;}else target.currentHp=Math.max(0,target.currentHp-hpDamage);}

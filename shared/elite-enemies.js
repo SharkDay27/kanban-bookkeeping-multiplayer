@@ -3,7 +3,7 @@ const E=(area,id,name,hp,attack,defense,resistances,trait,skills)=>({area,id,nam
 const ELITE_ENEMIES=[
  E('zone-1','z1-elite-mannequin','封店模特',92,15,14,R(1.35,.75,1),'接縫與布料結構怕斬擊。',[{label:'展示櫃突進',type:'heavy',mult:1.45,weight:22,description:'高速撞向一名隊員。'},{label:'玻璃罩',type:'shield',shield:18,weight:16,description:'以櫥窗玻璃形成護盾。'}]),
  E('zone-1','z1-elite-cart','失控促銷推車',88,16,13,R(.75,1.35,1),'金屬車架抗斬但怕鈍擊。',[{label:'滿載衝撞',type:'heavy',mult:1.5,weight:24,description:'高速推車衝撞單體。'},{label:'貨架護欄',type:'shield',shield:16,weight:16,description:'折起貨架形成護盾。'}]),
- E('zone-1','z1-elite-security','閉店保全偶',96,15,16,R(1,1.3,.75),'厚制服下的核心較難被突擊命中。',[{label:'強制驅離',type:'status',mult:.62,statusId:'marked',weight:22,description:'標記一名隊員。'},{label:'伸縮警棍',type:'heavy',mult:1.4,weight:20,description:'警棍重擊。'}]),
+ E('zone-1','z1-elite-security','閉店保全偶',96,15,16,R(1,1.3,.75),'厚制服下的核心具有槍擊抗性。',[{label:'強制驅離',type:'status',mult:.62,statusId:'marked',weight:22,description:'標記一名隊員。'},{label:'伸縮警棍',type:'heavy',mult:1.4,weight:20,description:'警棍重擊。'}]),
  E('zone-1','z1-elite-signage','活化巨型招牌',102,14,15,R(1.35,.8,1),'吊索和板材接縫可被斬開。',[{label:'招牌墜落',type:'sweep',mult:.72,weight:24,description:'整塊招牌向隊伍砸落。'},{label:'霓虹爆閃',type:'sweep-status',mult:.42,statusId:'shaken',weight:18,description:'霓虹閃爍使全隊動搖。'}]),
  E('zone-1','z1-elite-elevator','拒載電梯門',98,17,15,R(.7,1.4,1),'機械門體最怕鈍擊震壞。',[{label:'夾門',type:'heavy',mult:1.55,weight:24,description:'門片高速夾擊單體。'},{label:'層門閉鎖',type:'shield',shield:22,weight:18,description:'雙層門片閉合形成護盾。'}]),
 

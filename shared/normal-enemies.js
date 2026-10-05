@@ -6,7 +6,7 @@ const NORMAL_ENEMIES = [
   {area:'zone-2',id:'z2-crawler',name:'管線爬行體',hp:40,attack:8,defense:12,resistances:R(1.35,.75,1),trait:'纜線與軟管暴露，斬擊效果佳。',skills:[{label:'纜線纏足',type:'status',mult:.45,statusId:'slowed',weight:22,description:'纜線纏住目標，造成傷害並施加「遲滯」。'}]},
   {area:'zone-3',id:'z3-reflection',name:'延遲鏡像',hp:44,attack:9,defense:13,resistances:R(.75,1.35,1),trait:'鏡面結構怕震擊，鈍擊能擾亂映像。',skills:[{label:'反射誤導',type:'guard',defenseBoost:3,weight:22,description:'利用錯位倒影提高防禦。'}]},
   {area:'zone-3',id:'z3-specimen',name:'逸散樣本',hp:48,attack:10,defense:11,resistances:R(1, .75,1.35),trait:'軟質外膜對穿刺更脆弱。',skills:[{label:'樣本飛濺',type:'status',mult:.5,statusId:'contaminated',weight:20,description:'污染液飛濺，施加「污染」。'}]},
-  {area:'zone-4',id:'z4-hound',name:'失照獵犬',hp:58,attack:12,defense:13,resistances:R(1.35,1,.75),trait:'高速軟質身體怕斬擊，突擊較難命中有效部位。',skills:[{label:'暗域連咬',type:'sweep',mult:.7,weight:20,description:'在黑暗中高速穿梭，波及全隊。'}]},
+  {area:'zone-4',id:'z4-hound',name:'失照獵犬',hp:58,attack:12,defense:13,resistances:R(1.35,1,.75),trait:'高速軟質身體怕斬擊，對槍擊有較高抗性。',skills:[{label:'暗域連咬',type:'sweep',mult:.7,weight:20,description:'在黑暗中高速穿梭，波及全隊。'}]},
   {area:'zone-4',id:'z4-shadow',name:'軌側潛影',hp:52,attack:11,defense:14,resistances:R(.75,1,1.35),trait:'核心狹小，突擊能命中隱匿中心。',skills:[{label:'影縫襲擊',type:'heavy',mult:1.45,weight:20,description:'從軌側陰影中突襲。'}]},
   {area:'zone-5',id:'z5-drowned',name:'溺行搬運工',hp:64,attack:13,defense:13,resistances:R(1.35,1,.75),trait:'浸水組織鬆散，斬擊效果較好。',skills:[{label:'拖入積水',type:'status',mult:.6,statusId:'slowed',weight:22,description:'將一名隊員拖入積水，施加「遲滯」。'}]},
   {area:'zone-5',id:'z5-shell',name:'寄殼潮蟲',hp:56,attack:12,defense:15,resistances:R(.75,1.35,1),trait:'硬殼抗斬，鈍擊可直接震裂甲殼。',skills:[{label:'閉殼',type:'guard',defenseBoost:4,weight:25,description:'縮入殼內大幅提高下一輪防禦。'}]},

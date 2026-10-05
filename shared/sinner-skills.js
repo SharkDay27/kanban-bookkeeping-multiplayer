@@ -27,7 +27,7 @@ const SINNER_SKILLS=[
   S('ryo-match','04','第四根火柴',70,'heavy','combat',1.7,'高傷害攻擊，對破壞部位有額外傷害。',{partBonus:.25}),
   S('ryo-red-eyes','04','赤瞳',70,'debuff','observe',1.15,'標記敵人弱點並降低防禦。',{defenseDown:2}),
   S('ryo-open','04','赤瞳（開）',85,'pierce','combat',1.45,'無視部分防禦；若目標已被標記則追加傷害。',{ignoreDefense:3,markedBonus:.3}),
-  S('ryo-blind','04','盲目',90,'aoe','combat',1.05,'攻擊所有敵人並降低其命中。',{enemyDamageMult:.85}),
+  S('ryo-blind','04','盲目',90,'aoe','combat',1.05,'攻擊所有敵人並降低其傷害 15%。',{enemyDamageMult:.85}),
   S('ryo-contempt','04','輕蔑，敬畏',110,'finisher','combat',1.9,'對高 HP 敵人與 Boss 部位造成強力斬擊。',{bossBonus:.2}),
   // 默爾索
   S('meur-chain','05','他人之鎖',55,'control','stability',1.0,'降低目標攻擊與防禦，自己獲得防護。',{attackDown:.12,defenseDown:1,shield:8}),
@@ -37,7 +37,7 @@ const SINNER_SKILLS=[
   S('meur-scream','05','電擊尖叫',80,'debuff','stability',1.1,'削弱敵人下一回合傷害。',{enemyDamageMult:.78}),
   S('meur-wallop','05','螺絲鬆動重擊',100,'heavy','combat',1.8,'極高單體傷害，但自身下回合機動下降。',{selfStatus:'slowed'}),
   // 鴻璐
-  S('hong-illusion','06','虛幻之境',55,'debuff','observe',1.0,'降低目標命中並提高自身迴避。',{enemyDamageMult:.88}),
+  S('hong-illusion','06','虛幻之境',55,'debuff','observe',1.0,'降低目標傷害 12%。',{enemyDamageMult:.88}),
   S('hong-rose','06','桃色契約',65,'control','observe',1.05,'施加標記，使隊伍對目標傷害提高。',{statusId:'marked'}),
   S('hong-soda','06','汽水',65,'heal','stability',0,'治療自身。',{heal:20}),
   S('hong-wail','06','洞穴哀鳴',75,'aoe-debuff','observe',.95,'攻擊全體並有機率施加動搖。',{statusId:'shaken'}),

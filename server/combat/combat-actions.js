@@ -2,7 +2,6 @@ const {getSinnerSkill,applyUpgrade}=require('../../shared/game-data');
 const {DAMAGE_TYPE_LABELS,multiplier,relation}=require('../../shared/damage-types');
 const {statFor}=require('../status/status-manager');
 const {damageMultiplier}=require('../relics/relic-effects');
-const {combatModifier,combatDefense,attackDc}=require('../../shared/check-rules');
 
 const BASIC_ACTIONS=[
   {id:'guard',label:'防禦',stat:'stability',statLabel:'穩定',desc:'本回合受到的傷害大幅降低。',kind:'guard'},
@@ -18,7 +17,7 @@ function skillActions(player){return (player.learnedSkills||[]).map(getSinnerSki
 function actionsForPlayer(player){return [...weaponActions(player),...BASIC_ACTIONS,...skillActions(player)];}
 function actionForPlayer(player,id){return actionsForPlayer(player).find(a=>a.id===id)||null;}
 function estimateDamage(room,player,action,target,part){
-  if(!action||action.kind==='guard'||action.kind==='analyze'||action.kind==='heal'||action.kind==='team-buff')return {min:0,max:0,hit:100,damageType:null,resistance:1,relation:'普通'};
+  if(!action||action.kind==='guard'||action.kind==='analyze'||action.kind==='heal'||action.kind==='team-buff')return {min:0,max:0,damageType:null,resistance:1,relation:'普通'};
   const stat=Math.max(1,statFor(player,action.stat||'combat')),power=Number(action.power||1.35),flat=action.kind==='weapon-attack'?0:2;
   let min=action.cardBase!=null?Math.max(1,action.cardBase):Math.max(1,Math.round(stat*power)+flat),max=min+(action.cardBase!=null?2:6);
   if(action.cardSkill||action.cardBase!=null){const piercing=Math.floor(Number(target?.defensePenalty||0)/2)+Number(action.ignoreDefense||0)+((player.relics||[]).includes('relic-needle-eye')&&action.damageType==='pierce'?1:0);min+=piercing;max+=piercing;}
@@ -29,8 +28,6 @@ function estimateDamage(room,player,action,target,part){
   let extra=1;if(action.lowHpScale)extra*=1+Number(action.lowHpScale)*(1-Number(player.hp||0)/Math.max(1,Number(player.maxHp||100)));if(action.markedBonus&&(target?.statuses||[]).some(s=>s.id==='marked'))extra*=1+Number(action.markedBonus);if(action.debuffBonus&&(target?.statuses||[]).length)extra*=1+Number(action.debuffBonus);if(action.executeBonus&&Number(target?.currentHp||0)/Math.max(1,Number(target?.maxHp||1))<=.3)extra*=1+Number(action.executeBonus);min=Math.round(min*extra);max=Math.round(max*extra);
   const typeMult=action.damageType?multiplier(target?.resistances,action.damageType):1,relicMult=damageMultiplier(player,{action,target,part,room});
   min=Math.max(1,Math.round(min*typeMult*relicMult));max=Math.max(min,Math.round(max*typeMult*relicMult));
-  const defense=attackDc(statFor(player,action.stat||'combat'),target,action,player?.relics),mod=combatModifier(stat);let hits=0;
-  for(let d=1;d<=20;d++)if(d===20||d+mod>=defense)hits++;
-  const diceCount=action.diceCount??Math.max(1,Math.round(stat*power/3));return {diceCount,min,max,hit:action.cardBase!=null||action.cardSkill?100:Math.round(hits/20*100),damageType:action.damageType||null,resistance:typeMult,relation:action.damageType?relation(typeMult):'普通',relicMultiplier:relicMult};
+  const diceCount=action.diceCount??Math.max(1,Math.round(stat*power/3));return {diceCount,min,max,damageType:action.damageType||null,resistance:typeMult,relation:action.damageType?relation(typeMult):'普通',relicMultiplier:relicMult};
 }
 module.exports={BASIC_ACTIONS,COMBAT_ACTIONS,weaponActions,skillActions,actionsForPlayer,actionForPlayer,estimateDamage};

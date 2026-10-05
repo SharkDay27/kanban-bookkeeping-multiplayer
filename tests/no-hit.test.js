@@ -1,0 +1,11 @@
+const assert=require('node:assert/strict');
+const {estimateDamage}=require('../server/combat/combat-actions');
+const {damageTarget}=require('../server/combat/combat-damage');
+const player={sinnerId:'04',hp:100,maxHp:100,statuses:[],relics:[],equipment:{}};
+const room={exploration:{danger:0},combat:{cardMode:false,cooldowns:{}}};
+const action={kind:'weapon-attack',stat:'combat',damageType:'slash',power:1.35};
+const enemy={currentHp:1000,maxHp:1000,defense:999999,shield:0,statuses:[],resistances:{slash:1,blunt:1,pierce:1}};
+assert.equal('hit' in estimateDamage(room,player,action,enemy,null),false);
+assert.equal('attackDc' in require('../shared/check-rules'),false);
+for(let i=0;i<20;i++)assert(damageTarget(room,room.combat,player,action,enemy,null,1,1).dealt>0,'Attacks must not fail a legacy accuracy check');
+console.log('No hit-rate regression checks passed');
