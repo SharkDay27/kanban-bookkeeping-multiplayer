@@ -1,1 +1,1 @@
-module.exports=require('./runtime-combat-v09');
+module.exports=require('./combat/combat-manager');

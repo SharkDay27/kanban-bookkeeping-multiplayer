@@ -17,6 +17,8 @@ const { EXPEDITION_RELICS, getRelic } = require('./expedition-relics');
 const { BUILD_TAGS, inferTags, buildScoreFromPlayer, affinityMultiplier, topBuildTags } = require('./build-tags');
 const { upgradeOptionsFor, applyUpgrade } = require('./skill-upgrades');
 applySkillTuning(SINNER_SKILLS);
+require('./battle-skill-tuning').tune(SINNER_SKILLS);
+for(const [list,base] of [[NORMAL_ENEMIES,4],[ELITE_ENEMIES,5],[BOSSES,6]])list.forEach((e,i)=>e.mobility=e.mobility||base+i%3);
 
 module.exports = {
   AREAS,SINNERS,EVENTS,NORMAL_ENEMIES,ELITE_ENEMIES,BOSSES,SUPPLIES,REST_NODES,

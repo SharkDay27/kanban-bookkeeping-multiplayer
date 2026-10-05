@@ -17,7 +17,7 @@ function skillActions(player){return (player.learnedSkills||[]).map(getSinnerSki
 function actionsForPlayer(player){return [...weaponActions(player),...BASIC_ACTIONS,...skillActions(player)];}
 function actionForPlayer(player,id){return actionsForPlayer(player).find(a=>a.id===id)||null;}
 function estimateDamage(room,player,action,target,part){
-  if(!action||action.kind==='guard'||action.kind==='analyze'||action.kind==='heal'||action.kind==='team-buff')return {min:0,max:0,damageType:null,resistance:1,relation:'普通'};
+  if(!action||['skill-utility','attack-boost'].includes(action.kind)||(action.kind==='special'&&!action.specialDamage)||action.kind==='guard'||action.kind==='analyze'||action.kind==='heal'||action.kind==='team-buff')return {min:0,max:0,damageType:null,resistance:1,relation:'普通'};
   const stat=Math.max(1,statFor(player,action.stat||'combat')),power=Number(action.power||1.35),flat=action.kind==='weapon-attack'?0:2;
   let min=action.cardBase!=null?Math.max(1,action.cardBase):Math.max(1,Math.round(stat*power)+flat),max=min+(action.cardBase!=null?2:6);
   if(action.cardSkill||action.cardBase!=null){const piercing=Math.floor(Number(target?.defensePenalty||0)/2)+Number(action.ignoreDefense||0)+((player.relics||[]).includes('relic-needle-eye')&&action.damageType==='pierce'?1:0);min+=piercing;max+=piercing;}

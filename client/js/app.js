@@ -7,7 +7,7 @@ function areaById(id){return state.gameData.areas?.find(x=>x.id===id)}
 function sinnerById(id){return state.gameData.sinners?.find(x=>x.id===id)}
 function statusById(id){return state.gameData.statusEffects?.find(x=>x.id===id)}
 function equipmentMods(player){const out={combat:0,observe:0,mobility:0,stability:0};Object.values(player?.equipment||{}).forEach(item=>Object.keys(out).forEach(k=>out[k]+=Number(item?.mods?.[k]||0)));return out;}
-function statusMods(player){const out={combat:0,observe:0,mobility:0,stability:0};(player?.statuses||[]).forEach(active=>{const def=statusById(active.id);Object.keys(out).forEach(k=>out[k]+=Number(def?.mods?.[k]||0));});return out;}
+function statusMods(player){const out={combat:Number(player.markMods?.combat||0),observe:Number(player.markMods?.observe||0),mobility:Number(player.markMods?.mobility||0),stability:Number(player.markMods?.stability||0)};(player?.statuses||[]).forEach(active=>{const def=statusById(active.id);Object.keys(out).forEach(k=>out[k]+=Number(def?.mods?.[k]||0)*(def?.stacking?Number(active.stacks||1):1));});return out;}
 function action(name,payload){socket.emit(name,payload,res=>{if(!res?.ok)alert(res?.error||'操作失敗。')});}
 function sessionData(){return state.room&&state.selfId&&state.reconnectToken?{roomId:state.room.id,playerId:state.selfId,reconnectToken:state.reconnectToken,recoveryToken:state.recoveryToken,recoverySnapshot:state.recoverySnapshot}:null;}
 function writeSession(){const data=sessionData();if(data)window.KBMSession?.write(data);}

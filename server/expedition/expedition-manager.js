@@ -27,12 +27,13 @@ function resolveRest(room){
   room.nodeReward={type:'rest',title:rest.name,text:rest.description,healed};room.eventResult={degree:'rest',text:`${rest.description} 全隊恢復狀態。`,damage:0};tickStatuses(room.players,{combatRound:false});finishImmediateNode(room);return healed;
 }
 function enterCurrentNode(room){
+  if(room.players.length>1&&room.players.some(p=>p.hp>0))for(const p of room.players.filter(p=>p.hp<=0)){p.hp=1;p.temporaryShield=0;p.statuses=[];p.serverControl=0;}
+  room.restChoices={};
   room.currentEvent=null;room.eventResult=null;room.combat=null;room.shop=null;room.nodeReward=null;room.votes={};const node=currentNode(room);if(!node||!node.selected)return null;
   room.exploration.scenes+=1;
   if(node.type==='event')room.currentEvent=pickEvent(room,eventOptions);
   else if(['combat','elite','boss'].includes(node.type))startCombat(room,node.type);
-  else if(node.type==='supply')return awardSupply(room);
-  else if(node.type==='rest')return resolveRest(room);
+  else if(['supply','rest'].includes(node.type))require('./rest-event').open(room);
   else if(node.type==='shop')openShop(room);
   persist();return node;
 }

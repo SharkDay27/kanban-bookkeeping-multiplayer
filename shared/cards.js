@@ -46,15 +46,22 @@
  }
  function initialCards(id){
   const spec=LCB[id]||LCB['01'],attack={},guard={};
-  const support={ys:['ys-crow'],faust:['faust-emitter','faust-fluid'],don:['don-stew','don-fluid'],ryo:[],meur:['meur-pursuance'],hong:['hong-soda'],heath:[],ish:['ish-bygone'],rod:[],sin:['sin-stew'],outis:['outis-holiday'],greg:[]};
+  const support={ys:['ys-crow'],faust:['faust-emitter','faust-fluid'],don:['don-stew','don-fluid'],ryo:[],meur:['meur-chain','meur-pursuance'],hong:['hong-soda'],heath:[],ish:['ish-bygone'],rod:['rod-mirror'],sin:['sin-stew'],outis:['outis-holiday'],greg:[]};
   const prefixes={'01':'ys','02':'faust','03':'don','04':'ryo','05':'meur','06':'hong','07':'heath','08':'ish','09':'rod','11':'sin','12':'outis','13':'greg'},prefix=prefixes[id];
-  for(const [skill,cost] of Object.entries(imported))if(skill.startsWith(prefix+'-')&&cost){const budget=(support[prefix]||[]).includes(skill)?guard:attack;for(const [sin,n] of Object.entries(cost))budget[sin]=(budget[sin]||0)+n;}
+  for(const [skill,cost] of Object.entries(imported))if(skill.startsWith(prefix+'-')&&cost){const budget=(support[prefix]||[]).includes(skill)?guard:attack;for(const [sin,n] of Object.entries(cost))budget[sin]=(budget[sin]||0)+(typeof n==='number'?n:(n.exact||n.min||1));}
   const all={...attack};for(const [k,n] of Object.entries(guard))all[k]=(all[k]||0)+n;
   const top=sinLayout(attack,spec.sins),bottom=sinLayout(Object.keys(guard).length?guard:all,spec.sins);
   const cards=Array.from({length:12},(_,i)=>({id:`base-${id}-${i<6?0:i<10?1:2}-${i<6?i:i<10?i-6:i-10}`,name:'罪孽行動',kind:'action',source:'初始',faces:[{sin:top[i],type:spec.types[i<6?0:i<10?1:2],value:1+i%3},{sin:bottom[i],type:'guard',value:1+(i+1)%3}]}));
   const first=Object.keys(imported).find(k=>k.startsWith(prefix+'-')),cost=imported[first]||{},side=(support[prefix]||[]).includes(first)?1:0;
   const budget=()=>{const out={};for(const c of cards){const f=c.faces[side];out[f.sin]=(out[f.sin]||0)+f.value;}return out;};
   for(const [sin,need] of Object.entries(cost))while((budget()[sin]||0)<need){const receiver=cards.find(c=>c.faces[side].sin===sin&&c.faces[side].value<3),points=budget(),donor=cards.find(c=>c.faces[side].sin!==sin&&c.faces[side].value>1&&points[c.faces[side].sin]>(cost[c.faces[side].sin]||0));if(!receiver||!donor)break;receiver.faces[side].value++;donor.faces[side].value--;}
+  for(const [key,req] of Object.entries(imported).filter(([k])=>k.startsWith(prefix+'-'))){const side=(support[prefix]||[]).includes(key)?1:0;for(const [sin,n] of Object.entries(req))if(typeof n==='object'){const value=n.exact||n.min;if(!cards.some(c=>c.faces[side].sin===sin&&c.faces[side].value===value)){const c=cards.find(c=>c.faces[side].sin===sin);if(c)c.faces[side].value=value;}}}// Reserve individual-face conditions, then ensure cumulative costs are achievable without overwriting them.
+  for(const side of [0,1]){const reqs=Object.entries(imported).filter(([k])=>k.startsWith(prefix+'-')&&((support[prefix]||[]).includes(k)?1:0)===side),locked=new Set(),maximum={};
+   for(const [,req] of reqs)for(const [sin,n] of Object.entries(req))if(typeof n==='number')maximum[sin]=Math.max(maximum[sin]||0,n);
+   for(const [,req] of reqs)for(const [sin,n] of Object.entries(req))if(typeof n==='object'){const value=n.exact||n.min;let c=cards.find(c=>c.faces[side].sin===sin&&c.faces[side].value===value);if(!c)c=cards.find(c=>c.faces[side].sin===sin&&!locked.has(c));if(!c)c=cards.find(c=>!locked.has(c)&&cards.filter(x=>x.faces[side].sin===c.faces[side].sin).length>1);if(c){c.faces[side].sin=sin;c.faces[side].value=value;locked.add(c);}}
+   const total=sin=>cards.reduce((n,c)=>n+(c.faces[side].sin===sin?c.faces[side].value:0),0);
+   for(const [sin,need] of Object.entries(maximum))while(total(sin)<need){const own=cards.find(c=>c.faces[side].sin===sin&&c.faces[side].value<3&&!locked.has(c));if(own){own.faces[side].value++;continue;}const donor=cards.find(c=>!locked.has(c)&&c.faces[side].sin!==sin&&total(c.faces[side].sin)-c.faces[side].value>=Number(maximum[c.faces[side].sin]||0));if(!donor)break;donor.faces[side].sin=sin;donor.faces[side].value=Math.min(3,need-total(sin));}
+  }
   return cards;
  }
  const WEAPON_SINS={slash:['wrath','wrath','lust','pride'],blunt:['sloth','sloth','wrath','envy'],pierce:['pride','pride','gloom','gluttony']};
@@ -62,15 +69,15 @@
  function weaponSummary(weapon,id){return weaponCards(weapon,id).map(c=>`${SINS[c.faces[0].sin].name} ${TYPES[c.faces[0].type]}${c.faces[0].value}`).join(' · ');}
  const imported=typeof module==='object'&&module.exports?require('./skill-requirements'):(globalThis.KBMSkillRequirements||{});
  const requirement=skill=>Object.prototype.hasOwnProperty.call(imported,skill.id)?imported[skill.id]:null;
- const isOutputSkill=s=>!['heal','team-buff','guard','card-guard','support'].includes(s.kind);
+ const isOutputSkill=s=>s.activationSide==='attack'||!['heal','team-buff','guard','card-guard','support'].includes(s.kind);
  const skillPoints=(t,s)=>isOutputSkill(s)?t.attackColors:t.guardColors;
- const canUse=(t,s)=>meets(skillPoints(t,s),s.cardRequirement);
- const conditionText=r=>Object.entries(r||{}).map(([s,n])=>`${SINS[s]?.name||s} ${n}點`).join(' ＋ ');
- const meets=(counts,req)=>req!=null&&Object.keys(req).length>0&&Object.entries(req).every(([s,n])=>Number((counts||{})[s]||0)>=n);
+ const canUse=(t,s)=>meets(skillPoints(t,s),s.cardRequirement,isOutputSkill(s)?t.attackFaces:t.guardFaces);
+ const conditionText=r=>Object.entries(r||{}).map(([s,n])=>`${SINS[s]?.name||s} ${typeof n==='number'?n+'點（累計）':n.exact!=null?'單張＝'+n.exact:'單張≥'+n.min}`).join(' ＋ ');
+ const meets=(counts,req,faces=[])=>req!=null&&Object.keys(req).length>0&&Object.entries(req).every(([s,n])=>typeof n==='number'?Number((counts||{})[s]||0)>=n:faces.some(f=>f.sin===s&&(n.exact!=null?f.value===n.exact:f.value>=n.min)));
  const COLLECTIBLE=[];for(const sin of Object.keys(SINS))for(const type of ['slash','blunt','pierce'])COLLECTIBLE.push({id:`card-${sin}-${type}`,name:`${SINS[sin].name}・${TYPES[type]}擊`,kind:'action',cardItem:true,rarity:'uncommon',description:`行動牌：${SINS[sin].name} ${TYPES[type]}3 / ${SINS[sin].name} 防禦2。加入本次遠征牌組。`,faces:[{sin,type,value:3},{sin,type:'guard',value:2}]});
  for(const [i,sin] of Object.keys(SINS).entries())for(const [j,type] of ['slash','blunt','pierce'].entries()){const other=['slash','blunt','pierce'][(j+1)%3],next=Object.keys(SINS)[(i+1)%7];COLLECTIBLE.push({id:`card-dual-${sin}-${type}`,name:`交織・${SINS[sin].name}`,kind:'action',cardItem:true,rarity:'rare',description:`雙向行動牌：${SINS[sin].name} ${TYPES[type]}3 / ${SINS[next].name} ${TYPES[other]}2。加入本次遠征牌組。`,faces:[{sin,type,value:3},{sin:next,type:other,value:2}]});}
  for(const a of ABILITIES)COLLECTIBLE.push({...a,kind:'ability',cardItem:true,rarity:a.effect==='copy'?'rare':'uncommon',description:a.description+' 加入本次遠征牌組。'});
  const face=(card,flipped=false)=>card.faces?.[flipped?1:0]||null;
- function totals(hand,picks){const counts={},attackColors={},guardColors={},points={slash:0,blunt:0,pierce:0,guard:0};for(const p of picks||[]){const card=hand.find(c=>c.uid===p.uid),f=face(card||{},p.flipped);if(!f)continue;counts[f.sin]=(counts[f.sin]||0)+f.value;const colors=f.type==='guard'?guardColors:attackColors;colors[f.sin]=(colors[f.sin]||0)+f.value;points[f.type]=(points[f.type]||0)+f.value;}return {counts,points,attackColors,guardColors};}
+ function totals(hand,picks){const counts={},attackColors={},guardColors={},attackFaces=[],guardFaces=[],points={slash:0,blunt:0,pierce:0,guard:0};for(const p of picks||[]){const card=hand.find(c=>c.uid===p.uid),f=face(card||{},p.flipped);if(!f)continue;counts[f.sin]=(counts[f.sin]||0)+f.value;(f.type==='guard'?guardFaces:attackFaces).push(f);const colors=f.type==='guard'?guardColors:attackColors;colors[f.sin]=(colors[f.sin]||0)+f.value;points[f.type]=(points[f.type]||0)+f.value;}return {counts,points,attackColors,guardColors,attackFaces,guardFaces};}
  return {SINS,TYPES,LCB,ABILITIES,COLLECTIBLE,personalAbility,initialCards,weaponCards,weaponSummary,requirement,isOutputSkill,skillPoints,canUse,conditionText,meets,face,totals};
 });

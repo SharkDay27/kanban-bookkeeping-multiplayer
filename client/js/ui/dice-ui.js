@@ -40,10 +40,12 @@
    }finally{panel.remove();}
   }
  }
+ async function showInitiative(records){if(!animations)return;const panel=document.createElement('section');panel.className='dice-toast binary-clash';const title=document.createElement('strong');title.textContent='機動判定 · 正面數高者先行動';panel.appendChild(title);const result=document.createElement('p');result.textContent='擲骰中…';const rows=records.map(r=>{const row=document.createElement('div');row.className='binary-side';row.style.setProperty('--dice-color',r.color||'#6F92A8');const label=document.createElement('small');label.textContent=r.name+' · 機動 '+r.mobility;const tray=document.createElement('div');tray.className='binary-tray';r.rolls.forEach(()=>tray.appendChild(coin()));row.append(label,tray);panel.appendChild(row);return {r,tray,label};});panel.appendChild(result);document.body.appendChild(panel);const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;try{await Promise.all(rows.map(x=>toss(x.tray,x.r.rolls,reduced)));for(const x of rows)x.label.textContent=x.r.name+' · 機動 '+x.r.mobility+' → '+x.r.total+' 正面';result.textContent='行動順序：'+records.map(r=>r.name).join(' → ')+'（同分由伺服器隨機決定）';await wait(1300);}finally{panel.remove();}}
+ function playInitiative(records){chain=chain.catch(()=>{}).then(()=>showInitiative(records));return chain;}
  function playClashes(records){chain=chain.catch(()=>{}).then(()=>showClashes(records));return chain;}
  function play(records,title='擲骰判定'){chain=chain.catch(()=>{}).then(()=>show(records,title));return chain;}
  function apply(room){const key=room.currentEvent?`${room.id}:${room.run}:${room.areaIndex}:${room.exploration?.position}:${room.currentEvent.id}`:null,r=room.eventResult;if(room.id!==lastRoom){lastRoom=room.id;lastEvent=r&&key?key:null;return;}if(!r){lastEvent=null;return;}if(!key||lastEvent===key)return;lastEvent=key;
- const records=r.degree==='personal'?(r.personalResults||[]).map(x=>({name:x.sinner,die:x.die,total:x.total,dc:x.dc,degree:x.degree})):Number(r.die)>0?[{name:'團體',die:r.die,total:r.total,dc:r.dc,degree:r.degree}]:[];if(records.length)play(records,r.degree==='personal'?'個人事件擲骰':'團體事件擲骰');
+ const records=r.degree==='personal'?(r.personalResults||[]).filter(x=>Number(x.die)>0).map(x=>({name:x.sinner,die:x.die,total:x.total,dc:x.dc,degree:x.degree})):Number(r.die)>0?[{name:'團體',die:r.die,total:r.total,dc:r.dc,degree:r.degree}]:[];if(records.length)play(records,r.degree==='personal'?'個人事件擲骰':'危機事件擲骰');
  }
- socket.on('room:update',apply);window.KBMDice={play,split,playClashes,enabled,setEnabled};
+ socket.on('room:update',apply);window.KBMDice={play,split,playClashes,playInitiative,enabled,setEnabled};
 })();

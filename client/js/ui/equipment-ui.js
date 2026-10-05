@@ -3,7 +3,7 @@
   const SLOT_LABEL={weapon:'武器',armor:'防具',accessory:'飾品'};
   const STAT_LABEL={combat:'戰鬥',observe:'觀察',mobility:'機動',stability:'穩定'};
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-  function modsText(item){if(item?.slot==='armor')return `生命上限 +${Number(item.survival?.maxHp||0)} · 初始護盾 +${Number(item.survival?.startShield||0)}`;const rows=Object.entries(item?.mods||{}).filter(([,v])=>Number(v)!==0);return rows.map(([k,v])=>`${STAT_LABEL[k]||k} ${Number(v)>0?'+':''}${Number(v)}`).join(' · ');}
+  function modsText(item){const survival=item?.slot==='armor'?`生命上限 +${Number(item.survival?.maxHp||0)} · 初始護盾 +${Number(item.survival?.startShield||0)} · `:'';const rows=Object.entries(item?.mods||{}).filter(([,v])=>Number(v)!==0);return survival+rows.map(([k,v])=>`${STAT_LABEL[k]||k} ${Number(v)>0?'+':''}${Number(v)}`).join(' · ');}
   function typesText(item){return (item?.attackTypes||[]).map(t=>TYPE_LABEL[t]||t).join(' / ');}
   function renderEquipped(room,player,root){
     const grid=root.querySelector('.equipment-grid');if(!grid)return;

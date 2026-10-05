@@ -7,7 +7,7 @@ function primaryEnemy(combat){return aliveEnemies(combat).find(e=>e.role==='boss
 function makeEnemy(room,type,role=type,scale=1){
   const base=scaledEnemy(room,type==='minion'?'combat':type),id=`${base.id}-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,hp=Math.max(8,Math.round(base.hp*scale));
   const enemy={...base,instanceId:id,role,currentHp:hp,maxHp:hp,shield:Math.max(0,Math.round(Number(base.startShield||0)*scale)),maxShield:Math.max(0,Math.round(Number(base.startShield||0)*scale)),attack:Math.max(2,Math.round(base.attack*(role==='minion'?.72:1))),defensePenalty:0,temporaryDefense:0,attackMultiplier:1,statuses:[],parts:[],resistances:base.resistances||profileForEnemy(base.id)};
-  enemy.baseName=base.name;enemy.parts=makeParts(enemy,type);return enemy;
+  enemy.mobility=Number(base.mobility||5);enemy.baseName=base.name;enemy.parts=makeParts(enemy,type);return enemy;
 }
 function spawnEncounter(room,type){
   const playerCount=Math.max(1,room.players.filter(p=>p.connected&&p.hp>0).length);
