@@ -1,6 +1,6 @@
 {
   "name": "kanban-bookkeeping-multiplayer",
-  "version": "0.31.15",
+  "version": "0.31.16",
   "private": true,
   "description": "Independent multiplayer exploration game with reconnection, signed room recovery, autosave, invite links and Render support.",
   "scripts": {
@@ -8,7 +8,7 @@
     "start": "node server/server.js",
     "check": "node --check server/server.js && node --check server/room-manager.js && node --check server/persistence.js && node --check client/js/app.js && node --check shared/game-data.js && node --check server/combat/combat-flow.js && node --check server/socket-handlers.js && node --check client/js/combat/combat-ui.js && node --check client/js/combat/card-ui.js && node --check client/js/ui/mobile-info-ui.js && node --check client/js/ui/progression-ui.js",
     "test:ui": "node tests/mobile-ui.test.js",
-    "test": "node tests/cards.test.js && node tests/ability-v30.test.js && node tests/rules-v31.test.js && node tests/battle-v28.test.js && node tests/battle-flow.test.js && node tests/mobile-ui.test.js && node tests/battle-presentation.test.js && node tests/no-hit.test.js && node tests/status-scope.test.js && node tests/equipment-overflow.test.js && node tests/charge-v312.test.js && node tests/event-deck-v313.test.js && node tests/shop-v314.test.js"
+    "test": "node tests/cards.test.js && node tests/ability-v30.test.js && node tests/rules-v31.test.js && node tests/battle-v28.test.js && node tests/battle-flow.test.js && node tests/mobile-ui.test.js && node tests/battle-presentation.test.js && node tests/no-hit.test.js && node tests/status-scope.test.js && node tests/equipment-overflow.test.js && node tests/charge-v312.test.js && node tests/event-deck-v313.test.js && node tests/shop-v314.test.js && node tests/shared-bag-ui.test.js"
   },
   "dependencies": {
     "express": "^4.21.2",
