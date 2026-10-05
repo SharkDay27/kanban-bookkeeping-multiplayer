@@ -79,8 +79,8 @@
         const support=['guard','card-guard','heal','team-buff','skill-utility'].includes(rec.kind)||(!rec.clashes?.length&&!rec.dealt);phase(room.combat.flowVersion?res.phase:support?'support':'attack',rec.sinner+' · '+rec.action+(support?'':' · 敵方防禦'));focus('player',rec.sinner,rec.action);
         if(rec.clashes?.length)await window.KBMDice?.playClashes(rec.clashes.map(x=>({...x,name:rec.sinner+' · '+rec.action+' → '+x.target,color:rec.sinnerColor})));
         const enemy=enemyEl(rec.targetId);
-        focus('player',rec.sinner,rec.action,rec.shieldGained?`護盾 +${rec.shieldGained}`:rec.healing?.length?'恢復生命':rec.dealt>0?`-${rec.dealt}`:support?'防護 / 支援':'效果');
-        if(enemy&&!support)fx(enemy,rec.dealt>0?'combat-hit':'combat-block',rec.dealt>0?`-${rec.dealt}`:'效果');window.KBMCombatVFX?.attack(rec);if(rec.dealt>0)window.KBMCombatSounds?.attack(rec.damageType||'anomaly');window.KBMCombatVFX?.statuses(rec.statusEvents);await sleep(rec.statusEvents?.length?900:500);
+        focus('player',rec.sinner,rec.action,rec.shieldGained?`護盾 +${rec.shieldGained}`:rec.healing?.length?'恢復生命':rec.dealt>0?`-${rec.dealt}`:support?'防護 / 支援':'');
+        if(enemy&&!support&&rec.dealt>0)fx(enemy,'combat-hit',`-${rec.dealt}`);window.KBMCombatVFX?.attack(rec);if(rec.dealt>0)window.KBMCombatSounds?.attack(rec.damageType||'anomaly');window.KBMCombatVFX?.statuses(rec.statusEvents);await sleep(rec.statusEvents?.length?900:500);
         for(const id of rec.defeatedTargets||[])if(!deathPlayed.has(id)){deathPlayed.add(id);window.KBMCombatVFX?.death(id);await sleep(600);}
        }else {const er=res.enemyResults[step.index];if(!er)continue;const name=room.combat.enemies.find(e=>e.instanceId===er.enemyId)?.name||'敵方';
         const attacks=!!er.clashes?.length||!!er.targets?.length;phase(room.combat.flowVersion?res.phase:attacks?'defense':'enemy-support',name+(attacks?' 攻擊 · 我方防禦':' · '+er.label));focus('enemy',name,er.label);

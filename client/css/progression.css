@@ -27,3 +27,13 @@
 .hand-card .card-surface{transition:none!important}
 
 .skill-title-line{flex-direction:column;align-items:flex-start;gap:4px}
+
+/* Align skill condition labels and delay event results until dice playback ends. */
+.card-skill-condition small{display:flex!important;align-items:center;flex-wrap:wrap;gap:4px;margin-top:5px!important}
+.card-skill-condition small .card-side-tag,.card-skill-condition small .sin-cost,.skill-card-cost .card-side-tag,.skill-card-cost .sin-cost{display:inline-flex!important;align-items:center!important;min-height:26px!important;box-sizing:border-box;padding:3px 7px!important;margin:0!important;flex:0 0 auto!important;line-height:18px!important;vertical-align:middle}
+.card-skill-condition .condition-label{flex:0 0 auto;line-height:26px!important}
+body.event-dice-playing #eventResult{display:none!important}
+.status-bleed{background:none!important;animation:none!important}
+.status-bleed i.blood-seep{top:24%;width:15%;height:38%;background:linear-gradient(#7e142633,#ac263eaa 60%,#761427);border-radius:48% 52% 55% 45%;filter:none;transform-origin:top;animation:bloodSeep 1.4s ease-out both}
+.status-bleed i.blood-seep:after{content:'';position:absolute;bottom:-9px;left:35%;width:9px;height:15px;background:#a82740;border-radius:30% 30% 60% 60%;transform:rotate(8deg)}
+@keyframes bloodSeep{0%{opacity:0;transform:scale(.15,.05)}30%{opacity:.8;transform:scale(.7,.4)}75%{opacity:.8;transform:scale(1,1)}100%{opacity:0;transform:scale(1.1,1.2)}}
