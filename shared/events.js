@@ -13,5 +13,5 @@ const EVENTS = [
   {area:'zone-8',id:'early-signal',name:'提前抵達的訊號',scope:'personal',theme:'sound',difficulty:9,description:'每個人的接收器都先播放了自己幾秒後才會說出的話。',success:'切斷個人回授並標記訊號來源。',failure:'訊號形成個人迴圈，設備開始過載。',rewardByAction:{observe:{type:'equipment',chance:.7,hint:'成功：高機率取得高品質觀測裝備'},steady:{type:'consumable',chance:.65,hint:'成功：可能回收高品質消耗品'}}}
 ];
 // Every option declares its only economic reward category before selection.
-for(const e of EVENTS){e.rewardByAction={...e.rewardByAction};for(const [id,type] of Object.entries({observe:'card',steady:'equipment',move:'consumable',force:'gold'})){if(!e.rewardByAction[id])e.rewardByAction[id]={type,chance:.65};const rule=e.rewardByAction[id],label={card:'1 張卡牌（行動牌／通用或自己的專屬能力牌）',equipment:'1 件裝備',consumable:'1 件消耗品',gold:'金幣'}[rule.type];rule.hint=`成功：可能獲得${label}；只獲得此類獎勵。`;}}
+for(const e of EVENTS){e.rewardByAction={...e.rewardByAction};for(const [id,type] of Object.entries({observe:'card',steady:'equipment',move:'consumable',force:'gold'})){if(!e.rewardByAction[id])e.rewardByAction[id]={type,chance:.65};const rule=e.rewardByAction[id],label={card:'1 張卡牌（行動牌／通用或自己的專屬能力牌）',equipment:'1 件裝備',consumable:'1 件消耗品',gold:'金幣'}[rule.type];rule.hint=`成功：可能獲得${label}。`;}}
 module.exports = { EVENTS };
