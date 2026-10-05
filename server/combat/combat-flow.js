@@ -22,6 +22,7 @@ function movement(room) {
   c.blockChallenge = null;
 }
 function initialize(room) {
+  room.combat.chapterIndex = room.areaIndex||0;
   room.combat.flowVersion = 29;
   room.combat.rulesVersion = 29;
   room.combat.lastResolution = null;
@@ -126,7 +127,7 @@ function resolve(room) {
   c.lastResolution = result;
   if (manager.checkDefeat(room)) { persist(); return result; }
   if (!aliveEnemies(c).length) return victory();
-  Cards.nextRound(room);
+  Cards.nextRound(room,{refill:c.exchange===2});
   c.selections = {};
   c.phase = 'resolving';
   c.ready = {};

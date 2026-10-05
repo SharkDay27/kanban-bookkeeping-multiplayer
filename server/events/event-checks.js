@@ -9,7 +9,7 @@ const EVENT_ACTIONS={
   force:{id:'force',label:'強行制壓',stat:'combat',statLabel:'戰鬥',risk:'高風險',desc:'直接壓制或破壞威脅。',bonus:-1}
 };
 const THEME_ACTIONS={lure:['observe','steady','move'],terrain:['observe','move','steady'],mechanical:['steady','observe','force'],time:['observe','steady','move'],sound:['observe','steady','move'],chemical:['observe','steady','move'],unknown:['observe','steady','force']};
-function eventOptions(event){return (THEME_ACTIONS[event.theme]||THEME_ACTIONS.unknown).map(id=>({...EVENT_ACTIONS[id],rewardHint:event.rewardByAction?.[id]?.hint||''}));}
+function eventOptions(event){event.rewardByAction=event.rewardByAction||{};for(const id of THEME_ACTIONS[event.theme]||THEME_ACTIONS.unknown)if(!event.rewardByAction[id])event.rewardByAction[id]={type:'card',chance:.6,hint:'成功：可能獲得 1 張卡牌；只獲得卡牌。'};return (THEME_ACTIONS[event.theme]||THEME_ACTIONS.unknown).map(id=>({...EVENT_ACTIONS[id],rewardHint:event.rewardByAction?.[id]?.hint||''}));}
 function degreeFor(die,total,dc){if(die===20||total>=dc+5)return 'critical';if(total>=dc)return 'success';if(total>=dc-3)return 'mixed';if(die===1||total<=dc-7)return 'critical-failure';return 'failure';}
 function baseDc(room,event){const b=balance(room);return {balance:b,dc:eventDc(event.difficulty,room.exploration.danger,room.areaIndex)};}
 function resolveEventCheck(room,event,votes,activePlayers){

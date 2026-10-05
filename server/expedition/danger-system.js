@@ -6,8 +6,8 @@ const {weightForItem}=require('../builds/build-affinity');
 
 const CHAPTER_BALANCE=[
   {enemyHp:.78,enemyAtk:.76,enemyDef:-1,eventDc:-2,eventDamage:.70,dangerGain:.65,eliteBias:-5,bossAtk:.82},
-  {enemyHp:1,enemyAtk:1,enemyDef:0,eventDc:0,eventDamage:1,dangerGain:1,eliteBias:0,bossAtk:1},
-  {enemyHp:1.22,enemyAtk:1.18,enemyDef:2,eventDc:2,eventDamage:1.2,dangerGain:1.15,eliteBias:7,bossAtk:1.18}
+  {enemyHp:1.1,enemyAtk:1,enemyDef:0,eventDc:0,eventDamage:1,dangerGain:1,eliteBias:0,bossAtk:1},
+  {enemyHp:1.38,enemyAtk:1.18,enemyDef:2,eventDc:2,eventDamage:1.2,dangerGain:1.15,eliteBias:7,bossAtk:1.18}
 ];
 const PARTY_SCALE={1:{hp:.52,atk:.78},2:{hp:.74,atk:.88},3:{hp:.9,atk:.95},4:{hp:1,atk:1}};
 function balance(room){return CHAPTER_BALANCE[Math.max(0,Math.min(2,room.areaIndex||0))];}
