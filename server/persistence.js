@@ -14,7 +14,9 @@ function loadRooms() {
     if (!fs.existsSync(SAVE_FILE)) return [];
     const raw = fs.readFileSync(SAVE_FILE, 'utf8');
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    if(!Array.isArray(parsed))return [];
+    for(const room of parsed)for(const p of room.players||[]){p.battleStatusActive=!!room.combat&&!room.combat.ended&&room.phase==='exploration';if(!p.battleStatusActive){p.statuses=[];p.markMods={};p.temporaryShield=0;}}
+    return parsed;
   } catch (error) {
     console.error('Failed to load room persistence:', error);
     return [];

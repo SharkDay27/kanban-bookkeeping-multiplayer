@@ -4,6 +4,7 @@ const Rooms=require('../server/room/room-manager'),B=require('../server/status/b
 const originalRoll=Dice.roll,originalOrder=I.order;
 try{
  const {room:r,player:p}=Rooms.createRoom('test','test');r.selectedAreas=['zone-1','zone-2','zone-3'];Rooms.setSinner(r,p,'04');Rooms.resetForStart(r);
+ p.battleStatusActive=true;
  // Every state application is recorded, even reapplication at the cap or later removal.
  for(const def of G.STATUS_EFFECTS){const e=def.id==='imprint'?{id:'sinclair',sinnerId:'11',statuses:[]}:p;const events=B.captureEffects(()=>{B.add(e,def.id,2,9);B.add(e,def.id,3,1);e.statuses=[];});assert.equal(events.length,2,def.id);assert.equal(events[0].targetId,e.id);assert.equal(events[0].statusId,def.id);assert.equal(events[1].stacks,9);}
  assert.throws(()=>B.captureEffects(()=>{throw new Error('abort');}));assert.equal(B.captureEffects(()=>B.add(p,'agile')).length,1);

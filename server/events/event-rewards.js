@@ -4,8 +4,8 @@ const {randomFrom,pickPositiveStatus}=require('../expedition/danger-system');
 const {addStatus,randomStatus,dangerShield,applyDamageToPlayer}=require('../status/status-manager');
 const {addEquipment}=require('../equipment/equipment-manager');
 
-function maybePositiveStatus(room,player,bonus=0){const chance=.08+room.exploration.danger*.035+(room.areaIndex||0)*.04+bonus;if(Math.random()>chance)return null;const status=pickPositiveStatus(room,player);addStatus(player,status.id);return status;}
-function maybeNegativeStatus(room,severity=1,targetPlayer=null){const chance=.05+room.exploration.danger*.03+(room.areaIndex||0)*.03+severity*.025;if(Math.random()>chance)return null;const targets=targetPlayer?[targetPlayer]:room.players.filter(p=>p.hp>0);if(!targets.length)return null;const target=randomFrom(targets),status=randomStatus('debuff');addStatus(target,status.id);return {playerId:target.id,statusId:status.id,name:status.name};}
+function maybePositiveStatus(){return null;}
+function maybeNegativeStatus(){return null;}
 function awardGoldToParty(room,amount){const value=Math.max(0,Math.round(amount||0));if(!value)return 0;for(const player of room.players)player.gold=Math.max(0,Number(player.gold||0)+value);return value;}
 function awardGoldToPlayer(player,amount){const value=Math.max(0,Math.round(amount||0));if(!value)return 0;player.gold=Math.max(0,Number(player.gold||0)+value);return value;}
 function eventGold(room,degree){const range=eventGoldRange(degree),chance=ECONOMY.eventGoldChance[degree]||0;if(!range||Math.random()>chance)return 0;const [min,max]=range,danger=Number(room.exploration.danger||0),chapter=room.areaIndex||0;return awardGoldToParty(room,min+Math.floor(Math.random()*(max-min+1))+chapter*ECONOMY.eventChapterBonus+Math.floor(danger/2));}

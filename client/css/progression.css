@@ -25,3 +25,5 @@
 .hand-card .card-surface,.hand-card .card-controls button{animation:none!important;cursor:pointer!important}
 .hand-card .card-surface:disabled,.hand-card .card-controls button:disabled{cursor:default!important}
 .hand-card .card-surface{transition:none!important}
+
+.skill-title-line{flex-direction:column;align-items:flex-start;gap:4px}
