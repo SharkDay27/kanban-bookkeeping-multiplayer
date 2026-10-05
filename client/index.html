@@ -10,7 +10,7 @@
 <body>
   <main class="shell">
     <header class="topbar">
-      <div><div class="eyebrow">LIMBUS COMPANY FAN EXPEDITION · v0.29.1</div><h1>邊獄公司 同人探索遊戲</h1></div>
+      <div><div class="eyebrow">LIMBUS COMPANY FAN EXPEDITION · v0.30.0</div><h1>邊獄公司 同人探索遊戲</h1></div>
       <div class="top-statuses"><div class="save-audio-row"><div id="connection" class="status">連線中…</div><button id="forgetSession" class="status host-clear hidden">清除存檔</button></div></div>
     </header>
     <div id="reconnectBanner" class="reconnect-banner hidden">連線暫時中斷，伺服器會保留你的席位並自動重新連線。</div>
@@ -26,7 +26,7 @@
         <div id="lobbySetup"><div class="section-title">SESSION ZERO / 探索準備</div><h2>選擇三個探索地區</h2><p id="mapSelectionNote" class="subcopy">房主依序選 3 個地區：第 1 張為初級、第 2 張為中級、第 3 張為高級。</p><div id="areaList" class="area-list"></div><h2>選擇你的罪人</h2><div id="sinnerList" class="sinner-list"></div></div>
         <div id="explorationPanel" class="hidden"><div id="expeditionOverview"><div class="section-title">EXPEDITION / 遠征 · <span id="runNumber">#1</span></div><div id="chapterBar" class="chapter-bar"></div><div id="routePanel" class="route-panel"></div><div id="explorationMeters" class="exploration-meters"></div></div>
           <div id="eventPanel" class="gm-panel hidden"><div class="event-kicker" id="eventArea"></div><div class="gm-label">GM / 場景描述</div><h2 id="eventName"></h2><p id="eventDescription" class="scene-text"></p><div class="action-prompt">你打算怎麼處理？</div><div id="eventOptions" class="event-options"></div><div id="eventResult" class="event-result hidden"></div><button id="nextEvent" class="hidden">前往下一節點</button></div>
-          <div id="combatPanel" class="combat-panel hidden"><div id="combatStage" class="combat-stage"><div class="combat-heading-row"><div id="enemyKind" class="enemy-kind"></div><div id="combatRound" class="combat-round"></div></div><div id="bossPhase" class="boss-phase hidden"></div><h2 id="enemyName"></h2><p id="enemyTrait" class="enemy-trait"></p><div class="enemy-hp-line"><div class="enemy-hp-copy"><span>主要目標 HP</span><strong id="enemyHpText"></strong></div><div class="enemy-hp-track"><i id="enemyHpBar"></i></div></div><div id="enemyIntent" class="enemy-intent"></div><div id="combatFx" class="combat-fx" aria-hidden="true"></div></div><div class="action-prompt">按旋轉按鈕選擇朝上行動，再按出牌與確認。</div><div id="combatOptions" class="event-options"></div><div id="combatLog" class="combat-log"></div><div id="combatResult" class="event-result hidden"></div><button id="nextCombatNode" class="hidden">前往下一節點</button></div>
+          <div id="combatPanel" class="combat-panel hidden"><div id="combatStage" class="combat-stage"><div class="combat-heading-row"><div id="enemyKind" class="enemy-kind"></div><div id="combatRound" class="combat-round"></div></div><div id="bossPhase" class="boss-phase hidden"></div><h2 id="enemyName"></h2><p id="enemyTrait" class="enemy-trait"></p><div class="enemy-hp-line"><div class="enemy-hp-copy"><span>主要目標 HP</span><strong id="enemyHpText"></strong></div><div class="enemy-hp-track"><i id="enemyHpBar"></i></div></div><div id="enemyIntent" class="enemy-intent"></div><div id="combatFx" class="combat-fx" aria-hidden="true"></div></div><div class="action-prompt">點擊行動牌旋轉，再按出牌與確認。</div><div id="combatOptions" class="event-options"></div><div id="combatLog" class="combat-log"></div><div id="combatResult" class="event-result hidden"></div><button id="nextCombatNode" class="hidden">前往下一節點</button></div>
           <div id="endingPanel" class="ending-panel hidden"></div>
         </div>
       </section>
@@ -64,5 +64,6 @@
   <script src="/js/audio/combat-sounds.js"></script>
   <script src="/js/ui/tutorial-manual.js"></script>
   <script src="/js/ui/outcome-ui.js"></script>
+  <script src="/js/ui/mobile-info-ui.js"></script>
 </body>
 </html>

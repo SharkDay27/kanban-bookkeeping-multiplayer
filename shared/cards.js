@@ -36,6 +36,25 @@
  '12':['戰術排序','stack','棄 1 張手牌，指定下次抽牌。'],
  '13':['適應整備','draw','抽 1 張牌，恢復 2 HP。']};
  const personalAbility=id=>{const p=PERSONAL[id];return p?{id:'ability-personal-'+id,name:p[0],effect:p[1],description:p[2],sinnerId:id,shield:['03','05'].includes(id)?2:0,heal:id==='13'?2:0}:null;};
+ // Five additional exclusive ability cards per sinner; one always cycles or draws.
+ const EXTRA_PERSONAL={
+ '01':[['紙鳥翻頁',{effect:'draw'},'抽 1 張牌。'],['翼羽折影',{shield:4},'自己獲得 4 護盾。'],['步出鏡面',{selfStatus:'agile',statusDuration:1},'自己獲得 1 層靈敏，1 組攻守。'],['靜默推演',{applyStatus:'suppressed',statusDuration:1,costRequired:true,battleLimit:1},'棄 1 張未出手牌；目標攻防各減 3 骰，1 組攻守；每場限 1 次。'],['未寫之頁',{nextDraw:1},'下一個攻擊或防守回合多抽 1 張。']],
+ '02':[['數據補完',{effect:'draw'},'抽 1 張牌。'],['校準護壁',{shield:4},'自己獲得 4 護盾。'],['心神校正',{cleanse:true},'移除自己 1 種負面狀態。'],['破綻演算',{applyStatus:'vulnerable',statusDuration:1},'目標易傷 +1 層，1 組攻守。'],['囊中餘溫',{heal:4},'自己恢復 4 HP。']],
+ '03':[['補給出征',{effect:'draw'},'抽 1 張牌。'],['騎士護佑',{shield:5},'自己獲得 5 護盾。'],['無懼衝鋒',{selfStatus:'agile',statusDuration:1},'自己獲得 1 層靈敏，1 組攻守。'],['路見不平',{teamShield:3,costRequired:true},'棄 1 張未出手牌；所有存活隊友獲得 3 護盾。'],['片刻甘露',{heal:4,healOveruse:true},'自己恢復 4 HP；計入治療過度次數，第 3 次治療後接下來 2 組攻守由伺服器接管。']],
+ '04':[['畫稿翻頁',{effect:'draw'},'抽 1 張牌。'],['紅線',{applyStatus:'bleeding',statusDuration:1},'目標流血 +1 層，1 組攻守。'],['殘焰',{applyStatus:'burning',statusDuration:1},'目標燒傷 +1 層，1 組攻守。'],['留白',{shield:4},'自己獲得 4 護盾。'],['裁紙',{discardEnemy:1,costRequired:true,battleLimit:1},'棄 1 張未出手牌；強制回收目標 1 張行動手牌；每場限 1 次。']],
+ '05':[['行動整理',{effect:'draw'},'抽 1 張牌。'],['鎖鏈維持',{applyStatus:'paralysis',statusDuration:1},'目標麻痺 +1 層，1 組攻守。'],['立定',{shield:6},'自己獲得 6 護盾。'],['沉默清醒',{cleanse:true},'移除自己 1 種負面狀態。'],['按令固守',{selfStatus:'guarded',statusDuration:1},'自己獲得防護，1 組攻守內受到傷害降低 35%。']],
+ '06':[['捲簾',{effect:'draw'},'抽 1 張牌。'],['翡翠庇護',{shield:4},'自己獲得 4 護盾。'],['煙雲',{applyStatus:'sinking',statusDuration:1},'目標沉淪 +1 層，1 組攻守。'],['金玉餘響',{goldBonus:4,battleLimit:1},'本場結束額外獲得 4 金幣；每場限 1 次，與技能共用 24 金幣上限。'],['閒庭步',{selfStatus:'agile',statusDuration:1},'自己獲得 1 層靈敏，1 組攻守。']],
+ '07':[['陰雨翻牌',{effect:'draw'},'抽 1 張牌。'],['積怨蓄勢',{selfStatus:'damage-up',statusDuration:1},'自己增傷 +1 層，1 組攻守。'],['缺口追擊',{applyStatus:'vulnerable',statusDuration:1},'目標易傷 +1 層，1 組攻守。'],['強撐',{heal:3},'自己恢復 3 HP。'],['風暴預備',{nextDraw:1},'下一個攻擊或防守回合多抽 1 張。']],
+ '08':[['航海札記',{effect:'draw'},'抽 1 張牌。'],['纜繩護衛',{shield:4},'自己獲得 4 護盾。'],['共同靠岸',{teamShield:3,costRequired:true},'棄 1 張未出手牌；所有存活隊友獲得 3 護盾。'],['測流',{applyStatus:'sinking',statusDuration:1},'目標沉淪 +1 層，1 組攻守。'],['不沉之志',{selfStatus:'guarded',statusDuration:1},'自己獲得防護，1 組攻守內受到傷害降低 35%。']],
+ '09':[['幸運換手',{effect:'shuffle'},'棄 1 張未出手牌，抽 1 張；洗勻剩餘抽牌堆。'],['先墊一手',{shield:4},'自己獲得 4 護盾。'],['翻倍賭注',{selfStatus:'damage-up',statusDuration:1},'自己增傷 +1 層，1 組攻守。'],['順手牽羊',{stealPile:'hand',costRequired:true,battleLimit:1},'棄 1 張未出手牌；偷取目標 1 張行動手牌，本場可用；每場限 1 次。'],['乾杯',{heal:4},'自己恢復 4 HP。']],
+ '11':[['深呼吸',{effect:'draw'},'抽 1 張牌。'],['微聲禱告',{heal:4},'自己恢復 4 HP。'],['搖擺刻印',{imprint:true,battleLimit:1},'刻印 +1 層，隨機提高戰鬥／穩定／機動；每場限 1 次。'],['膽怯護持',{shield:4},'自己獲得 4 護盾。'],['新步伐',{selfStatus:'agile',statusDuration:1},'自己獲得 1 層靈敏，1 組攻守。']],
+ '12':[['戰況速讀',{effect:'draw'},'抽 1 張牌。'],['方陣',{selfStatus:'guarded',statusDuration:1},'自己獲得防護，1 組攻守內受到傷害降低 35%。'],['全隊急行',{agile:1},'所有存活隊友靈敏 +1 層，2 組攻守。'],['斷令',{applyStatus:'sealed',statusDuration:1,costRequired:true,battleLimit:1},'棄 1 張未出手牌；封印目標技能 1 組攻守；每場限 1 次。'],['校射',{applyStatus:'vulnerable',statusDuration:1},'目標易傷 +1 層，1 組攻守。']],
+ '13':[['清點物資',{effect:'draw'},'抽 1 張牌。'],['組織修復',{regeneration:1},'自己再生 +1 層，2 組攻守。'],['蟲甲',{shield:4},'自己獲得 4 護盾。'],['細胞代謝',{cleanse:true},'移除自己 1 種負面狀態。'],['蟲噬',{destroyEnemy:1,costRequired:true,battleLimit:1},'棄 1 張未出手牌；破壞目標 1 張行動牌，本場不可再用；每場限 1 次，與技能共用破壞 3 張上限。']]
+ };
+ const extraPersonalAbilities=id=>(EXTRA_PERSONAL[id]||[]).map(([name,effects,description],i)=>({id:`ability-exclusive-${id}-${i}`,name,effect:'personal',...effects,description,sinnerId:id}));
+ const personalAbilities=id=>[personalAbility(id),...extraPersonalAbilities(id)].filter(Boolean);
+ const abilityNeedsCost=card=>!!card.costRequired||['shuffle','recover','stack','copy'].includes(card.effect);
+ const abilityNeedsEnemy=card=>!!(card.applyStatus||card.discardEnemy||card.stealPile||card.destroyEnemy);
  // Twelve cards, with separate attack/support sin budgets imported from the skill sheet.
  function sinLayout(weights,fallback){
   const entries=Object.keys(weights).filter(k=>weights[k]>0);if(!entries.length)entries.push(...fallback);
@@ -79,5 +98,5 @@
  for(const a of ABILITIES)COLLECTIBLE.push({...a,kind:'ability',cardItem:true,rarity:a.effect==='copy'?'rare':'uncommon',description:a.description+' 加入本次遠征牌組。'});
  const face=(card,flipped=false)=>card.faces?.[flipped?1:0]||null;
  function totals(hand,picks){const counts={},attackColors={},guardColors={},attackFaces=[],guardFaces=[],points={slash:0,blunt:0,pierce:0,guard:0};for(const p of picks||[]){const card=hand.find(c=>c.uid===p.uid),f=face(card||{},p.flipped);if(!f)continue;counts[f.sin]=(counts[f.sin]||0)+f.value;(f.type==='guard'?guardFaces:attackFaces).push(f);const colors=f.type==='guard'?guardColors:attackColors;colors[f.sin]=(colors[f.sin]||0)+f.value;points[f.type]=(points[f.type]||0)+f.value;}return {counts,points,attackColors,guardColors,attackFaces,guardFaces};}
- return {SINS,TYPES,LCB,ABILITIES,COLLECTIBLE,personalAbility,initialCards,weaponCards,weaponSummary,requirement,isOutputSkill,skillPoints,canUse,conditionText,meets,face,totals};
+ return {SINS,TYPES,LCB,ABILITIES,COLLECTIBLE,personalAbility,personalAbilities,extraPersonalAbilities,abilityNeedsCost,abilityNeedsEnemy,initialCards,weaponCards,weaponSummary,requirement,isOutputSkill,skillPoints,canUse,conditionText,meets,face,totals};
 });
