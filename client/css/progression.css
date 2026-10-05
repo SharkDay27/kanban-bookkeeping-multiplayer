@@ -52,3 +52,5 @@ body.event-dice-playing #eventResult{display:none!important}
 .hand-card.staged .card-half,.hand-card.staged .card-center{opacity:.48}
 .status-chip{font-weight:900!important}
 .enemy-played-cards>span{font-weight:900!important;background:color-mix(in srgb,var(--sin) 14%,#fffaf4)!important;border:1px solid color-mix(in srgb,var(--sin) 55%,#fff)!important;color:color-mix(in srgb,var(--sin) 78%,#302922)!important}
+
+.deck-controls{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}.deck-controls label{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700}.deck-controls select{padding:6px;border:1px solid #bbcdc2;border-radius:7px;background:#f5faf6;color:#496658}

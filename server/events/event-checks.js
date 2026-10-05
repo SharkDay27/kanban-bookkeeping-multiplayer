@@ -9,9 +9,9 @@ const EVENT_ACTIONS={
   force:{id:'force',label:'強行制壓',stat:'combat',statLabel:'戰鬥',risk:'高風險',desc:'直接壓制或破壞威脅。',bonus:-1}
 };
 const THEME_ACTIONS={lure:['observe','steady','move'],terrain:['observe','move','steady'],mechanical:['steady','observe','force'],time:['observe','steady','move'],sound:['observe','steady','move'],chemical:['observe','steady','move'],unknown:['observe','steady','force']};
-function eventOptions(event){event.rewardByAction=event.rewardByAction||{};for(const id of THEME_ACTIONS[event.theme]||THEME_ACTIONS.unknown)if(!event.rewardByAction[id])event.rewardByAction[id]={type:'card',chance:.6,hint:'成功：獲得 1 張卡牌。'};return (THEME_ACTIONS[event.theme]||THEME_ACTIONS.unknown).map(id=>({...EVENT_ACTIONS[id],rewardHint:event.rewardByAction?.[id]?.hint||''}));}
+function eventOptions(event){event.rewardByAction=event.rewardByAction||{};for(const id of THEME_ACTIONS[event.theme]||THEME_ACTIONS.unknown)if(!event.rewardByAction[id])event.rewardByAction[id]={type:'card',chance:.6,hint:'成功：有 60% 機率獲得 1 張卡牌；大成功必定獲得。'};return (THEME_ACTIONS[event.theme]||THEME_ACTIONS.unknown).map(id=>{const rule=event.rewardByAction[id],label={card:'1 張卡牌',equipment:'1 件裝備',consumable:'1 件消耗品',gold:'金幣'}[rule.type];return {...EVENT_ACTIONS[id],rewardHint:`成功：有 ${Math.round(Number(rule.chance||0)*100)}% 機率獲得${label}；大成功必定獲得。`};});}
 function degreeFor(die,total,dc){if(die===20||total>=dc+5)return 'critical';if(total>=dc)return 'success';if(total>=dc-3)return 'mixed';if(die===1||total<=dc-7)return 'critical-failure';return 'failure';}
-function baseDc(room,event){const b=balance(room);return {balance:b,dc:eventDc(event.difficulty,room.exploration.danger,room.areaIndex)};}
+function baseDc(room,event){const b=balance(room);return {balance:b,dc:eventDc(event.difficulty,room.exploration.danger,room.areaIndex)+(event.scope==='group'?2:0)};}
 function resolveEventCheck(room,event,votes,activePlayers){
   const active=activePlayers||room.players.filter(p=>p.connected&&p.hp>0),{balance:b,dc}=baseDc(room,event);
   const contributions=active.map(player=>{const option=event.options.find(o=>o.id===votes[player.id]),value=statFor(player,option?.stat);return {playerId:player.id,sinner:sinnerOf(player)?.name||player.name,actionId:option?.id||'',actionLabel:option?.label||'',statLabel:option?.statLabel||'',statValue:value,bonus:option?.bonus||0};});
