@@ -1,4 +1,4 @@
 const {EQUIPMENT}=require('../../shared/equipment');
-function normalize(item){if(!item)return item;return EQUIPMENT.find(x=>x.id===item.id)||item;}
+function normalize(item){if(!item)return item;const def=EQUIPMENT.find(x=>x.id===item.id);return def?{...JSON.parse(JSON.stringify(def)),...(item.gearUid?{gearUid:item.gearUid}:{})}:item;}
 function sync(player){player.equipment=player.equipment||{};for(const slot of ['weapon','armor','accessory'])player.equipment[slot]=normalize(player.equipment[slot]);player.equipmentInventory=(player.equipmentInventory||[]).map(normalize);const bonus=Number(player.equipment.armor?.survival?.maxHp||0),previous=Number(player.armorHpBonus||0),base=Number(player.baseMaxHp||Math.max(1,Number(player.maxHp||100)-previous));player.baseMaxHp=base;player.armorHpBonus=bonus;player.maxHp=base+bonus;player.hp=Math.min(Number(player.hp||0),player.maxHp);return player;}
 module.exports={sync,normalize};

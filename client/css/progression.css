@@ -38,3 +38,11 @@ body.event-dice-playing #eventResult{display:none!important}
 .status-bleed i.blood-seep{top:30%;width:13px;height:13px;background:radial-gradient(circle at 68% 68%,#d64d5d 0,#aa2038 48%,#671329 100%);border-radius:0 65% 65% 65%;filter:drop-shadow(0 2px 2px #5f142633);transform-origin:center;animation:bloodDropSeep 1.4s ease-in both;animation-delay:calc(var(--particle)*.08s)}
 .status-bleed i.blood-seep:after{content:'';position:absolute;bottom:3px;left:7px;width:3px;height:5px;background:#f9a0a477;border-radius:50%;transform:rotate(-30deg)}
 @keyframes bloodDropSeep{0%{opacity:0;transform:translateY(0) rotate(45deg) scale(.05)}25%{opacity:.85;transform:translateY(1px) rotate(45deg) scale(.55)}50%{opacity:1;transform:translateY(4px) rotate(45deg) scale(1)}75%{opacity:.9;transform:translateY(19px) rotate(45deg) scale(.95,1.1)}100%{opacity:0;transform:translateY(48px) rotate(45deg) scale(.7,1)}}
+
+.equipment-overflow-dialog{width:min(460px,calc(100vw - 28px));max-height:85dvh;overflow:auto;border:1px solid #cbbdaf;border-radius:14px;padding:20px;background:#fffcf6;color:#63584e;box-shadow:0 12px 48px #42382b44}
+.equipment-overflow-dialog::backdrop{background:#332d2955}
+.equipment-overflow-dialog h3{margin:0 0 8px;font-size:17px}.equipment-overflow-dialog p{font-size:12px;line-height:1.6}
+.overflow-new-item{padding:10px;background:#edf4ed;border:1px solid #b5ceba;border-radius:8px;margin:10px 0}
+.overflow-choices{display:grid;gap:7px}.overflow-choices button{display:grid;text-align:left;gap:4px;padding:10px;background:#faf5ee;border:1px solid #ded2c5;border-radius:8px;color:#65564c}
+.equipment-overflow-dialog small{display:block;font-size:11px;line-height:1.5}.overflow-choices span{font-size:10px;color:#a16159}
+[data-skip-gear]{width:100%;margin-top:12px}.overflow-error{color:#ac4e52}.event-no-loot{color:#887d72}

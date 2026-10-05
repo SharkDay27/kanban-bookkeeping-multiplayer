@@ -9,6 +9,7 @@ function targetChoiceIndex(room){
 }
 function currentChoiceLayer(room){const index=targetChoiceIndex(room);if(index===null)return {index:null,choices:[]};return {index,choices:generateChoiceLayer(room,index)};}
 function resolveRouteVote(room,player,choiceId){
+  if(require('../equipment/equipment-manager').pendingEquipment(room))throw new Error('請先完成裝備庫滿額選擇。');
   const {index,choices}=currentChoiceLayer(room);
   if(index===null)throw new Error('目前節點尚未完成，不能選擇下一條路。');
   const choice=choices.find(c=>c.id===choiceId);if(!choice)throw new Error('這個路線選項不存在。');
