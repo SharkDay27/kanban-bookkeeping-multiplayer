@@ -12,6 +12,7 @@ const io=new Server(server,{cors:{origin:'*'}});
 
 loadPersistedRooms();
 // Upgrade unfinished saved battles without resetting HP, inventory or card ownership.
+for(const room of rooms.values())if(room.combat){room.combat.blockChallenge=null;for(const intent of [...Object.values(room.combat.intents||{}),...(room.combat.lockedEnemyTurns||[]).map(t=>t.intent)])if(intent?.type==='charged'){intent.type='attack';intent.label='普通攻擊';intent.partId=null;intent.damagePerPoint=3;}if(room.combat.intent?.type==='charged')room.combat.intent=null;}
 for(const room of rooms.values())if(room.currentEvent?.sceneType==='event')room.currentEvent.options=require('./events/event-checks').eventOptions(room.currentEvent);
 for(const room of rooms.values()){const c=room.combat;if(!c||c.ended||Number(c.rulesVersion)>=28)continue;for(const e of c.enemies||[]){e.mobility=Number(e.mobility||5);e.baseName=e.baseName||e.name;const old=e.parts||[];e.parts=require('./combat/combat-parts').makeParts(e,e.role);e.parts.forEach((p,i)=>{if(old[i]){p.currentHp=Math.round(p.maxHp*Math.max(0,old[i].currentHp)/Math.max(1,old[i].maxHp));p.destroyed=p.currentHp<=0;}});}require('./combat/combat-enemies').labelDuplicates(c.enemies||[]);c.selections={};c.lastResolution=null;c.rulesVersion=28;for(const p of room.players){const d=c.cardDecks?.[p.id];if(d&&p.hp>0)require('./cards/card-manager').draw(d,Math.max(0,6-d.hand.length));}require('./combat/combat-intents').setEnemyIntents(c);}
 app.use(express.json({limit:'1mb'}));
@@ -19,8 +20,8 @@ app.use(express.static(path.join(__dirname,'..','client')));
 app.get('/shared/check-rules.js',(_req,res)=>res.sendFile(path.join(__dirname,'..','shared','check-rules.js')));
 app.get('/shared/skill-requirements.js',(_req,res)=>res.sendFile(path.join(__dirname,'..','shared','skill-requirements.js')));
 app.get('/shared/cards.js',(_req,res)=>res.sendFile(path.join(__dirname,'..','shared','cards.js')));
-app.get('/health',(_req,res)=>res.json({ok:true,rooms:rooms.size,version:'0.31.14'}));
+app.get('/health',(_req,res)=>res.json({ok:true,rooms:rooms.size,version:'0.31.15'}));
 app.get('/api/game-data',(_req,res)=>res.json(gameDataPayload()));
 
 registerSocketHandlers(io);
-server.listen(PORT,()=>console.log(`Multiplayer v0.31.14: http://localhost:${PORT}`));
+server.listen(PORT,()=>console.log(`Multiplayer v0.31.15: http://localhost:${PORT}`));

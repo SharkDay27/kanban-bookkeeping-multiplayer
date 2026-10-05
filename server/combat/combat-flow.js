@@ -20,7 +20,7 @@ function movement(room) {
   c.selections = {};
   c.intents = {};
   c.intent = null;
-  c.blockChallenge = c.blockChallenge || null;
+  c.blockChallenge = null;
 }
 function initialize(room) {
   room.combat.chapterIndex = room.areaIndex||0;
