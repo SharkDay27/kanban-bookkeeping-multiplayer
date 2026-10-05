@@ -8,3 +8,20 @@
 .enemy-skills article{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:baseline;gap:5px 9px}.enemy-skills article>b{font-size:11px}.enemy-skills article>p{margin:0}.enemy-skills article>small{grid-column:1/-1}
 
 .card-hand{padding-top:16px;row-gap:22px}.hand-card.staged{transform:none}.hand-card.staged .card-surface{transform:translateY(-10px);border-color:#679c91;box-shadow:0 3px 9px #679c912a}.hand-card.staged .card-surface.flipped{transform:translateY(-10px) rotate(180deg)}.hand-card.staged .card-controls button{background:#e4f1e9;border-color:#adcabe;color:#497360}.hand-card.is-action .card-center{height:8px;line-height:8px;background:#e9e5de;border-color:#d8d3c9}.hand-card.is-action .card-half{height:calc((100% - 8px)/2)}@media(max-width:640px){#combatOptions .card-hand{grid-template-columns:repeat(4,minmax(0,1fr))!important;row-gap:22px;gap:22px 5px}.hand-card.ability-card .ability-face>strong{font-size:9px}.hand-card.ability-card .ability-face small{font-size:7px;max-height:43px}.hand-card.is-action .card-center{height:8px;line-height:8px}.hand-card.is-action .card-half{height:46px}}
+
+/* Shared skill information layout */
+.skill-meta-tags{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-bottom:7px}
+.skill-meta-tags .skill-category,.skill-meta-tags .skill-damage-type,.skill-stat-tag,.skill-power-tag{display:inline-flex!important;align-items:center;padding:3px 8px!important;border:1px solid #d5dbd3;border-radius:999px!important;font-size:10px!important;font-weight:800!important;line-height:1.4!important;margin:0!important;white-space:nowrap}
+.skill-stat-tag{background:#edf2e9;color:#627454}.skill-power-tag{background:#faf0db;color:#96733f;border-color:#dfc99d}
+.skill-title-line{display:flex;align-items:baseline;gap:9px;margin:0 0 8px;min-width:0}
+.skill-title-line>strong,.skill-title-line>b{flex:0 0 auto;font-size:13px!important;margin:0!important}
+.skill-title-line .skill-description{font-size:11px!important;line-height:1.6;color:#70665f;font-weight:400;min-width:0}
+.skill-card-cost{display:flex;flex-wrap:wrap;align-items:center;gap:4px;font-size:10px!important;line-height:1.5;margin:0!important}
+.skill-card-cost .condition-label,.skill-card-cost .card-side-tag,.skill-card-cost .sin-cost{font-size:10px!important;line-height:1.5!important}
+.condition-label{display:inline!important;font-weight:900!important}
+.card-skill-condition small,.card-skill-condition small .card-side-tag,.card-skill-condition small .sin-cost,.card-skill-condition small .condition-label{font-size:10px!important}
+.card-skill-condition small .condition-label{display:inline!important}
+.skill-learn-state{display:block;margin:0 0 6px;color:#8a8177}
+.hand-card .card-surface,.hand-card .card-controls button{animation:none!important;cursor:pointer!important}
+.hand-card .card-surface:disabled,.hand-card .card-controls button:disabled{cursor:default!important}
+.hand-card .card-surface{transition:none!important}

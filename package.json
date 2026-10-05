@@ -1,6 +1,6 @@
 {
   "name": "kanban-bookkeeping-multiplayer",
-  "version": "0.31.5",
+  "version": "0.31.6",
   "private": true,
   "description": "Independent multiplayer exploration game with reconnection, signed room recovery, autosave, invite links and Render support.",
   "scripts": {

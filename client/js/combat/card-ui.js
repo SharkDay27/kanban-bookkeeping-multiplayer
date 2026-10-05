@@ -8,12 +8,13 @@
  function half(f,position){return `<div class="card-half ${position} type-${f.type}" style="--sin:${C.SINS[f.sin].color}"><div class="card-edge"><span>${C.SINS[f.sin].name}</span><em>${C.TYPES[f.type]}</em></div><div class="card-value"><b>${f.value}</b>${icon(f.type)}</div></div>`;}
  const cardName=c=>c.kind==='ability'?c.name:`${c.name} · ${c.faces.map(f=>`${C.SINS[f.sin].name} ${C.TYPES[f.type]}${f.value}`).join(' / ')}`;
  function skillTag(s){const cls=s.skillClass==='攻擊技能'?'attack':s.skillClass==='特殊技能'?'special':s.skillClass==='防禦技能'?'defense':'support';return `<span class="skill-category ${cls}">${esc(s.skillClass||'技能')}</span>`;}
- function requirementLine(s){const attack=C.isOutputSkill(s);return `條件: <span class="card-side-tag ${attack?'attack':'defense'}">${attack?'攻擊卡':'防禦卡'}</span> ${conditions(s.cardRequirement)}`;}
+ function requirementLine(s){const attack=C.isOutputSkill(s);return `<b class="condition-label">條件:</b> <span class="card-side-tag ${attack?'attack':'defense'}">${attack?'攻擊卡':'防禦卡'}</span> ${conditions(s.cardRequirement)}`;}
+ function skillMeta(s){const stats={combat:'戰鬥',observe:'觀察',mobility:'機動',stability:'穩定'},types={slash:'斬擊',blunt:'鈍擊',pierce:'突擊'};return `<div class="skill-meta-tags">${skillTag(s)}${C.isOutputSkill(s)&&types[s.damageType]?`<span class="skill-damage-type type-${esc(s.damageType)}">${types[s.damageType]}</span>`:''}${stats[s.stat]?`<span class="skill-stat-tag">${stats[s.stat]}</span>`:''}${Number(s.power)>0&&C.isOutputSkill(s)?`<span class="skill-power-tag">威力 ×${Number(s.power).toFixed(2)}</span>`:''}</div>`;}
  function selected(room){return optimistic?.roomId===room.id&&optimistic.phaseSerial===room.combat?.phaseSerial?optimistic:room.combat?.selections?.[state.selfId]||{picks:[]};}
  function send(room,picks,extra={}){if(pendingCards)return;const old=selected(room),data={roomId:room.id,picks,targetId:old.targetId||room.combat.enemies.find(e=>e.currentHp>0)?.instanceId,partId:old.partId||null,...extra};pendingCards=true;optimistic={...old,...data,phaseSerial:room.combat.phaseSerial,preview:null};render(room);confirm(room);socket.emit('combat:cards',data,res=>{pendingCards=false;optimistic=null;if(!res?.ok)alert(res?.error||'操作失敗。');if(state.room?.combat){render(state.room);confirm(state.room);}});}
  function target(room,targetId,partId=null){send(room,selected(room).picks||[],{targetId,partId});}
- function play(room,uid){const deck=room.combat.cardDecks?.[state.selfId],card=deck?.hand.find(c=>c.uid===uid);if(!card)return;if(card.kind==='ability')return ability(room,card);const picks=[...(selected(room).picks||[])];const index=picks.findIndex(p=>p.uid===uid);if(index>=0)picks.splice(index,1);else {picks.push({uid,flipped:!!rotations.get(uid)});}send(room,picks);}
- function rotate(room,uid){const flipped=!rotations.get(uid);rotations.set(uid,flipped);const picks=selected(room).picks||[];if(picks.some(p=>p.uid===uid))send(room,picks.map(p=>p.uid===uid?{...p,flipped}:p));else render(room);}
+ function play(room,uid){if(pendingCards)return;const deck=room.combat.cardDecks?.[state.selfId],card=deck?.hand.find(c=>c.uid===uid);if(!card)return;if(card.kind==='ability')return ability(room,card);const picks=[...(selected(room).picks||[])];const index=picks.findIndex(p=>p.uid===uid);if(index>=0)picks.splice(index,1);else {picks.push({uid,flipped:!!rotations.get(uid)});}send(room,picks);}
+ function rotate(room,uid){if(pendingCards)return;const flipped=!rotations.get(uid);rotations.set(uid,flipped);const picks=selected(room).picks||[];if(picks.some(p=>p.uid===uid))send(room,picks.map(p=>p.uid===uid?{...p,flipped}:p));else render(room);}
  function ability(room,card){
   document.getElementById('abilityDialog')?.remove();const deck=room.combat.cardDecks[state.selfId],reserved=new Set((selected(room).picks||[]).map(p=>p.uid)),costs=deck.hand.filter(c=>c.uid!==card.uid&&!reserved.has(c.uid));
   const targets=card.effect==='recover'?deck.discard.filter(c=>c.kind==='action'):card.effect==='stack'?deck.draw.filter(c=>c.kind==='action'):card.effect==='copy'?deck.hand.filter(c=>c.kind==='action'):[];
@@ -26,7 +27,7 @@
  function render(room){
   const root=document.getElementById('combatOptions'),player=room.players.find(p=>p.id===state.selfId),deck=room.combat?.cardDecks?.[player?.id];if(!root||!player)return;root.classList.add('card-combat-options');if(!deck){root.innerHTML='<p>正在準備牌組…</p>';return;}
   const newKey=`${room.id}:${room.run}:${room.areaIndex}:${room.exploration.position}:${room.combat.phaseSerial||deck.round}`;if(key!==newKey){key=newKey;rotations.clear();focused=null;}
-  const selection=selected(room),picks=selection.picks||[],played=new Set(picks.map(p=>p.uid)),locked=pendingCards||!!selection.confirmed||player.serverControl>0||player.hp<=0||room.phase!=='exploration'||!selectable(room);
+  const selection=selected(room),picks=selection.picks||[],played=new Set(picks.map(p=>p.uid)),locked=!!selection.confirmed||player.serverControl>0||player.hp<=0||room.phase!=='exploration'||!selectable(room);
   picks.forEach(p=>rotations.set(p.uid,p.flipped));const sums=C.totals(deck.hand,picks.filter(p=>applies(room,C.face(deck.hand.find(c=>c.uid===p.uid),p.flipped))));const available=(state.gameData.sinnerSkills||[]).filter(s=>player.learnedSkills?.includes(s.id));
   root.innerHTML=`<div class="card-deck-bar"><strong>手牌 ${deck.hand.length-(selection.confirmed?picks.length:0)}/${deck.limit||8}</strong>${['draw','discard'].map(k=>`<button type="button" data-pile="${k}" aria-expanded="${pileOpen[k]}">${k==='draw'?'抽牌':'回收'} ${deck[k].length} ${pileOpen[k]?'▴':'▾'}</button>`).join('')}<span>能力 ${deck.abilityUses}/2</span></div>${pileMarkup(deck)}
   <div class="card-hand" aria-label="未出戰鬥手牌">${deck.hand.filter(c=>!selection.confirmed||!played.has(c.uid)).map(card=>{
@@ -62,5 +63,5 @@
   root.querySelector('span').textContent=p?.serverControl>0?`治療過度：伺服器接管中（剩餘 ${p.serverControl} 回合）。`:s.confirmed?'等待其他玩家中...':'';
  }
 
- window.KBMCardUI={render,confirm,target,icon,conditions,colorText,half,skillTag,requirementLine};
+ window.KBMCardUI={render,confirm,target,icon,conditions,colorText,half,skillTag,skillMeta,requirementLine};
 })();
