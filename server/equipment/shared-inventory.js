@@ -1,0 +1,2 @@
+function claim(room,player,{index,itemId}){if(room.phase!=='exploration'||!player.connected||player.hp<=0)throw new Error('目前不能領取共享道具。');if((player.inventory||[]).filter(Boolean).length>=4)throw new Error('消耗品欄已滿。');if(!Number.isInteger(index)||index<0||typeof itemId!=='string'||!room.sharedInventory?.[index]||room.sharedInventory[index].id!==itemId)throw new Error('共享背包已更新，請重新選擇。');const [item]=room.sharedInventory.splice(index,1);player.inventory=(player.inventory||[]).filter(Boolean);player.inventory.push(item);return item;}
+module.exports={claim};
