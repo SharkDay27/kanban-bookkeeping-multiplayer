@@ -31,8 +31,10 @@ function resolveCombatRound(room){assertCombatOpen(room);const combat=room.comba
  combat.initiative=require('./initiative').order(room);combat.timeline=[];
  if(combat.blockChallenge)combat.blockChallenge.currentDamage=0;
  for(const turn of combat.initiative){if(room.players.every(p=>p.hp<=0)||!aliveEnemies(combat).length)break;
-  if(turn.side==='player'){const p=room.players.find(p=>p.id===turn.id);if(!p||p.hp<=0)continue;const before=records.length;if(B.skip(p)){records.push({playerId:p.id,sinner:turn.name,action:'麻痺：本次無法行動',kind:'card-guard',cardBased:true,dealt:0});}else resolvePlayerAction(room,p,combat.selections[p.id],guards,records);for(let i=before;i<records.length;i++)combat.timeline.push({side:'player',index:i});}
+  const statusEvents=B.captureEffects(()=>{
+  if(turn.side==='player'){const p=room.players.find(p=>p.id===turn.id);if(!p||p.hp<=0)return;const before=records.length;if(B.skip(p)){records.push({playerId:p.id,sinner:turn.name,action:'麻痺：本次無法行動',kind:'card-guard',cardBased:true,dealt:0});}else resolvePlayerAction(room,p,combat.selections[p.id],guards,records);for(let i=before;i<records.length;i++)combat.timeline.push({side:'player',index:i});}
   else {const result=resolveEnemyActions(room,guards,turn.id);incoming+=result.total;for(const record of result.results){combat.timeline.push({side:'enemy',index:enemyResults.length});enemyResults.push(record);}}
+  });if(statusEvents.length)combat.timeline.push({side:'status',events:statusEvents});
   syncCombatBossPhases(combat);
  }
  // Dead enemies cannot act; status ticks are resolved together at the end of a live round.
