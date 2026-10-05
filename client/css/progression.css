@@ -34,6 +34,7 @@
 .card-skill-condition .condition-label{flex:0 0 auto;line-height:26px!important}
 body.event-dice-playing #eventResult{display:none!important}
 .status-bleed{background:none!important;animation:none!important}
-.status-bleed i.blood-seep{top:24%;width:15%;height:38%;background:linear-gradient(#7e142633,#ac263eaa 60%,#761427);border-radius:48% 52% 55% 45%;filter:none;transform-origin:top;animation:bloodSeep 1.4s ease-out both}
-.status-bleed i.blood-seep:after{content:'';position:absolute;bottom:-9px;left:35%;width:9px;height:15px;background:#a82740;border-radius:30% 30% 60% 60%;transform:rotate(8deg)}
-@keyframes bloodSeep{0%{opacity:0;transform:scale(.15,.05)}30%{opacity:.8;transform:scale(.7,.4)}75%{opacity:.8;transform:scale(1,1)}100%{opacity:0;transform:scale(1.1,1.2)}}
+
+.status-bleed i.blood-seep{top:30%;width:13px;height:13px;background:radial-gradient(circle at 68% 68%,#d64d5d 0,#aa2038 48%,#671329 100%);border-radius:0 65% 65% 65%;filter:drop-shadow(0 2px 2px #5f142633);transform-origin:center;animation:bloodDropSeep 1.4s ease-in both;animation-delay:calc(var(--particle)*.08s)}
+.status-bleed i.blood-seep:after{content:'';position:absolute;bottom:3px;left:7px;width:3px;height:5px;background:#f9a0a477;border-radius:50%;transform:rotate(-30deg)}
+@keyframes bloodDropSeep{0%{opacity:0;transform:translateY(0) rotate(45deg) scale(.05)}25%{opacity:.85;transform:translateY(1px) rotate(45deg) scale(.55)}50%{opacity:1;transform:translateY(4px) rotate(45deg) scale(1)}75%{opacity:.9;transform:translateY(19px) rotate(45deg) scale(.95,1.1)}100%{opacity:0;transform:translateY(48px) rotate(45deg) scale(.7,1)}}
