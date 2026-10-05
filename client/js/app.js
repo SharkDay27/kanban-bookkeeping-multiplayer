@@ -31,7 +31,7 @@ async function copyInviteLink(){try{await navigator.clipboard.writeText(inviteUr
 const savedName=window.KBMSession?.playerName();if(savedName)$('playerName').value=savedName;
 const rawInvite=new URLSearchParams(location.search).get('room'),normalizedInviteRoom=rawInvite?rawInvite.trim().toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4):'';
 if(normalizedInviteRoom){$('roomId').value=normalizedInviteRoom;$('inviteRoomCode').textContent=normalizedInviteRoom;$('inviteNotice').classList.remove('hidden');}
-$('deployMode').textContent=['localhost','127.0.0.1'].includes(location.hostname)?'LOCAL':'ONLINE';
+
 $('createRoom').onclick=()=>{const name=$('playerName').value;window.KBMSession?.setPlayerName(name);socket.emit('room:create',{playerName:name,reconnectToken:window.KBMSession?.persistentToken()},handleJoinAck);};
 $('joinRoom').onclick=joinFromEntry;$('roomId').oninput=e=>e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);$('roomId').onkeydown=e=>{if(e.key==='Enter')joinFromEntry();};$('copyInvite').onclick=copyInviteLink;$('startGame').onclick=()=>action('room:start',{roomId:state.room?.id});$('nextEvent').onclick=()=>action('event:next',{roomId:state.room?.id});$('nextCombatNode').onclick=()=>action('event:next',{roomId:state.room?.id});$('forgetSession').onclick=()=>{window.KBMSession?.clear();location.href=location.pathname;};
 socket.on('connect',()=>{$('connection').textContent='● 已連線';const saved=window.KBMSession?.read();if(saved?.roomId&&saved?.playerId&&saved?.reconnectToken&&(!normalizedInviteRoom||normalizedInviteRoom===saved.roomId)&&!state.resuming)resumeSession(saved);});
