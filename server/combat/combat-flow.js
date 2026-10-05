@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const J=require('./combat-journal');
 const Cards = require('../cards/card-manager');
 const B = require('../status/battle-status');
 const {aliveEnemies} = require('./combat-enemies');
@@ -19,7 +20,7 @@ function movement(room) {
   c.selections = {};
   c.intents = {};
   c.intent = null;
-  c.blockChallenge = null;
+  c.blockChallenge = c.blockChallenge || null;
 }
 function initialize(room) {
   room.combat.chapterIndex = room.areaIndex||0;
@@ -34,7 +35,10 @@ function open(room) {
   c.phase = (c.exchange === 1 ? playerFirst : !playerFirst) ? 'attack' : 'defense';
   c.phaseSerial = crypto.randomUUID();
   c.ready = {};
+  if(c.exchange===1)J.write(room,'機動投骰：'+c.initiative.map(x=>x.name+' 機動 '+x.mobility+'／['+(x.rolls||[]).join(',')+']＝'+x.total).join('；')+'。'+(c.firstSide==='player'?'我方':'敵方')+'先攻。');
+  J.write(room,c.phase==='attack'?'我方攻擊／敵方防守。':'敵方攻擊／我方防守。');
   setEnemyIntents(c);
+  if(c.blockChallenge)J.write(room,'蓄力部位顯現：需對部位造成 '+c.blockChallenge.requiredDamage+' 傷害中斷；目前 '+c.blockChallenge.currentDamage+'。');
   Cards.prepareAutomatic(room);
 }
 function advance(room) {
@@ -64,7 +68,7 @@ function resolve(room) {
   if (!actors.length || actors.some(p => !c.selections[p.id]?.confirmed)) return null;
   const phase = c.phase, records = [], enemyResults = [], guards = new Set();
   let incoming = 0;
-  c.timeline = [];
+  c.timeline = [];J.picks(room);
   require('./opposed-dice').prepare(room);
   const enemyTurn = turn => {
     const events = B.captureEffects(() => {
@@ -72,10 +76,10 @@ function resolve(room) {
       incoming += result.total;
       for (const rec of result.results) {
         c.timeline.push({side: 'enemy', index: enemyResults.length});
-        enemyResults.push(rec);
+        enemyResults.push(rec);J.actions(room,[rec],true);
       }
     });
-    if (events.length) c.timeline.push({side: 'status', events});
+    if (events.length){c.timeline.push({side: 'status', events});J.effects(room,events);}
   };
   // Defenders may use defensive utilities, but never execute an attack here.
   if (phase === 'attack') for (const turn of c.initiative.filter(t => t.side === 'enemy')) {
@@ -94,8 +98,8 @@ function resolve(room) {
       else resolvePlayerAction(room, player, c.selections[player.id], guards, records);
     });
     for (let i = before; i < records.length; i++) c.timeline.push({side: 'player', index: i});
-    if (events.length) c.timeline.push({side: 'status', events});
-    syncCombatBossPhases(c);
+    if (events.length){c.timeline.push({side: 'status', events});J.effects(room,events);}
+    J.actions(room,records.slice(before));syncCombatBossPhases(c);
   }
   // All player defensive/support actions finish before the enemy attacks.
   if (phase === 'defense') for (const turn of c.initiative.filter(t => t.side === 'enemy')) {
@@ -113,10 +117,9 @@ function resolve(room) {
   // Periodic effects and durations tick once after both attack/defense exchanges.
   if (c.exchange === 2) {
     const events = B.captureEffects(() => {
-      require('../status/status-manager').tickStatuses(room.players, {combatRound: true});
-      for (const enemy of aliveEnemies(c)) B.tick(enemy);
+      for(const entity of [...room.players,...aliveEnemies(c)]){const beforeHp=entity.hp??entity.currentHp,beforeShield=entity.temporaryShield??entity.shield??0;const tick=B.tick(entity);if(tick.damage||tick.healed)J.write(room,entity.name+' 回合末：持續傷害 '+tick.damage+'、再生 '+tick.healed+'；HP '+beforeHp+' → '+(entity.hp??entity.currentHp)+'，護盾 '+beforeShield+' → '+(entity.temporaryShield??entity.shield??0)+'。');}
     });
-    if (events.length) c.timeline.push({side: 'status', events});
+    if (events.length){c.timeline.push({side: 'status', events});J.effects(room,events);}
     for (const player of room.players) {
       if (player.controlFresh) player.controlFresh = false;
       else player.serverControl = Math.max(0, Number(player.serverControl || 0) - 1);
@@ -124,10 +127,11 @@ function resolve(room) {
     manager.tickCooldowns(c);
   }
   const result = {serial: crypto.randomUUID(), phase, round: c.round, players: records, enemyResults, incoming, timeline: c.timeline, initiativeAlreadyPlayed: true};
-  c.lastResolution = result;
+  c.lastResolution = result;J.snapshot(room);
   if (manager.checkDefeat(room)) { persist(); return result; }
   if (!aliveEnemies(c).length) return victory();
   Cards.nextRound(room,{refill:c.exchange===2});
+  J.write(room,c.exchange===2?'攻守完成：回收已出的牌並補牌至六張；未用牌保留。':'本回合完成：回收已出的牌，未用牌保留；輪換攻守不補牌。');
   c.selections = {};
   c.phase = 'resolving';
   c.ready = {};

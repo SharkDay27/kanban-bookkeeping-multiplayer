@@ -46,3 +46,9 @@ body.event-dice-playing #eventResult{display:none!important}
 .overflow-choices{display:grid;gap:7px}.overflow-choices button{display:grid;text-align:left;gap:4px;padding:10px;background:#faf5ee;border:1px solid #ded2c5;border-radius:8px;color:#65564c}
 .equipment-overflow-dialog small{display:block;font-size:11px;line-height:1.5}.overflow-choices span{font-size:10px;color:#a16159}
 [data-skip-gear]{width:100%;margin-top:12px}.overflow-error{color:#ac4e52}.event-no-loot{color:#887d72}
+
+.combat-skill-description{font-size:11px!important;line-height:1.55;margin:4px 0 6px;color:#70645d}
+.hand-card.staged .card-surface{border:2px solid #638e80!important;box-shadow:0 0 0 2px #8bb49d55!important}
+.hand-card.staged .card-half,.hand-card.staged .card-center{opacity:.48}
+.status-chip{font-weight:900!important}
+.enemy-played-cards>span{font-weight:900!important;background:color-mix(in srgb,var(--sin) 14%,#fffaf4)!important;border:1px solid color-mix(in srgb,var(--sin) 55%,#fff)!important;color:color-mix(in srgb,var(--sin) 78%,#302922)!important}
