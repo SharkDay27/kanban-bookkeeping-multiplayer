@@ -46,7 +46,7 @@
  '06':[['捲簾',{effect:'draw'},'抽 1 張牌。'],['翡翠庇護',{shield:4},'自己獲得 4 護盾。'],['煙雲',{applyStatus:'sinking',statusDuration:1},'目標沉淪 +1 層，1 組攻守。'],['金玉餘響',{goldBonus:4,battleLimit:1},'本場結束額外獲得 4 金幣；每場限 1 次，與技能共用 24 金幣上限。'],['閒庭步',{selfStatus:'agile',statusDuration:1},'自己獲得 1 層靈敏，1 組攻守。']],
  '07':[['陰雨翻牌',{effect:'draw'},'抽 1 張牌。'],['積怨蓄勢',{selfStatus:'damage-up',statusDuration:1},'自己增傷 +1 層，1 組攻守。'],['缺口追擊',{applyStatus:'vulnerable',statusDuration:1},'目標易傷 +1 層，1 組攻守。'],['強撐',{heal:3},'自己恢復 3 HP。'],['風暴預備',{nextDraw:1},'下一組攻守開始時多抽 1 張。']],
  '08':[['航海札記',{effect:'draw'},'抽 1 張牌。'],['纜繩護衛',{shield:4},'自己獲得 4 護盾。'],['共同靠岸',{teamShield:3,costRequired:true},'棄 1 張未出手牌；所有存活隊友獲得 3 護盾。'],['測流',{applyStatus:'sinking',statusDuration:1},'目標沉淪 +1 層，1 組攻守。'],['不沉之志',{selfStatus:'guarded',statusDuration:1},'自己獲得防護，1 組攻守內受到傷害降低 35%。']],
- '09':[['幸運換手',{effect:'shuffle'},'棄 1 張未出手牌，抽 1 張；洗勻剩餘抽牌堆。'],['先墊一手',{shield:4},'自己獲得 4 護盾。'],['翻倍賭注',{selfStatus:'damage-up',statusDuration:1},'自己增傷 +1 層，1 組攻守。'],['順手牽羊',{stealPile:'hand',costRequired:true,battleLimit:1},'棄 1 張未出手牌；偷取目標 1 張行動手牌，本場可用；每場限 1 次。'],['乾杯',{heal:4},'自己恢復 4 HP。']],
+ '09':[['幸運換手',{effect:'exchange'},'選擇 1 張未出的行動手牌，與指定敵方隨機 1 張行動手牌交換；交換僅限本場戰鬥。'],['先墊一手',{shield:4},'自己獲得 4 護盾。'],['翻倍賭注',{selfStatus:'damage-up',statusDuration:1},'自己增傷 +1 層，1 組攻守。'],['順手牽羊',{stealPile:'hand',costRequired:true,battleLimit:1},'棄 1 張未出手牌；偷取目標 1 張行動手牌，本場可用；每場限 1 次。'],['乾杯',{heal:4},'自己恢復 4 HP。']],
  '11':[['深呼吸',{effect:'draw'},'抽 1 張牌。'],['微聲禱告',{heal:4},'自己恢復 4 HP。'],['搖擺刻印',{imprint:true,battleLimit:1},'刻印 +1 層，隨機提高戰鬥／穩定／機動；每場限 1 次。'],['膽怯護持',{shield:4},'自己獲得 4 護盾。'],['新步伐',{selfStatus:'agile',statusDuration:1},'自己獲得 1 層靈敏，1 組攻守。']],
  '12':[['戰況速讀',{effect:'draw'},'抽 1 張牌。'],['方陣',{selfStatus:'guarded',statusDuration:1},'自己獲得防護，1 組攻守內受到傷害降低 35%。'],['全隊急行',{agile:1},'所有存活隊友靈敏 +1 層，2 組攻守。'],['斷令',{applyStatus:'sealed',statusDuration:1,costRequired:true,battleLimit:1},'棄 1 張未出手牌；封印目標技能 1 組攻守；每場限 1 次。'],['校射',{applyStatus:'vulnerable',statusDuration:1},'目標易傷 +1 層，1 組攻守。']],
  '13':[['清點物資',{effect:'draw'},'抽 1 張牌。'],['組織修復',{regeneration:1},'自己再生 +1 層，2 組攻守。'],['蟲甲',{shield:4},'自己獲得 4 護盾。'],['細胞代謝',{cleanse:true},'移除自己 1 種負面狀態。'],['蟲噬',{destroyEnemy:1,costRequired:true,battleLimit:1},'棄 1 張未出手牌；破壞目標 1 張行動牌，本場不可再用；每場限 1 次，與技能共用破壞 3 張上限。']]
@@ -54,8 +54,8 @@
  const extraPersonalAbilities=id=>(EXTRA_PERSONAL[id]||[]).map(([name,effects,description],i)=>({id:`ability-exclusive-${id}-${i}`,name,effect:'personal',...effects,description,sinnerId:id}));
  const personalAbilities=id=>[personalAbility(id),...extraPersonalAbilities(id)].filter(Boolean);
  const starterPersonalAbilities=id=>personalAbilities(id).slice(0,2);
- const abilityNeedsCost=card=>!!card.costRequired||['shuffle','recover','stack','copy'].includes(card.effect);
- const abilityNeedsEnemy=card=>!!(card.applyStatus||card.discardEnemy||card.stealPile||card.destroyEnemy);
+ const abilityNeedsCost=card=>!!card.costRequired||['shuffle','recover','stack','copy','exchange'].includes(card.effect);
+ const abilityNeedsEnemy=card=>!!(card.effect==='exchange'||card.applyStatus||card.discardEnemy||card.stealPile||card.destroyEnemy);
  // Twelve cards, with separate attack/support sin budgets imported from the skill sheet.
  function sinLayout(weights,fallback){
   const entries=Object.keys(weights).filter(k=>weights[k]>0);if(!entries.length)entries.push(...fallback);
