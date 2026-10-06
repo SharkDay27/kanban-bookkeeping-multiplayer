@@ -18,8 +18,8 @@ function addEnemyStatus(target,id,duration=2){return B.add(target,id,duration);}
 function damageTarget(room,combat,player,action,target,part,die,total){
   const preview=estimateDamage(room,player,action,target,part);
   const beforeHp=Number(target.currentHp||0),isOpposed=combat.cardMode&&(action.cardSkill||action.cardBase!=null);
-  const dice=Math.max(0,Number(preview.diceCount||0)-B.attackPenalty(player)),rolls=Dice.roll(dice,B.probability(player));if(player.bestOfTwo){const second=Dice.roll(dice,B.probability(player));if(Dice.sum(second)>Dice.sum(rolls))rolls.splice(0,rolls.length,...second);}
-  const clash=isOpposed?Dice.clash(rolls,combat.diceDefense?.enemies?.[target.instanceId]):null;
+  const dice=Math.max(0,Number(preview.diceCount||0)-B.attackPenalty(player)),attack=Dice.bestPool(dice,player,player.bestOfTwo),rolls=attack.rolls;
+  const clash=isOpposed?{...Dice.clash(rolls,combat.diceDefense?.enemies?.[target.instanceId]),attackAttempts:attack.attempts,attackChosen:attack.chosen}:null;
   let rolled=clash?Math.floor((clash.net*(3+Math.max(0,statFor(player,'combat')-4)*.1)+(clash.attackTotal>0?B.flatDamage(player)+Number(action.flatDamage||0):0))*B.outgoing(player)*B.vulnerability(target)*preview.resistance*preview.relicMultiplier):preview.min+Math.floor(Math.random()*Math.max(1,preview.max-preview.min+1));
   if(clash&&action.specialDamage)rolled=Math.floor(rolled*Number(action.power||1));
 
