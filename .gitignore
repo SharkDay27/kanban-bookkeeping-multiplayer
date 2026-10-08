@@ -1,2 +1,4 @@
 node_modules/
 *.log
+
+client/vendor/notifications.js

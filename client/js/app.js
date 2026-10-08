@@ -8,7 +8,7 @@ function sinnerById(id){return state.gameData.sinners?.find(x=>x.id===id)}
 function statusById(id){return state.gameData.statusEffects?.find(x=>x.id===id)}
 function equipmentMods(player){const out={combat:0,observe:0,mobility:0,stability:0};Object.values(player?.equipment||{}).forEach(item=>Object.keys(out).forEach(k=>out[k]+=Number(item?.mods?.[k]||0)));return out;}
 function statusMods(player){const out={combat:Number(player.markMods?.combat||0),observe:Number(player.markMods?.observe||0),mobility:Number(player.markMods?.mobility||0),stability:Number(player.markMods?.stability||0)};(player?.statuses||[]).forEach(active=>{const def=statusById(active.id);Object.keys(out).forEach(k=>out[k]+=Number(def?.mods?.[k]||0)*(def?.stacking?Number(active.stacks||1):1));});return out;}
-function action(name,payload){socket.emit(name,payload,res=>{if(!res?.ok)alert(res?.error||'操作失敗。')});}
+function action(name,payload){socket.emit(name,payload,res=>{if(!res?.ok){const text=res?.error||'操作失敗。';if(window.KBMToast)window.KBMToast.error(text);else alert(text);}});}
 function sessionData(){return state.room&&state.selfId&&state.reconnectToken?{roomId:state.room.id,playerId:state.selfId,reconnectToken:state.reconnectToken,recoveryToken:state.recoveryToken,recoverySnapshot:state.recoverySnapshot}:null;}
 function writeSession(){const data=sessionData();if(data)window.KBMSession?.write(data);}
 function healthClass(p){const r=Number(p?.hp||0)/Math.max(1,Number(p?.maxHp||100));return r<=.3?'health-critical':r<=.5?'health-warning':'health-safe';}
@@ -26,7 +26,7 @@ function handleJoinAck(res,resumed=false){if(!res?.ok){$('entryError').textConte
 function resumeSession(saved){state.resuming=true;$('resumeStatus').textContent='正在重新加入原房間…';socket.emit('room:resume',saved,res=>{state.resuming=false;if(res?.ok)return handleJoinAck(res,true);if(saved?.recoveryToken&&saved?.recoverySnapshot&&saved.playerId===saved.recoverySnapshot.hostId){socket.emit('room:restore',{snapshot:saved.recoverySnapshot,recoveryToken:saved.recoveryToken,playerId:saved.playerId,reconnectToken:saved.reconnectToken},r=>r?.ok?handleJoinAck(r,true):(window.KBMSession?.clear(),location.reload()));}else{window.KBMSession?.clear();$('resumeStatus').textContent='原房間已失效。';}});}
 function joinFromEntry(){const name=$('playerName').value;window.KBMSession?.setPlayerName(name);socket.emit('room:join',{roomId:$('roomId').value,playerName:name,reconnectToken:window.KBMSession?.persistentToken()},handleJoinAck);}
 function inviteUrl(){const u=new URL(location.origin+location.pathname);u.searchParams.set('room',state.room.id);return u.toString();}
-async function copyInviteLink(){try{await navigator.clipboard.writeText(inviteUrl());$('copyInviteStatus').textContent='已複製';setTimeout(()=>$('copyInviteStatus').textContent='',1500);}catch(_){}}
+async function copyInviteLink(){try{await navigator.clipboard.writeText(inviteUrl());$('copyInviteStatus').textContent='已複製';window.KBMToast?.success('邀請連結已複製','可以傳給隊友加入房間。');setTimeout(()=>$('copyInviteStatus').textContent='',1500);}catch(_){}}
 
 const savedName=window.KBMSession?.playerName();if(savedName)$('playerName').value=savedName;
 const rawInvite=new URLSearchParams(location.search).get('room'),normalizedInviteRoom=rawInvite?rawInvite.trim().toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4):'';
