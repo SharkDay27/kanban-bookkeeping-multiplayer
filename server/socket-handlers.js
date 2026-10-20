@@ -2,7 +2,7 @@ const CardRewards=require('./cards/card-rewards');
 const {AREAS,SINNERS,STATUS_EFFECTS,SINNER_SKILLS,EXPEDITION_RELICS,BUILD_TAGS,upgradeOptionsFor}=require('../shared/game-data');
 const {
   createRoom,joinRoom,resumeRoom,restoreRoom,markDisconnected,removeExpiredPlayer,
-  toggleArea,setSinner,publicRoom,rooms,RECONNECT_GRACE_MS,signRecovery,recoverySnapshot,
+  setSinner,publicRoom,rooms,RECONNECT_GRACE_MS,signRecovery,recoverySnapshot,
   persist,resetForStart,restartRoom
 }=require('./room/room-manager');
 const {selectCombatAction,selectCombatCards,useAbilityCard,confirmCombatAction,cancelCombatConfirm,useConsumable}=require('./combat/combat-manager');
@@ -35,8 +35,6 @@ function registerSocketHandlers(io){
     socket.on('room:resume',({roomId,playerId,reconnectToken},ack=()=>{})=>{try{const {room,player}=resumeRoom(roomId,socket.id,playerId,reconnectToken);socket.join(room.id);ack(sessionPayload(room,player));emitRoom(io,room);}catch(e){ack({ok:false,error:e.message});}});
     socket.on('room:restore',({snapshot,recoveryToken,playerId,reconnectToken},ack=()=>{})=>{try{const {room,player}=restoreRoom(snapshot,recoveryToken,socket.id,playerId,reconnectToken);socket.join(room.id);ack(sessionPayload(room,player));emitRoom(io,room);}catch(e){ack({ok:false,error:e.message});}});
 
-    const toggleMap=({roomId,areaId},ack=()=>{})=>{try{const {room,player}=withRoom(roomId,socket);toggleArea(room,player,areaId);emitRoom(io,room);ack({ok:true});}catch(e){ack({ok:false,error:e.message});}};
-    socket.on('room:map-toggle',toggleMap);socket.on('room:area-toggle',toggleMap);
     socket.on('player:sinner',({roomId,sinnerId},ack=()=>{})=>{try{const {room,player}=withRoom(roomId,socket);setSinner(room,player,sinnerId);emitRoom(io,room);ack({ok:true});}catch(e){ack({ok:false,error:e.message});}});
     socket.on('room:start',({roomId},ack=()=>{})=>{try{const {room,player}=withRoom(roomId,socket);if(player.id!==room.hostId)throw new Error('只有房主可以開始。');if(room.players.some(p=>!p.connected))throw new Error('有玩家目前離線。');if(room.players.some(p=>!p.sinnerId))throw new Error('每位玩家都要先選擇罪人。');resetForStart(room);prepareInitialRoute(room);emitRoom(io,room);ack({ok:true});}catch(e){ack({ok:false,error:e.message});}});
     socket.on('room:restart',({roomId},ack=()=>{})=>{try{const {room,player}=withRoom(roomId,socket);restartRoom(room,player);emitRoom(io,room);ack({ok:true});}catch(e){ack({ok:false,error:e.message});}});
