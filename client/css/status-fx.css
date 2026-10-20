@@ -17,27 +17,22 @@
 .sfx-tag em{font-style:normal;font-family:var(--lc-num,inherit);color:var(--c)}
 @keyframes sfxTag{0%{opacity:0;transform:translate(-50%,-60%)}16%{opacity:1;transform:translate(-50%,-100%)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-115%)}}
 
-/* Bleed: a wound opens, blood sprays out in fine streaks, spatters land and darken, and runs trickle down. */
-.sfx-blood{position:absolute;inset:0;width:100%;height:100%;overflow:visible;animation:sfxBloodFade 1.45s ease-in forwards}
-@keyframes sfxBloodFade{0%,72%{opacity:1}100%{opacity:0}}
-.sfx-blood .gash{fill:none;stroke:#4a0610;stroke-width:1.8;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;animation:sfxGash .14s ease-out forwards}
-@keyframes sfxGash{to{stroke-dashoffset:0}}
-.sfx-blood .blot,.sfx-blood .dot{transform-box:fill-box;transform-origin:50% 50%;transform:scale(0);fill:#c0172d;animation:sfxBlot .5s var(--d,0ms) cubic-bezier(.2,1.3,.4,1) forwards,sfxDry 1.2s var(--d,0ms) ease-in forwards}
-.sfx-blood .dot{animation-duration:.22s,1.2s}
-@keyframes sfxBlot{0%{transform:scale(0)}100%{transform:scale(1)}}
-@keyframes sfxDry{0%{fill:#d21b33}100%{fill:#6a0a17}}
-.sfx-blood .sheen{fill:#ff8a96;opacity:0;transform-box:fill-box;transform-origin:50% 50%;animation:sfxSheen .9s var(--d,0ms) ease-out forwards}
-@keyframes sfxSheen{0%{opacity:0;transform:scale(.4)}30%{opacity:.55;transform:scale(1)}100%{opacity:0}}
-.sfx-blood .run{fill:none;stroke:#a5122a;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;animation:sfxRun var(--t,900ms) var(--d,300ms) cubic-bezier(.45,.05,.6,1) forwards,sfxDryS 1.2s var(--d,300ms) ease-in forwards}
-@keyframes sfxRun{to{stroke-dashoffset:0}}
-@keyframes sfxDryS{0%{stroke:#c0172d}100%{stroke:#650916}}
-.sfx-blood .bead{fill:#8e0d20;opacity:0;transform-box:fill-box;transform-origin:50% 0;animation:sfxBead .25s var(--d,300ms) ease-out forwards}
-@keyframes sfxBead{0%{opacity:0;transform:scale(.3)}100%{opacity:1;transform:none}}
-.sfx-spray{left:var(--x);top:var(--y);width:var(--len);height:var(--h);margin-top:calc(var(--h) / -2);border-radius:50%;background:linear-gradient(90deg,#c0172d00,#c0172d 45%,#8e0d20);transform-origin:0 50%;opacity:0;animation:sfxSpray var(--t) var(--d) cubic-bezier(.15,.7,.3,1) forwards}
-@keyframes sfxSpray{0%{opacity:1;transform:rotate(var(--a)) translateX(0) scaleX(.2)}60%{opacity:1;transform:rotate(var(--a)) translateX(calc(var(--dist) * .8)) scaleX(1)}100%{opacity:0;transform:rotate(var(--a)) translateX(var(--dist)) scaleX(.3)}}
+/* Bleed: liquid blood (metaball filter + specular sheen) oozes from a slit and runs down in heavy drips. */
 .sfx-bleed .sfx-sigil{display:none}
-.sfx-bleed .sfx-flash{position:absolute;inset:0;background:radial-gradient(circle at var(--wx) var(--wy),#d21b3355,#d21b3300 60%);opacity:0;animation:sfxBFlash .5s ease-out forwards}
-@keyframes sfxBFlash{0%{opacity:0}15%{opacity:1}100%{opacity:0}}
+.sfx-blood{position:absolute;inset:0;width:100%;height:100%;overflow:visible;animation:sfxBloodFade 1.5s ease-in forwards}
+@keyframes sfxBloodFade{0%,74%{opacity:1}100%{opacity:0}}
+.sfx-blood .liquid{fill:#a30f20;stroke:#a30f20;animation:sfxDry 1.4s .2s ease-in forwards}
+@keyframes sfxDry{to{fill:#5e0711;stroke:#5e0711}}
+.sfx-blood .soak{fill:#9a0e1e;opacity:0;filter:blur(6px);animation:sfxSoak 1.3s .15s ease-out forwards}
+@keyframes sfxSoak{0%{opacity:0;transform:scale(.6)}50%{opacity:.22}100%{opacity:.16}}
+.sfx-blood .soak,.sfx-blood .ooze,.sfx-blood .fleck{transform-box:fill-box;transform-origin:50% 50%}
+.sfx-blood .ooze{stroke:none;transform:scale(0);animation:sfxOoze .55s var(--d) cubic-bezier(.3,.9,.4,1) forwards}
+@keyframes sfxOoze{0%{transform:scale(0)}100%{transform:scale(1)}}
+.sfx-blood .fleck{stroke:none;transform:scale(0);animation:sfxOoze .18s var(--d) ease-out forwards}
+.sfx-blood .trail{fill:none;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;animation:sfxTrail var(--t) var(--d) cubic-bezier(.55,0,.75,.6) forwards}
+@keyframes sfxTrail{to{stroke-dashoffset:0}}
+.sfx-blood .head{stroke:none;opacity:0;animation:sfxHead var(--t) var(--d) cubic-bezier(.55,0,.75,.6) forwards}
+@keyframes sfxHead{0%{opacity:0;transform:translateY(0)}10%{opacity:1}100%{opacity:1;transform:translateY(var(--len))}}
 
 /* Burn: flame tongues lick up from the base, embers rise and the air shimmers. */
 .sfx-tongue{left:var(--x);bottom:0;width:26%;height:55%;margin-left:-13%;background:radial-gradient(ellipse 50% 60% at 50% 100%,#fff3c4 0,#ffb347 25%,#e2672acc 50%,#e2672a00 72%);border-radius:50% 50% 40% 40%/70% 70% 30% 30%;transform-origin:50% 100%;opacity:0;filter:blur(.5px);animation:sfxTongue 1.1s var(--d) ease-out forwards}
