@@ -1,0 +1,7 @@
+{
+  "assets": [
+    { "asset_id": "9d55c688-1908-46a6-8879-2a02f3926162", "label": "Kabala Island style reference sheet (style guide)" },
+    { "asset_id": "dafe4191-97e3-402f-8f83-c0d6f460ff31", "sha12": "2305ff43e9f2", "label": "Ryoshu chibi A (katana on shoulder)", "file": "client/assets/characters/ryoshu-a.png" },
+    { "asset_id": "a3a8cd33-bf8e-4a77-bb09-9a86408f7909", "sha12": "1eb10750eb8f", "label": "Ryoshu chibi B (katana lowered, blood splatter)", "file": "client/assets/characters/ryoshu-b.png" }
+  ]
+}
