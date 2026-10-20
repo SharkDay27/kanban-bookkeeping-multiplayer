@@ -50,7 +50,7 @@
 .blunt-smash{transform-origin:50% 100%;animation:bluntSmash .76s cubic-bezier(.3,1.5,.5,1)!important}
 @keyframes bluntSmash{0%,20%{transform:none}28%{transform:scaleY(.42) scaleX(1.12)}52%{transform:scaleY(.48) scaleX(1.1)}70%{transform:scaleY(1.08) scaleX(.97)}100%{transform:none}}
 .blunt-swat{animation:bluntSwat .9s cubic-bezier(.4,0,.2,1)!important}
-@keyframes bluntSwat{0%,24%{transform:none;opacity:1}30%{transform:translateX(-14px) rotate(-3deg)}50%{transform:translateX(110vw) translateY(-40px) rotate(32deg);opacity:1}51%{transform:translateX(-110vw) rotate(-14deg);opacity:0}60%{opacity:1}100%{transform:none;opacity:1}}
+@keyframes bluntSwat{0%,24%{transform:none;opacity:1}30%{transform:translateX(calc(-14px * var(--dir,1))) rotate(calc(-3deg * var(--dir,1)))}50%{transform:translateX(calc(110vw * var(--dir,1))) translateY(-40px) rotate(calc(32deg * var(--dir,1)));opacity:1}51%{transform:translateX(calc(-110vw * var(--dir,1))) rotate(calc(-14deg * var(--dir,1)));opacity:0}60%{opacity:1}100%{transform:none;opacity:1}}
 .blunt-dent{animation:bluntDent .76s cubic-bezier(.3,1.4,.5,1)!important}
 @keyframes bluntDent{0%,18%{transform:none;box-shadow:none}26%{transform:perspective(420px) translateZ(-90px) scale(var(--dent,.75));box-shadow:inset 0 0 0 999px #00000014,inset 0 12px 30px #0006}55%{transform:perspective(420px) translateZ(-70px) scale(calc(var(--dent,.75) + .04));box-shadow:inset 0 0 0 999px #00000010,inset 0 10px 26px #0005}100%{transform:none;box-shadow:none}}
 
@@ -70,18 +70,7 @@
 @media(prefers-reduced-motion:reduce){.glass-break,.bullet-wake,.bullet-shock,.slash-wake,.blunt-fx,.shred{display:none}.blunt-smash,.blunt-swat,.blunt-dent,.shred-return,.cut-left,.cut-right{animation:none!important}}
 
 
-/* Blunt without props: the force shows in streaks, dust, shockwaves and the panel deforming. */
 .blunt-fx{position:fixed;z-index:1236;pointer-events:none;overflow:visible}
-.drop-streak{position:absolute;bottom:100%;width:2px;height:var(--len);background:linear-gradient(#1f1f1d00,#1f1f1db3);transform:translateY(-120%);animation:dropStreak .32s var(--d) cubic-bezier(.6,0,.9,.6) both}
-@keyframes dropStreak{0%{opacity:0;transform:translateY(-140%)}30%{opacity:1}100%{opacity:0;transform:translateY(20%)}}
-.dust{position:absolute;bottom:-4px;width:16px;height:10px;border-radius:50%;background:#9b958a;opacity:0;transform:scale(var(--s));animation:dust .62s .16s ease-out both}
-@keyframes dust{0%{opacity:.75;transform:translate(0,0) scale(calc(var(--s) * .4))}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(calc(var(--s) * 1.6))}}
-.side-streak{position:absolute;left:-30%;height:2px;width:var(--len);background:linear-gradient(90deg,#1f1f1d00,#1f1f1db3 70%,#1f1f1d00);animation:sideStreak .36s calc(var(--d) + .2s) cubic-bezier(.3,.1,.4,1) both}
-@keyframes sideStreak{0%{opacity:0;transform:translateX(-40%)}30%{opacity:1}100%{opacity:0;transform:translateX(160%)}}
-.dent-ring{position:absolute;left:50%;top:50%;width:40%;aspect-ratio:1;border:2px solid #1f1f1d80;border-radius:50%;transform:translate(-50%,-50%) scale(.2);opacity:0;animation:dentRing .6s calc(var(--d) + .12s) ease-out both}
-@keyframes dentRing{0%{opacity:.9;transform:translate(-50%,-50%) scale(.2)}100%{opacity:0;transform:translate(-50%,-50%) scale(2.6)}}
-.dent-crater{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,#0000004d 0,#00000026 22%,#0000 48%),radial-gradient(ellipse at 46% 44%,#ffffff40 0 6%,#0000 7%);opacity:0;animation:dentCrater .76s .12s ease-out both}
-@keyframes dentCrater{0%,10%{opacity:0}20%,55%{opacity:1}100%{opacity:0}}
 
 .glass-break{position:fixed;z-index:1236;pointer-events:none}
 .glass-shard{position:absolute;inset:0;overflow:hidden;animation:glassShard .9s var(--d) cubic-bezier(.35,0,.7,.6) both}
@@ -108,3 +97,25 @@
 .slash-ripple{position:absolute;left:50%;top:100%;width:calc(var(--h) * 1.6);height:calc(var(--h) * .7);margin:calc(var(--h) * -.35) 0 0 calc(var(--h) * -.8);border-radius:50%;border:1.5px solid #ffffffe6;box-shadow:0 0 0 1px #1f1f1d1f,0 0 8px #ffffffb3;opacity:0;animation:slashRipple .55s .14s ease-out forwards}
 .slash-ripple+.slash-ripple{animation-delay:.22s;border-width:1px}
 @keyframes slashRipple{0%{opacity:.95;transform:scale(.2)}100%{opacity:0;transform:scale(2.2)}}
+
+/* Blunt as clear air: a transparent palm or fist bends what is behind it, then ripples; .blunt-fx sits over the target panel. */
+.blunt-fx{position:fixed;z-index:1236;pointer-events:none;overflow:visible}
+.air{position:absolute;display:block;-webkit-backdrop-filter:blur(3px) brightness(1.18) contrast(1.12);backdrop-filter:blur(3px) brightness(1.18) contrast(1.12);box-shadow:inset 0 0 12px #ffffffd9,inset 0 -4px 10px #1f1f1d1f,0 0 0 1px #1f1f1d26,0 3px 10px #1f1f1d1a;opacity:0}
+.air-palm-drop{left:6%;right:6%;bottom:100%;height:80%;border-radius:46% 46% 30% 30%/60% 60% 24% 24%;transform-origin:50% 100%;animation:airDrop .76s cubic-bezier(.5,0,.4,1) forwards}
+@keyframes airDrop{0%{opacity:0;transform:translateY(-70%) scaleY(1.15)}15%{opacity:1}27%{opacity:1;transform:translateY(32%) scaleY(.5) scaleX(1.06)}55%{opacity:.85;transform:translateY(30%) scaleY(.45) scaleX(1.08)}100%{opacity:0;transform:translateY(24%) scaleY(.35) scaleX(1.1)}}
+.air-band{left:-12%;right:-12%;top:-4px;height:9px;border-radius:9px;transform:scaleX(0);animation:airBand .6s .18s cubic-bezier(.2,.8,.3,1) forwards}
+@keyframes airBand{0%{opacity:1;transform:scaleX(0)}35%{opacity:1;transform:scaleX(1) scaleY(1.6)}100%{opacity:0;transform:scaleX(1.1) scaleY(.4)}}
+.air-wave{top:-18%;width:34%;height:36%;left:33%;border-radius:50%;-webkit-backdrop-filter:none;backdrop-filter:none;background:none;border:1.5px solid #ffffffe6;box-shadow:0 0 0 1px #1f1f1d1f,0 0 8px #ffffffb3;animation:airWave .6s .2s ease-out forwards}
+.air-wave-l{--wx:-170%}.air-wave-r{--wx:170%}
+@keyframes airWave{0%{opacity:.95;transform:translateX(0) scale(.3)}100%{opacity:0;transform:translateX(var(--wx)) scale(1.4,.9)}}
+.air-palm-side{top:4%;bottom:4%;left:22%;width:56%;border-radius:40%/48%;animation:airSide .9s cubic-bezier(.45,0,.3,1) forwards}
+@keyframes airSide{0%{opacity:0;transform:translateX(calc(-170% * var(--dir,1))) scaleX(1.2)}14%{opacity:1}27%{opacity:1;transform:translateX(calc(-62% * var(--dir,1))) scaleX(.62)}45%{opacity:.8;transform:translateX(calc(40% * var(--dir,1))) scaleX(.75)}70%,100%{opacity:0;transform:translateX(calc(120% * var(--dir,1))) scaleX(.9)}}
+.air-arc{top:-12%;bottom:-12%;left:44%;width:12%;border-radius:50%;-webkit-backdrop-filter:none;backdrop-filter:none;border:1.5px solid #ffffffe6;box-shadow:0 0 0 1px #1f1f1d1f,0 0 8px #ffffffb3;animation:airArc .6s .22s ease-out forwards}
+.air-arc-2{animation-delay:.3s;border-width:1px}
+@keyframes airArc{0%{opacity:.95;transform:translateX(calc(-330% * var(--dir,1))) scale(.6)}100%{opacity:0;transform:translateX(calc(500% * var(--dir,1))) scale(1.3)}}
+.air-fist{left:50%;top:50%;height:96%;aspect-ratio:1;border-radius:50%;margin:0;translate:-50% -50%;animation:airFist .62s cubic-bezier(.5,0,.3,1) forwards}
+@keyframes airFist{0%{opacity:0;transform:scale(3.2)}12%{opacity:.9}24%{opacity:1;transform:scale(.55)}40%{opacity:.8;transform:scale(.6)}100%{opacity:0;transform:scale(.7)}}
+.air-ring{left:50%;top:50%;width:46%;aspect-ratio:1;border-radius:50%;translate:-50% -50%;-webkit-backdrop-filter:none;backdrop-filter:none;border:1.5px solid #ffffffe6;box-shadow:0 0 0 1px #1f1f1d1f,0 0 8px #ffffffb3;animation:airRing .6s calc(var(--d) + .15s) ease-out forwards}
+@keyframes airRing{0%{opacity:.95;transform:scale(.2)}100%{opacity:0;transform:scale(2.6)}}
+.air-crater{inset:0;-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:none;background:radial-gradient(ellipse at 50% 50%,#0000003d 0,#0000001f 22%,#0000 48%),radial-gradient(ellipse at 46% 44%,#ffffff40 0 6%,#0000 7%);animation:airCrater .76s .12s ease-out both}
+@keyframes airCrater{0%,10%{opacity:0}20%,55%{opacity:1}100%{opacity:0}}

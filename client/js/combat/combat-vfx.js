@@ -32,7 +32,7 @@
   if(variant===2&&window.KBMStrikes){const angle=(Math.random()-.5)*80;duration=window.KBMStrikes.shred(target,power,angle);wake={angle,x:tx,y:ty};}
   else{lastCut=null;duration=screenCut(target,power,variant===1?'vertical':'diagonal');const c=lastCut;if(c){const dx=Math.cos(c.angle),dy=Math.sin(c.angle),t=(tx-c.x)*dx+(ty-c.y)*dy;wake={angle:c.angle*180/Math.PI,x:c.x+dx*t,y:c.y+dy*t,w:Math.hypot(innerWidth,innerHeight)*1.05};}}
   setTimeout(()=>window.KBMStrikes?.slashWake(target,power,wake||{}),170);return duration;}
- function cinematic(target,kind,options={}){if(!target)return 0;if(kind==='pierce'&&window.KBMStrikes)return 700;// gun hits are drawn entirely by KBMStrikes.gun
+ function cinematic(target,kind,options={}){if(!target)return 0;if((kind==='pierce'||kind==='blunt')&&window.KBMStrikes)return kind==='pierce'?700:900;// gun and blunt hits are drawn entirely by KBMStrikes
  if(kind==='shield'){sound('shield');shieldDeploy(target);}if(kind==='shield-break')sound('shieldBreak');const duration=window.KBMBattle2D?.strike(target,kind,options)||0;if(!duration)effect(target,kind==='shield-break'?'shield':kind==='block'?'blunt':kind);return duration||700;}
  function attack(rec){let duration=0,cutDone=false;// The shield cinematic only plays when a shield is actually gained, not for a plain defence roll.
   if(rec.shieldGained>0)playerEls(rec.playerId).forEach(el=>duration=Math.max(duration,cinematic(el,'shield')));
