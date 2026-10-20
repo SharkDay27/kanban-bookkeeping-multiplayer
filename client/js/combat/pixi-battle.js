@@ -45,7 +45,7 @@
   add(ring(25,color,1),{delay:0,end:.24,startScale:1.7,endScale:.25,opacity:.32,fast:false});
   if(['block','shield'].includes(kind)){
    if(kind==='block'){const incoming=options.attackType==='blunt'?ring(16,0xd4ac6a,3):line(radius*1.15,options.attackType==='pierce'?0x73a8b9:0xc96177,4);add(incoming,{x:-radius,y:-40,vx:radius*.8,vy:30,rotation:.45,delay:.08,end:.35,startScale:.7,endScale:1});}
-   add(shield(),{delay:.04,end:.94,startScale:.35,endScale:1.3,opacity:.95,fast:false});
+   if(kind==='shield')add(shield(),{delay:.04,end:.94,startScale:.35,endScale:1.3,opacity:.95,fast:false});
    for(let i=0;i<3;i++)add(ring(25+i*8,color,1),{delay:.1+i*.05,end:.85,startScale:.2,endScale:2+i*.35,wide:1.25,tall:.75,opacity:.38});
    for(let i=0;i<(mobile?7:12);i++){const a=i*Math.PI/6;add(line(14,color,2),{x:Math.cos(a)*30,y:Math.sin(a)*32,vx:Math.cos(a)*65,vy:Math.sin(a)*50,rotation:a,delay:.23+(i%3)*.025,end:.8,startScale:.15,endScale:1,opacity:.7});}
   }else if(kind==='slash'){
