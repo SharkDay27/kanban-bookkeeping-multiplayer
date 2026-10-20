@@ -1,0 +1,56 @@
+/* Dice presentation: tossed and landing binary dice, attack/defense clash, and a 3D event d6. */
+.dice-toast{animation:diceToastIn .28s cubic-bezier(.2,.9,.3,1.15) both}
+@keyframes diceToastIn{from{opacity:0;transform:translate(-50%,-46%) scale(.94)}to{opacity:1;transform:translate(-50%,-50%)}}
+
+/* Binary dice */
+.coin-die{width:36px;height:36px;perspective:240px}
+.coin-face{border-radius:9px;border:2px solid var(--dice-color)}
+.coin-positive{background:radial-gradient(circle at 34% 28%,color-mix(in srgb,var(--dice-color) 55%,#fff),var(--dice-color) 58%,color-mix(in srgb,var(--dice-color) 78%,#000));box-shadow:inset 0 -3px 0 #0000002e,inset 0 2px 0 #ffffff55}
+.coin-positive:after{content:'';position:absolute;left:50%;top:50%;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:#fffdf7;box-shadow:0 0 6px #fffdf7}
+.coin-empty{background:repeating-linear-gradient(-45deg,transparent 0 4px,color-mix(in srgb,var(--dice-color) 13%,transparent) 4px 5px),#fffdf8;box-shadow:inset 0 -3px 0 color-mix(in srgb,var(--dice-color) 18%,transparent)}
+.coin-die.waiting:before{border-radius:9px}
+.coin-rolling .coin-die.waiting{animation:coinToss .85s cubic-bezier(.3,.6,.4,1) both;animation-delay:calc(var(--i,0) * 35ms)}
+.coin-rolling .coin-die.waiting .coin-inner{animation:coinTumble .3s linear infinite}
+@keyframes coinToss{0%{transform:translateY(0)}35%{transform:translateY(-26px) rotate(-12deg)}70%{transform:translateY(0) rotate(6deg)}82%{transform:translateY(-6px)}100%{transform:none}}
+@keyframes coinTumble{from{transform:rotateX(0) rotateY(0)}to{transform:rotateX(360deg) rotateY(180deg)}}
+.coin-die.landed{animation:coinLand .38s cubic-bezier(.3,1.6,.5,1) both;animation-delay:calc(var(--i,0) * 45ms)}
+.coin-die.landed .coin-inner{transition:transform .32s cubic-bezier(.3,1.5,.5,1) calc(var(--i,0) * 45ms)}
+.coin-die.front.landed:not(.spent):before{content:'';position:absolute;inset:-6px;border-radius:14px;background:radial-gradient(circle,color-mix(in srgb,var(--dice-color) 55%,transparent),transparent 70%);opacity:0;animation:coinGlow .7s ease-out both;animation-delay:calc(var(--i,0) * 45ms + .1s);pointer-events:none}
+@keyframes coinLand{from{transform:translateY(-8px) scale(1.22)}to{transform:none}}
+@keyframes coinGlow{0%{opacity:0;transform:scale(.6)}35%{opacity:1}100%{opacity:0;transform:scale(1.5)}}
+.binary-side>small{color:var(--dice-color)}
+
+/* Clash: matched pairs shatter under a slash while the VS mark sparks. */
+.clash-divider{display:flex;align-items:center;gap:10px;margin:4px 0;color:#8c857c}
+.clash-divider:before,.clash-divider:after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,#cfc6ba,transparent)}
+.clash-divider b{position:relative;font:italic 900 14px/1 Georgia,serif;letter-spacing:.12em}
+.clash-divider b:after{content:'';position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px;border-radius:50%;border:2px solid #f0b35a;opacity:0}
+.clashing .clash-divider b{animation:vsBurst .55s cubic-bezier(.2,1.5,.4,1)}
+.clashing .clash-divider b:after{animation:vsRing .55s ease-out}
+@keyframes vsBurst{0%{transform:none}30%{transform:scale(1.9);color:#c4453f}100%{transform:none}}
+@keyframes vsRing{0%{opacity:.9;transform:scale(.2)}100%{opacity:0;transform:scale(1.8)}}
+.coin-cut{animation:coinShatter .5s calc(var(--pair,0) * 70ms) forwards!important}
+.coin-cut:after{left:-5px;top:50%;margin-top:-1.5px;animation:coin-slash .3s ease-out calc(var(--pair,0) * 70ms) both}
+@keyframes coinShatter{0%{opacity:1;transform:none}30%{opacity:1;transform:scale(1.15)}100%{opacity:.18;transform:rotate(-14deg) translateY(4px) scale(.86);filter:grayscale(1)}}
+.clash-net{display:flex;align-items:baseline;justify-content:center;gap:8px;margin-top:8px;animation:netPop .45s cubic-bezier(.2,1.6,.4,1) both}
+.clash-net b{font:italic 900 42px/1 Georgia,"Times New Roman",serif;color:var(--dice-color);text-shadow:2px 2px 0 color-mix(in srgb,var(--dice-color) 22%,transparent)}
+.clash-net.blocked b{font-size:28px;letter-spacing:.1em;color:#5f7f95}
+.clash-net small{font-weight:700;color:#7a736b}
+@keyframes netPop{from{opacity:0;transform:scale(2)}to{opacity:1;transform:none}}
+
+/* Event d6: a real cube that tumbles in an arc and settles on its result face. */
+.dice-stage{width:48px;height:48px;perspective:420px}
+.dice-cube{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform 1s cubic-bezier(.18,.7,.25,1.04)}
+.dice-instant .dice-cube{transition:none}
+.dice-cube .cube-face{position:absolute;inset:0;backface-visibility:hidden;background:linear-gradient(145deg,#f5f9f5,#dde7df);border:1px solid #9fb3a8;border-radius:9px;box-shadow:inset 0 0 9px #53685c26}
+.dice-cube .f1{transform:translateZ(24px)}.dice-cube .f6{transform:rotateY(180deg) translateZ(24px)}.dice-cube .f2{transform:rotateY(90deg) translateZ(24px)}.dice-cube .f5{transform:rotateY(-90deg) translateZ(24px)}.dice-cube .f3{transform:rotateX(90deg) translateZ(24px)}.dice-cube .f4{transform:rotateX(-90deg) translateZ(24px)}
+.dice-stage.tossing{animation:d6Toss 1s ease-out both;animation-delay:calc(var(--i,0) * 60ms)}
+@keyframes d6Toss{0%{transform:translateY(0)}30%{transform:translateY(-42px)}60%{transform:translateY(0)}75%{transform:translateY(-9px)}88%,100%{transform:none}}
+.dice-stage.landed{animation:d6Land .3s ease-out}
+@keyframes d6Land{0%{transform:scale(1.12)}100%{transform:none}}
+.dice-row[data-degree=critical] .cube-face{border-color:#c9a13b;box-shadow:0 0 14px #e8c25a,inset 0 0 9px #c9a13b44}.dice-row[data-degree=critical] .pip{background:#a77f1c}
+.dice-row[data-degree=critical-failure] .cube-face{border-color:#b04a4a;background:linear-gradient(145deg,#f7eded,#e8d6d6)}.dice-row[data-degree=critical-failure] .pip{background:#9b3434}
+.dice-degree{justify-self:center;font-size:19px;font-weight:900;letter-spacing:.22em;padding:3px 10px 3px 14px;border:2px solid currentColor;border-radius:6px;transform:rotate(-6deg);animation:diceStamp .42s cubic-bezier(.2,1.6,.4,1) both;color:#5f7f6c}
+.dice-row[data-degree=critical] .dice-degree{color:#b28a22}.dice-row[data-degree=mixed] .dice-degree{color:#b0793c}.dice-row[data-degree=failure] .dice-degree{color:#8a6f78}.dice-row[data-degree=critical-failure] .dice-degree{color:#a63a3a}
+@keyframes diceStamp{from{opacity:0;transform:rotate(-6deg) scale(2.4)}to{opacity:1;transform:rotate(-6deg)}}
+@media(prefers-reduced-motion:reduce){.dice-toast,.coin-die.landed,.coin-die.front.landed:before,.coin-rolling .coin-die.waiting,.clash-divider b,.clash-divider b:after,.coin-cut,.coin-cut:after,.clash-net,.dice-stage.tossing,.dice-stage.landed,.dice-degree{animation:none!important}.dice-cube,.coin-die.landed .coin-inner{transition:none}.coin-cut{opacity:.18}}

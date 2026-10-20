@@ -1,0 +1,43 @@
+/* Card art: sin emblems, attack-type engraving, foil sheen and deal-in. Layers sit under the stationery numerals. */
+.card-surface .card-half,.pile-card .card-half,.card-motion-face .card-half{isolation:isolate}
+.card-sin-mark{position:absolute;right:-9%;bottom:-4%;width:58%;aspect-ratio:1;z-index:-1;color:var(--sin);opacity:.13;pointer-events:none;transform:rotate(-14deg)}
+.card-sin-mark svg{display:block;width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.15;stroke-linejoin:round}
+.card-half .card-edge span,.hand-card.is-action .card-half:has(svg) .card-edge span{display:inline-flex!important;align-items:center;gap:3px}
+.card-half .card-edge span svg{width:10px;height:10px;flex:none;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linejoin:round;opacity:.9}
+/* Engraving per attack type, kept below the band so the sin colour stays clean. */
+.card-half:after{content:'';position:absolute;left:0;right:0;top:var(--card-edge,16px);bottom:0;z-index:-2;pointer-events:none;opacity:.55;-webkit-mask-image:linear-gradient(100deg,transparent 10%,#000 70%);mask-image:linear-gradient(100deg,transparent 10%,#000 70%)}
+.card-half.type-slash:after{background:repeating-linear-gradient(-58deg,transparent 0 7px,color-mix(in srgb,var(--sin) 17%,transparent) 7px 8px)}
+.card-half.type-blunt:after{background:repeating-radial-gradient(circle at 92% 88%,transparent 0 6px,color-mix(in srgb,var(--sin) 15%,transparent) 6px 7px)}
+.card-half.type-pierce:after{background:repeating-linear-gradient(0deg,transparent 0 5px,color-mix(in srgb,var(--sin) 16%,transparent) 5px 6px);-webkit-mask-image:linear-gradient(90deg,transparent 25%,#000);mask-image:linear-gradient(90deg,transparent 25%,#000)}
+.card-half.type-guard:after{background:repeating-linear-gradient(60deg,transparent 0 9px,color-mix(in srgb,var(--sin) 12%,transparent) 9px 10px),repeating-linear-gradient(-60deg,transparent 0 9px,color-mix(in srgb,var(--sin) 12%,transparent) 9px 10px)}
+.card-half .card-value b{text-shadow:1px 1px 0 #fffdf6,2px 2px 0 color-mix(in srgb,var(--sin) 30%,transparent)}
+.card-surface .card-center{letter-spacing:.3em}
+
+/* Frame corners and a sheen that sweeps across on hover. */
+.hand-card .card-surface:has(.card-half):after,.hand-card.ability-card .card-surface:after{content:'';position:absolute;inset:0;z-index:3;pointer-events:none;border-radius:inherit;background:linear-gradient(105deg,transparent 38%,#ffffffb0 48%,#fff0 58%) no-repeat;background-size:260% 100%;background-position:130% 0;opacity:0}
+@media(hover:hover){
+ .hand-card:not(.staged) .card-surface:not(:disabled):hover{transform:translateY(-5px);box-shadow:inset 0 0 0 2px #fffdf8,inset 0 0 0 3px #dedbd0,0 10px 18px #3c382b24!important}
+ .hand-card:not(.staged) .card-surface.flipped:not(:disabled):hover{transform:translateY(-5px) rotate(180deg)}
+ .hand-card .card-surface:not(:disabled):hover:after{opacity:1;animation:cardSheen .8s ease-out both}
+}
+.hand-card .card-surface:focus-visible:after{opacity:1;animation:cardSheen .8s ease-out both}
+@keyframes cardSheen{from{background-position:130% 0}to{background-position:-30% 0}}
+.hand-card.staged .card-surface:has(.card-half){box-shadow:inset 0 0 0 2px #fffdf8,inset 0 0 0 3px #d7d9cc,0 0 0 1px #87977e55,0 8px 18px #5d6d4c2e!important}
+.hand-card.staged .card-surface:has(.card-half):before{opacity:.08}
+
+/* New hand: cards are dealt in left to right. */
+.card-hand.dealing .hand-card{animation:cardDeal .48s cubic-bezier(.2,.85,.25,1.15) both;animation-delay:calc(var(--deal-i,0) * 60ms)}
+@keyframes cardDeal{from{opacity:0;transform:translate(-14px,22px) rotate(-6deg) scale(.92)}to{opacity:1;transform:none}}
+
+/* Ability cards: framed plate with a cut-gem emblem in place of the plain diamond glyph. */
+.hand-card.ability-card .card-surface{background:radial-gradient(circle at 50% 34%,#fffdf6 0 22%,transparent 62%),linear-gradient(160deg,#f6f2e6,#eee8d8)!important;overflow:hidden}
+.hand-card.ability-card .card-surface:before{content:'';position:absolute;inset:6px;border:1px solid #c9c1aa;border-radius:7px;pointer-events:none;background:linear-gradient(#b7ad91,#b7ad91) 50% 0/34% 1px no-repeat,linear-gradient(#b7ad91,#b7ad91) 50% 100%/34% 1px no-repeat;box-shadow:inset 0 0 0 3px #f8f5ec,inset 0 0 0 4px #e1dac6}
+.hand-card.ability-card .ability-face{position:relative;z-index:1}
+.hand-card.ability-card .ability-face>span{font-size:9px;letter-spacing:.3em;color:#8e8466;text-transform:uppercase}
+.hand-card.ability-card .ability-face>b{position:relative;display:block;width:30px;height:30px;margin:4px auto;font-size:0;color:transparent}
+.hand-card.ability-card .ability-face>b:before{content:'';position:absolute;inset:4px;transform:rotate(45deg);border:1.5px solid #8f7d55;background:linear-gradient(135deg,#fffaf0 0 45%,#d9c79b 46% 100%);box-shadow:0 0 0 3px #f6f1e4,0 0 0 4px #c8b98f}
+.hand-card.ability-card .ability-face>b:after{content:'';position:absolute;inset:-5px;border:1px dashed #b9a87c;border-radius:50%;opacity:.7}
+@media(hover:hover){.hand-card.ability-card .card-surface:not(:disabled):hover .ability-face>b:after{animation:abilityRing 4s linear infinite}}
+@keyframes abilityRing{to{transform:rotate(360deg)}}
+@media(max-width:719px){.card-sin-mark{opacity:.1}.card-half .card-edge span svg{width:8px;height:8px}.hand-card.ability-card .ability-face>b{width:20px;height:20px;margin:1px auto}.hand-card.ability-card .ability-face>b:after{inset:-3px}.hand-card.ability-card .ability-face>span{font-size:7px;letter-spacing:.15em}}
+@media(prefers-reduced-motion:reduce){.card-hand.dealing .hand-card,.hand-card .card-surface:after,.hand-card.ability-card .ability-face>b:after{animation:none!important}}
