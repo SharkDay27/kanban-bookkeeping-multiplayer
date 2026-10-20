@@ -6,7 +6,6 @@
 .coin-die{width:36px;height:36px;perspective:240px}
 .coin-face{border-radius:9px;border:2px solid var(--dice-color)}
 .coin-positive{background:radial-gradient(circle at 34% 28%,color-mix(in srgb,var(--dice-color) 55%,#fff),var(--dice-color) 58%,color-mix(in srgb,var(--dice-color) 78%,#000));box-shadow:inset 0 -3px 0 #0000002e,inset 0 2px 0 #ffffff55}
-.coin-positive:after{content:'';position:absolute;left:50%;top:50%;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:#fffdf7;box-shadow:0 0 6px #fffdf7}
 .coin-empty{background:repeating-linear-gradient(-45deg,transparent 0 4px,color-mix(in srgb,var(--dice-color) 13%,transparent) 4px 5px),#fffdf8;box-shadow:inset 0 -3px 0 color-mix(in srgb,var(--dice-color) 18%,transparent)}
 .coin-die.waiting:before{border-radius:9px}
 .coin-rolling .coin-die.waiting{animation:coinToss .85s cubic-bezier(.3,.6,.4,1) both;animation-delay:calc(var(--i,0) * 35ms)}
