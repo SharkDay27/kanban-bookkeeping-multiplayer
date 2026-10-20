@@ -4,8 +4,10 @@
   let ctx=null,master=null;
   function context(){
     if(volume<=0)return null;
+    // iOS mutes Web Audio while the ring/silent switch is off unless the page asks for a playback session (Safari 16.4+).
+    try{if(navigator.audioSession&&navigator.audioSession.type!=='playback')navigator.audioSession.type='playback';}catch{}
     if(!ctx){const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;ctx=new C();master=ctx.createGain();master.gain.value=volume;const limiter=ctx.createDynamicsCompressor();limiter.threshold.value=-10;limiter.ratio.value=8;master.connect(limiter);limiter.connect(ctx.destination);}
-    if(ctx.state==='suspended')ctx.resume().catch(()=>{});return ctx;
+    if(ctx.state!=='running'&&ctx.state!=='closed')ctx.resume().catch(()=>{});return ctx;
   }
   function setVolume(value){volume=Math.max(0,Math.min(1,Number(value)||0));localStorage.setItem('kbm-sfx-volume',String(volume));if(master)master.gain.value=volume;renderControls();}
   function tone(freq=440,dur=.07,type='sine',gain=.035,slide=0,delay=0){const c=context();if(!c||!master)return;const now=c.currentTime+delay,o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(freq,now);if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(40,freq+slide),now+dur);g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(gain,now+.008);g.gain.exponentialRampToValueAtTime(.0001,now+dur);o.connect(g);g.connect(master);o.start(now);o.stop(now+dur+.02);}
@@ -22,6 +24,6 @@
   // Browsers (iOS Safari in particular) only start audio inside a user gesture; keep trying on each gesture until it runs.
   function unlock(){const c=context();if(!c)return;if(c.state==='running'){for(const e of UNLOCK_EVENTS)document.removeEventListener(e,unlock,true);return;}const b=c.createBuffer(1,1,22050),s=c.createBufferSource();s.buffer=b;s.connect(c.destination);s.start(0);}
   const UNLOCK_EVENTS=['pointerdown','touchend','click','keydown'];for(const e of UNLOCK_EVENTS)document.addEventListener(e,unlock,true);
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&ctx?.state==='suspended')ctx.resume().catch(()=>{});});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&ctx&&ctx.state!=='running'&&ctx.state!=='closed')ctx.resume().catch(()=>{});});
   requestAnimationFrame(ensureControls);
 })();
