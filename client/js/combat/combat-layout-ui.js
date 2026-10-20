@@ -1,5 +1,4 @@
 (()=>{
-  let lastSerial=null;
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
   function compactEnemyCards(room){
     const combat=room?.combat;if(!combat)return;
@@ -18,7 +17,6 @@
     let chip=hp.querySelector('.player-shield-chip');
     if(Number(player.temporaryShield||0)>0){if(!chip){chip=document.createElement('span');chip.className='player-shield-chip';hp.insertBefore(chip,hp.querySelector('.hp-track'));}chip.textContent=`護盾 ${Number(player.temporaryShield)}`;}else chip?.remove();
   }
-  function shieldBreakFx(room){const res=room?.combat?.lastResolution;if(!res?.serial||res.serial===lastSerial)return;lastSerial=res.serial;for(const rec of res.players||[]){if(!rec.shieldBroken)continue;const target=document.querySelector(`[data-combat-target="${CSS.escape(rec.targetId||'')}"]`);if(target){target.classList.remove('shield-break-flash');void target.offsetWidth;target.classList.add('shield-break-flash');setTimeout(()=>target.classList.remove('shield-break-flash'),700);}window.GameCombatSounds?.shieldBreak?.();}for(const er of res.enemyResults||[]){if(er.shieldBroken)window.GameCombatSounds?.shieldBreak?.();}}
-  function apply(room){requestAnimationFrame(()=>{compactEnemyCards(room);renderPlayerShield(room);shieldBreakFx(room);});}
+  function apply(room){requestAnimationFrame(()=>{compactEnemyCards(room);renderPlayerShield(room);});}
   socket.on('room:update',apply);requestAnimationFrame(()=>state?.room&&apply(state.room));window.KBMCombatLayoutUI={apply};
 })();
