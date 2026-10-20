@@ -23,7 +23,7 @@ h1,h2,.event-panel h2,#eventName,#enemyName{font-family:var(--lc-serif);font-wei
 .area-card strong,.area-card h3,.sinner-card strong,.sinner-card h3{font-family:var(--lc-serif);font-weight:900}
 
 /* Buttons: crimson primary with cut corners, white secondary */
-button:not(.card-surface):not(.secondary):not(.compact):not(.status):not(.manual-menu-toggle):not(.part-button):not(.enemy-skill-toggle):not([data-pile]):not([data-card-play]):not([data-card-focus]):not(.event-option):not(.route-choice):not(.area-card):not(.sinner-card):not(.mobile-info-tabs button):not(#mobileInfoRail button):not(#mobileBackToTop){background:linear-gradient(180deg,var(--lc-red-hi),var(--lc-red-lo))!important;border:0!important;color:#fff6ea!important;border-radius:0!important;clip-path:var(--lc-cut);letter-spacing:.12em;font-weight:700}
+button:not(.card-surface):not(.secondary):not(.compact):not(.status):not(.manual-menu-toggle):not(.part-button):not(.enemy-skill-toggle):not([data-pile]):not([data-card-play]):not([data-card-focus]):not(.event-option):not(.route-choice):not(.area-card):not(.sinner-card):not(.mobile-info-tabs button):not(#mobileInfoRail button):not(#mobileBackToTop):not(.manual-nav button):not(#manualClose):not([data-shop-buy]):not([data-sell-id]){background:#fff!important;border:1px solid var(--lc-red)!important;color:var(--lc-red)!important;box-shadow:none!important;text-shadow:none!important;border-radius:3px!important;clip-path:none!important;letter-spacing:.06em;font-weight:700;font-size:14px!important;width:auto!important;min-width:0!important;min-height:38px!important;padding:6px 18px!important;justify-self:start;align-self:flex-start}
 button:not(.card-surface):disabled{filter:grayscale(.85) brightness(1.1);opacity:.6}
 button.secondary,button.compact,.card-controls button,.card-deck-bar button,.enemy-skill-toggle{background:#fff!important;color:var(--lc-ink)!important;border:1px solid #c6c6c2!important;border-radius:2px!important}
 button:focus-visible{outline:2px solid var(--lc-gold)!important;outline-offset:2px}
@@ -70,7 +70,7 @@ input:focus,select:focus{outline:2px solid var(--lc-gold);outline-offset:0;borde
 .card-skill-condition.met em{color:var(--lc-gold-ink)!important;font-weight:700}
 .card-play-summary,.card-inspection{border-radius:0!important;background:var(--lc-soft)!important;border-color:var(--lc-line)!important}
 .card-play-summary.has-selection{border-color:var(--lc-gold)!important;background:#fbf6ea!important}
-#combatPanel .confirm-bar>button{font-family:var(--lc-serif);font-weight:900;font-size:16px!important;letter-spacing:.2em}
+#combatPanel .confirm-bar{justify-items:center!important;text-align:center}#combatPanel .confirm-bar>button{justify-self:center!important;align-self:center!important;min-width:200px!important;min-height:44px!important;font-size:15px!important;letter-spacing:.12em}
 
 /* Hand cards: white stock, sharp cut corners, gold when chosen */
 .card-surface:has(.card-half),.pile-card:not(.ability-card),.card-motion-face:has(.card-half),.hand-card.ability-card .card-surface{border-radius:0!important;background:#fff!important;border-color:#cfcfcb!important;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));box-shadow:inset 0 0 0 2px #fff,inset 0 0 0 3px #e8e8e5!important}
@@ -116,3 +116,41 @@ dialog{border-radius:0!important;border:1px solid var(--lc-line)!important;borde
 .enemy-card .enemy-hp-value{grid-area:hp;font-size:16px!important}
 .enemy-card .enemy-card-head .damage-resistances{grid-area:res;display:flex!important;flex-direction:row!important;flex-wrap:wrap;gap:4px!important}.enemy-card .enemy-card-head .damage-resistances:empty{display:none!important}
 .enemy-card .intent-card{grid-area:intent;display:flex!important;align-items:center;gap:10px;width:auto!important;max-width:none!important;padding:6px 10px!important}
+
+/* Shop: price buttons are quiet; only 完成購物 stays crimson. */
+.shop-item{background:#fff!important;border:1px solid var(--lc-line)!important}
+.shop-item.sold{opacity:.55}
+[data-shop-buy],[data-sell-id]{background:#fff!important;border:1px solid var(--lc-gold)!important;color:var(--lc-gold-ink)!important;border-radius:0!important;font-family:var(--lc-num);font-weight:700;letter-spacing:.06em;clip-path:none}
+[data-shop-buy]:not(:disabled):active,[data-sell-id]:not(:disabled):active{background:#fbf6ea!important}
+.shop-gold{border-radius:0!important;background:#fbf6ea!important;border:1px solid var(--lc-gold)!important;color:var(--lc-gold-ink)!important;font-family:var(--lc-num)}
+.shop-rarity{display:inline-block;margin-top:4px;padding:1px 7px;font-style:normal;font-size:11px;font-weight:700;letter-spacing:.1em;border:1px solid #c6c6c2;color:var(--sub)}
+.shop-rarity.rarity-tag-uncommon{border-color:#7fa5b8;color:var(--lc-steel)}
+.shop-rarity.rarity-tag-rare{border-color:var(--lc-gold);color:var(--lc-gold-ink);background:#fbf6ea}
+
+/* Manual drawer: white menu rows with a crimson marker, not crimson bars. */
+.manual-drawer{background:#f4f4f2!important;border-right:1px solid var(--lc-line)!important}
+.manual-drawer-head{background:#fff!important;border-bottom:1px solid var(--lc-line)!important}
+.manual-drawer-head strong{font-family:var(--lc-serif);font-weight:900}
+.manual-drawer-head span{color:var(--lc-red)!important;letter-spacing:.2em}
+#manualClose{background:#fff!important;border:1px solid #c6c6c2!important;color:var(--lc-ink)!important;border-radius:0!important;clip-path:var(--lc-cut)}
+.manual-nav>button{background:#fff!important;color:var(--lc-ink)!important;border:1px solid var(--lc-line)!important;border-left:4px solid #c6c6c2!important;border-radius:0!important;font-family:var(--lc-serif);font-weight:900;letter-spacing:.1em;box-shadow:none!important}
+.manual-nav>button.active{border-left-color:var(--lc-red)!important;background:#fff!important;color:var(--lc-red)!important}
+.manual-nav>.manual-content{background:transparent!important;border:0!important}
+.manual-section{border-radius:0!important;background:#fff!important;border:1px solid var(--lc-line)!important}
+.manual-section>summary{font-weight:700}
+.manual-section[open]>summary{color:var(--lc-red)}
+.manual-stat-grid article,.manual-status,.manual-damage-types span,.manual-node-grid span{border-radius:0!important}
+.manual-note{border-radius:0!important;background:#fbf6ea!important;border-color:var(--lc-gold)!important;color:var(--lc-gold-ink)!important}
+.manual-section ul,.manual-section ol{padding-left:1.3em;margin:6px 0}.manual-section li{margin:4px 0;line-height:1.65}
+.manual-section{margin:0 0 6px}.manual-section>summary{padding:12px!important}.manual-section>div{padding:0 12px 12px!important}
+.manual-section .manual-section{margin:6px 0 0;background:var(--lc-soft)!important}
+.manual-section>summary{background:transparent!important}section.manual-section{padding:12px}section.manual-section h3{margin:0 0 8px;font-family:var(--lc-serif);font-weight:900}
+
+/* Outline buttons: a light tint on hover and press instead of solid crimson. */
+button:not(.card-surface):not(.secondary):not(.compact):not(.status):not(.manual-menu-toggle):not(.part-button):not(.enemy-skill-toggle):not([data-pile]):not([data-card-play]):not([data-card-focus]):not(.event-option):not(.route-choice):not(.area-card):not(.sinner-card):not(.mobile-info-tabs button):not(#mobileInfoRail button):not(#mobileBackToTop):not(.manual-nav button):not(#manualClose):not([data-shop-buy]):not([data-sell-id]):not(:disabled):hover,button:not(.card-surface):not(.secondary):not(.compact):not(.status):not(.manual-menu-toggle):not(.part-button):not(.enemy-skill-toggle):not([data-pile]):not([data-card-play]):not([data-card-focus]):not(.event-option):not(.route-choice):not(.area-card):not(.sinner-card):not(.mobile-info-tabs button):not(#mobileInfoRail button):not(#mobileBackToTop):not(.manual-nav button):not(#manualClose):not([data-shop-buy]):not([data-sell-id]):not(:disabled):active{background:#fbeceb!important}
+/* Secondary and shop buttons are compact too, sized to their label. */
+button.secondary,button.compact,[data-shop-buy],[data-sell-id]{width:auto!important;min-width:0!important;min-height:38px!important;padding:6px 16px!important;font-size:14px!important;justify-self:start;align-self:flex-start;border-radius:3px!important}
+.shop-item{display:grid!important;gap:8px}
+/* Confirm-type actions stay small but are filled so they stand out from the outlined buttons. The :not(#_x) chain only raises specificity above the outline rule. */
+#confirmCombat:not(#_a):not(#_b):not(#_c),#createRoom:not(#_a):not(#_b):not(#_c),#startGame:not(#_a):not(#_b):not(#_c),#shopReadyBtn:not(#_a):not(#_b):not(#_c),#nextEvent:not(#_a):not(#_b):not(#_c),#nextCombatNode:not(#_a):not(#_b):not(#_c),dialog button[type=submit]:not(#_a):not(#_b):not(#_c){background:var(--lc-red)!important;border:1px solid var(--lc-red)!important;color:#fff!important}
+#confirmCombat:not(:disabled):hover:not(#_a):not(#_b):not(#_c),#createRoom:not(:disabled):hover:not(#_a):not(#_b):not(#_c),#startGame:not(:disabled):hover:not(#_a):not(#_b):not(#_c),#shopReadyBtn:not(:disabled):hover:not(#_a):not(#_b):not(#_c),#nextEvent:not(:disabled):hover:not(#_a):not(#_b):not(#_c),#nextCombatNode:not(:disabled):hover:not(#_a):not(#_b):not(#_c),dialog button[type=submit]:not(:disabled):hover:not(#_a):not(#_b):not(#_c),#confirmCombat:not(:disabled):active:not(#_a):not(#_b):not(#_c),#createRoom:not(:disabled):active:not(#_a):not(#_b):not(#_c),#startGame:not(:disabled):active:not(#_a):not(#_b):not(#_c),#shopReadyBtn:not(:disabled):active:not(#_a):not(#_b):not(#_c),#nextEvent:not(:disabled):active:not(#_a):not(#_b):not(#_c),#nextCombatNode:not(:disabled):active:not(#_a):not(#_b):not(#_c){background:var(--lc-red-lo)!important;border-color:var(--lc-red-lo)!important}
