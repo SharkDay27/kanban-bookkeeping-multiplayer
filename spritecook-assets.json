@@ -1,7 +1,30 @@
 {
   "assets": [
-    { "asset_id": "9d55c688-1908-46a6-8879-2a02f3926162", "label": "Kabala Island style reference sheet (style guide)" },
-    { "asset_id": "dafe4191-97e3-402f-8f83-c0d6f460ff31", "sha12": "2305ff43e9f2", "label": "Ryoshu chibi A (katana on shoulder)", "file": "client/assets/characters/ryoshu-a.png" },
-    { "asset_id": "a3a8cd33-bf8e-4a77-bb09-9a86408f7909", "sha12": "1eb10750eb8f", "label": "Ryoshu chibi B (katana lowered, blood splatter)", "file": "client/assets/characters/ryoshu-b.png" }
+    {
+      "asset_id": "9d55c688-1908-46a6-8879-2a02f3926162",
+      "label": "Kabala Island style reference sheet (style guide)"
+    },
+    {
+      "asset_id": "564967dd-2d1e-4d5f-bae0-f6140d498950",
+      "label": "Ryoshu official art (character reference)"
+    },
+    {
+      "asset_id": "277658f1-06fb-4d6f-bcaf-6721d7033bde",
+      "sha12": "fe0abc6f6178",
+      "label": "Ryoshu chibi (main, from official art; locally reduced to 32 colors)",
+      "file": "client/assets/characters/ryoshu.png"
+    },
+    {
+      "asset_id": "dafe4191-97e3-402f-8f83-c0d6f460ff31",
+      "sha12": "2305ff43e9f2",
+      "label": "Ryoshu chibi A (katana on shoulder)",
+      "file": "client/assets/characters/ryoshu-a.png"
+    },
+    {
+      "asset_id": "a3a8cd33-bf8e-4a77-bb09-9a86408f7909",
+      "sha12": "1eb10750eb8f",
+      "label": "Ryoshu chibi B (katana lowered, blood splatter)",
+      "file": "client/assets/characters/ryoshu-b.png"
+    }
   ]
 }
