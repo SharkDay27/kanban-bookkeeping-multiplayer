@@ -1,8 +1,7 @@
-/* A brief cut of the actual UI: a blade streak crosses the screen, two clipped copies split apart, then rejoin within a second. */
+/* A brief cut of the actual UI: a blade streak crosses the screen, two clipped copies split apart over the page background, then rejoin within a second. */
 .screen-cut{position:fixed;inset:0;z-index:1240;pointer-events:none;overflow:hidden;isolation:isolate;--cut-shift:26px;--cut-lift:40px;--cut-power:1;contain:strict}
 .screen-cut-half{position:absolute;inset:0;background:var(--bg,#f8f9f6);pointer-events:none;will-change:transform;overflow:hidden}.screen-cut-half>.shell{max-width:none!important;pointer-events:none!important}.cut-upper{animation:cutUpper .88s cubic-bezier(.15,.7,.3,1) both}.cut-lower{animation:cutLower .88s cubic-bezier(.15,.7,.3,1) both}
-.screen-cut-gap,.screen-cut-seam,.screen-cut-blade{position:absolute;left:var(--cut-x,50%);top:var(--cut-center);width:var(--cut-length);transform:translate(-50%,-50%) rotate(var(--cut-angle));pointer-events:none;display:block}
-.screen-cut-gap{height:calc(110px * var(--cut-power));background:linear-gradient(180deg,#5a1f2c,#151a19 30%,#0d100f 50%,#151a19 70%,#5a1f2c);box-shadow:inset 0 0 30px #c5526d88;animation:cutGap .88s both}
+.screen-cut-seam,.screen-cut-blade{position:absolute;left:var(--cut-x,50%);top:var(--cut-center);width:var(--cut-length);transform:translate(-50%,-50%) rotate(var(--cut-angle));pointer-events:none;display:block}
 .screen-cut-seam{z-index:3;height:3px;background:#fff4eb;box-shadow:0 0 0 1px #c5526d,0 0 9px 3px #e7919a,0 0 22px 6px #b84c6544;transform-origin:center;animation:cutTrace .88s both}
 .screen-cut-blade{z-index:4;width:calc(var(--cut-length) * .4);height:12px;border-radius:50%;background:linear-gradient(90deg,transparent,#ffd2da 30%,#fff 62%,#fff 70%,transparent);box-shadow:0 0 18px 6px #f08a9c99,0 0 44px 12px #c5526d55;animation:cutBlade .88s cubic-bezier(.5,0,.2,1) both}
 .screen-cut-flash{position:absolute;inset:0;z-index:5;display:block;background:radial-gradient(circle at var(--cut-x,50%) var(--cut-center),#fff,#fff5f6cc 40%,#ffe3e800 75%);animation:cutFlash .88s ease-out both}
@@ -10,7 +9,6 @@
 @keyframes cutFlash{0%,13%{opacity:0}17%{opacity:.75}34%,100%{opacity:0}}
 @keyframes cutUpper{0%,15%{transform:translate(0,0)}24%{transform:translate(calc(-1.15 * var(--cut-shift) * var(--cut-power)),calc(-1.15 * var(--cut-lift) * var(--cut-power))) rotate(-.6deg)}50%{transform:translate(calc(-1 * var(--cut-shift) * var(--cut-power)),calc(-1 * var(--cut-lift) * var(--cut-power))) rotate(-.5deg)}82%{transform:translate(1px,2px)}90%,100%{transform:translate(0,0)}}
 @keyframes cutLower{0%,15%{transform:translate(0,0)}24%{transform:translate(calc(1.15 * var(--cut-shift) * var(--cut-power)),calc(1.15 * var(--cut-lift) * var(--cut-power))) rotate(.6deg)}50%{transform:translate(calc(var(--cut-shift) * var(--cut-power)),calc(var(--cut-lift) * var(--cut-power))) rotate(.5deg)}82%{transform:translate(-1px,-2px)}90%,100%{transform:translate(0,0)}}
-@keyframes cutGap{0%,14%{opacity:0}20%,66%{opacity:1}88%,100%{opacity:0}}
 @keyframes cutTrace{0%,8%{opacity:0;transform:translate(-50%,-50%) rotate(var(--cut-angle)) scaleX(0)}17%,40%{opacity:1;transform:translate(-50%,-50%) rotate(var(--cut-angle)) scaleX(1)}70%,100%{opacity:0;transform:translate(-50%,-50%) rotate(var(--cut-angle)) scaleX(1.04)}}
 @media(max-width:719px){.screen-cut{--cut-shift:14px;--cut-lift:26px}.screen-cut-seam{height:2px;box-shadow:0 0 0 1px #c5526d,0 0 8px 2px #db8794}.screen-cut-blade{height:9px}}
-@media(prefers-reduced-motion:reduce){.screen-cut{display:none}.screen-cut-half,.screen-cut-gap,.screen-cut-seam,.screen-cut-blade,.screen-cut-flash{animation:none}}
+@media(prefers-reduced-motion:reduce){.screen-cut{display:none}.screen-cut-half,.screen-cut-seam,.screen-cut-blade,.screen-cut-flash{animation:none}}
