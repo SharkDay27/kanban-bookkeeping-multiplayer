@@ -54,10 +54,11 @@
  }
 
  // ---- Slash: dice the target panel into pieces that fly apart ------------------------------
- function shred(target,power=0){const r=box(target);if(still()||!r)return 0;const cols=3,rows=3,j=(v,amt)=>Math.max(0,Math.min(100,v+rand(-amt,amt))),grid=[];
+ // angle (deg) is the main cut through the centre; the other cuts and the pieces' spread follow it.
+ function shred(target,power=0,angle=rand(-40,40)){const r=box(target);if(still()||!r)return 0;const cols=3,rows=3,j=(v,amt)=>Math.max(0,Math.min(100,v+rand(-amt,amt))),grid=[];
   for(let y=0;y<=rows;y++){grid.push([]);for(let x=0;x<=cols;x++){const edgeX=x===0||x===cols,edgeY=y===0||y===rows;grid[y].push([edgeX?x/cols*100:j(x/cols*100,9),edgeY?y/rows*100:j(y/rows*100,11)]);}}
   const wrap=document.createElement('div');wrap.className='shred';wrap.setAttribute('aria-hidden','true');wrap.style.cssText=`left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px`;
-  for(let i=0;i<4;i++){const line=document.createElement('i');line.className='shred-line';line.style.setProperty('--a',rand(-60,60)+'deg');line.style.setProperty('--y',rand(20,80)+'%');line.style.setProperty('--d',i*55+'ms');wrap.appendChild(line);}
+  for(let i=0;i<4;i++){const line=document.createElement('i');line.className='shred-line';line.style.setProperty('--a',(i?angle+rand(-55,55):angle)+'deg');line.style.setProperty('--y',(i?rand(20,80):50)+'%');line.style.setProperty('--d',i*55+'ms');wrap.appendChild(line);}
   const copy=panelCopy(target,r);
   const power01=Math.min(1,Number(power||0)/30);
   for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){const p=[grid[y][x],grid[y][x+1],grid[y+1][x+1],grid[y+1][x]],piece=document.createElement('div');piece.className='shred-piece';piece.style.clipPath=`polygon(${p.map(([a,b])=>a+'% '+b+'%').join(',')})`;const cx=(x+.5)/cols-.5,cy=(y+.5)/rows-.5;piece.style.setProperty('--dx',(cx*rand(120,220)*(1+power01)+rand(-20,20))+'px');piece.style.setProperty('--dy',(cy*rand(80,160)*(1+power01)+rand(10,60))+'px');piece.style.setProperty('--rot',rand(-40,40)+'deg');piece.appendChild(copy.cloneNode(true));wrap.appendChild(piece);}
@@ -67,8 +68,9 @@
 
  // ---- Slash impact: like the gun, the force shows through the air rather than as a drawn blade ---------
  // A clear crescent of compressed air sweeps across the target, a pressure line flares along the cut, and the air ripples.
- function slashWake(target,power=0){const r=box(target);if(still()||!r)return 0;const cx=r.left+r.width/2,cy=r.top+r.height/2,w=Math.min(innerWidth*1.1,Math.max(220,r.width*1.4)),ang=rand(-38,38)+(Math.random()<.5?0:180),power01=Math.min(1,Number(power||0)/30);
-  const el=document.createElement('div');el.className='slash-wake';el.setAttribute('aria-hidden','true');el.style.cssText=`left:${cx}px;top:${cy}px;--w:${w}px;--h:${Math.round(w*.42)}px;--ang:${ang.toFixed(1)}deg;--thick:${(1+power01*.6).toFixed(2)}`;el.innerHTML='<i class="slash-crescent"></i><i class="slash-pressure"></i><i class="slash-ripple"></i><i class="slash-ripple"></i>';document.body.appendChild(el);setTimeout(()=>el.remove(),720);return 720;}
+ // opts.angle (deg) and opts.x/y/w place the wake on the cut line so the air blade follows the same direction as the cut.
+ function slashWake(target,power=0,opts={}){const r=box(target);if(still()||!r)return 0;const cx=opts.x??r.left+r.width/2,cy=opts.y??r.top+r.height/2,w=opts.w??Math.min(innerWidth*1.1,Math.max(220,r.width*1.4)),ang=opts.angle??rand(-38,38),power01=Math.min(1,Number(power||0)/30);
+  const el=document.createElement('div');el.className='slash-wake';el.setAttribute('aria-hidden','true');el.style.cssText=`left:${cx}px;top:${cy}px;--w:${w}px;--h:${Math.round(Math.min(w*.42,150))}px;--ang:${ang.toFixed(1)}deg;--thick:${(1+power01*.6).toFixed(2)}`;el.innerHTML='<i class="slash-crescent"></i><i class="slash-pressure"></i><i class="slash-ripple"></i><i class="slash-ripple"></i>';document.body.appendChild(el);setTimeout(()=>el.remove(),720);return 720;}
 
  window.KBMStrikes={gun,blunt,shred,slashWake};
 })();
