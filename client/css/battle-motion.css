@@ -24,9 +24,9 @@
 @media(max-width:719px){.combat-float[class*=dmg-]{font-size:28px}.combat-float.dmg-heavy{font-size:36px}}
 @media(prefers-reduced-motion:reduce){.actor-lunge,#combatPanel.impact-shake,.impact-flash{animation:none!important}.impact-flash{display:none}.combat-float[class*=dmg-]{animation:none;transform:translateX(-50%)}}
 
-/* Blunt impact frame: dark radial burst lines around a white core for two beats, then gone. */
+/* Blunt impact frame: dark radial burst lines around a white core, fading quickly. */
 .impact-frame{position:fixed;inset:0;z-index:1235;pointer-events:none;background:radial-gradient(circle at var(--ix) var(--iy),#fff 0 calc(var(--core) * .45),#fff0 var(--core)),repeating-conic-gradient(from 0deg at var(--ix) var(--iy),#1f1f1dcc 0 1.6deg,#0000 1.6deg 7deg);-webkit-mask-image:radial-gradient(circle at var(--ix) var(--iy),#000 0 var(--core),#0000 calc(var(--core) * 1.05),#000 calc(var(--core) * 1.4));mask-image:radial-gradient(circle at var(--ix) var(--iy),#000 0 var(--core),#0000 calc(var(--core) * 1.05),#000 calc(var(--core) * 1.4));animation:impactFrame .42s steps(1,end) forwards}
-@keyframes impactFrame{0%{opacity:1;filter:invert(0)}18%{opacity:1;filter:invert(1)}36%{opacity:.85;filter:invert(0)}60%{opacity:.35}100%{opacity:0}}
+@keyframes impactFrame{0%{opacity:1}36%{opacity:.85}60%{opacity:.35}100%{opacity:0}}
 .impact-crunch{animation:impactCrunch .46s cubic-bezier(.3,1.6,.5,1)!important}
 @keyframes impactCrunch{0%{transform:none}15%{transform:scale(1.04,.92) translateY(4px)}40%{transform:scale(.98,1.03)}100%{transform:none}}
 
@@ -46,28 +46,9 @@
 @keyframes shieldRing{0%{opacity:.9;transform:scale(.3)}100%{opacity:0;transform:scale(1.35)}}
 @media(prefers-reduced-motion:reduce){.impact-frame,.bullet-hole,.shield-deploy{display:none}.impact-crunch{animation:none!important}}
 
-/* Gun on glass: cracked-glass impacts drawn over the whole screen. */
-.glass-shots{position:fixed;inset:0;z-index:1237;pointer-events:none;overflow:visible;transition:opacity .5s ease}
-.glass-shots.fading{opacity:0}
-.glass-hit{animation:glassHit .22s cubic-bezier(.2,1.4,.4,1) both}
-@keyframes glassHit{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
-.glass-frost{fill:#ffffff;opacity:.28}
-.glass-crack polyline{fill:none;stroke:#26262bcc;stroke-width:1.25;stroke-linejoin:round;stroke-linecap:round}
-.glass-crack-light polyline{fill:none;stroke:#ffffffd9;stroke-width:.9;stroke-linejoin:round;stroke-linecap:round}
-.glass-rim{fill:#f5f7f8;stroke:#9aa3a8;stroke-width:1}
-.glass-chips polygon{fill:#ffffffe6;stroke:#8d969b;stroke-width:.6}
-.glass-hole{fill:#141416}
-.glass-glint{fill:#fff;opacity:.55}
+.glass-hit{animation:glassHit .06s linear both}
+@keyframes glassHit{from{opacity:0}to{opacity:1}}
 
-/* Blunt props and the target reacting as a physical panel. */
-.blunt-prop{position:fixed;z-index:1236;width:var(--size);height:var(--size);margin:calc(var(--size) / -2) 0 0 calc(var(--size) / -2);pointer-events:none;filter:drop-shadow(0 6px 8px #0005)}
-.blunt-prop svg{display:block;width:100%;height:100%}
-.prop-smash{animation:propSmash .9s cubic-bezier(.5,0,.6,1) forwards}
-@keyframes propSmash{0%{opacity:0;transform:translateY(calc(var(--h) * -1.6)) rotate(180deg) scale(1.2)}12%{opacity:1}22%{transform:translateY(calc(var(--h) * -.05)) rotate(180deg) scale(1)}55%{opacity:1;transform:translateY(calc(var(--h) * -.1)) rotate(180deg)}100%{opacity:0;transform:translateY(calc(var(--h) * -1.4)) rotate(180deg)}}
-.prop-swat{animation:propSwat .9s cubic-bezier(.3,.1,.3,1) forwards}
-@keyframes propSwat{0%{opacity:0;transform:translateX(calc(var(--w) * -1)) rotate(90deg)}14%{opacity:1}26%{transform:translateX(calc(var(--w) * -.35)) rotate(90deg)}45%{opacity:1;transform:translateX(calc(var(--w) * .3)) rotate(90deg)}70%,100%{opacity:0;transform:translateX(calc(var(--w) * .5)) rotate(90deg)}}
-.prop-dent{animation:propDent .8s cubic-bezier(.2,.8,.3,1) forwards}
-@keyframes propDent{0%{opacity:0;transform:scale(3.2)}10%{opacity:.95}20%{transform:scale(.75)}40%{opacity:1;transform:scale(.8)}100%{opacity:0;transform:scale(.6)}}
 .blunt-smash{transform-origin:50% 100%;animation:bluntSmash .76s cubic-bezier(.3,1.5,.5,1)!important}
 @keyframes bluntSmash{0%,20%{transform:none}28%{transform:scaleY(.42) scaleX(1.12)}52%{transform:scaleY(.48) scaleX(1.1)}70%{transform:scaleY(1.08) scaleX(.97)}100%{transform:none}}
 .blunt-swat{animation:bluntSwat .9s cubic-bezier(.4,0,.2,1)!important}
@@ -88,4 +69,36 @@
 .cut-left{animation:cutLeft .88s cubic-bezier(.15,.7,.3,1) both}.cut-right{animation:cutRight .88s cubic-bezier(.15,.7,.3,1) both}
 @keyframes cutLeft{0%,15%{transform:none}24%{transform:translateX(calc(-1.3 * var(--cut-lift) * var(--cut-power))) rotate(-.5deg)}50%{transform:translateX(calc(-1.1 * var(--cut-lift) * var(--cut-power))) rotate(-.4deg)}82%{transform:translateX(2px)}90%,100%{transform:none}}
 @keyframes cutRight{0%,15%{transform:none}24%{transform:translateX(calc(1.3 * var(--cut-lift) * var(--cut-power))) rotate(.5deg)}50%{transform:translateX(calc(1.1 * var(--cut-lift) * var(--cut-power))) rotate(.4deg)}82%{transform:translateX(-2px)}90%,100%{transform:none}}
-@media(prefers-reduced-motion:reduce){.glass-shots,.blunt-prop,.shred{display:none}.blunt-smash,.blunt-swat,.blunt-dent,.shred-return,.cut-left,.cut-right{animation:none!important}}
+@media(prefers-reduced-motion:reduce){.glass-break,.blunt-fx,.shred{display:none}.blunt-smash,.blunt-swat,.blunt-dent,.shred-return,.cut-left,.cut-right{animation:none!important}}
+
+.glass-hole{fill:#0b0b0d}
+.glass-glint{fill:#fff;opacity:.6}
+
+/* Blunt without props: the force shows in streaks, dust, shockwaves and the panel deforming. */
+.blunt-fx{position:fixed;z-index:1236;pointer-events:none;overflow:visible}
+.drop-streak{position:absolute;bottom:100%;width:2px;height:var(--len);background:linear-gradient(#1f1f1d00,#1f1f1db3);transform:translateY(-120%);animation:dropStreak .32s var(--d) cubic-bezier(.6,0,.9,.6) both}
+@keyframes dropStreak{0%{opacity:0;transform:translateY(-140%)}30%{opacity:1}100%{opacity:0;transform:translateY(20%)}}
+.dust{position:absolute;bottom:-4px;width:16px;height:10px;border-radius:50%;background:#9b958a;opacity:0;transform:scale(var(--s));animation:dust .62s .16s ease-out both}
+@keyframes dust{0%{opacity:.75;transform:translate(0,0) scale(calc(var(--s) * .4))}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(calc(var(--s) * 1.6))}}
+.side-streak{position:absolute;left:-30%;height:2px;width:var(--len);background:linear-gradient(90deg,#1f1f1d00,#1f1f1db3 70%,#1f1f1d00);animation:sideStreak .36s calc(var(--d) + .2s) cubic-bezier(.3,.1,.4,1) both}
+@keyframes sideStreak{0%{opacity:0;transform:translateX(-40%)}30%{opacity:1}100%{opacity:0;transform:translateX(160%)}}
+.dent-ring{position:absolute;left:50%;top:50%;width:40%;aspect-ratio:1;border:2px solid #1f1f1d80;border-radius:50%;transform:translate(-50%,-50%) scale(.2);opacity:0;animation:dentRing .6s calc(var(--d) + .12s) ease-out both}
+@keyframes dentRing{0%{opacity:.9;transform:translate(-50%,-50%) scale(.2)}100%{opacity:0;transform:translate(-50%,-50%) scale(2.6)}}
+.dent-crater{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,#0000004d 0,#00000026 22%,#0000 48%),radial-gradient(ellipse at 46% 44%,#ffffff40 0 6%,#0000 7%);opacity:0;animation:dentCrater .76s .12s ease-out both}
+@keyframes dentCrater{0%,10%{opacity:0}20%,55%{opacity:1}100%{opacity:0}}
+
+/* Gun: the panel as a pane of glass. Cracks draw outward from each hole, then the pane breaks into falling shards. */
+.glass-break{position:fixed;z-index:1236;pointer-events:none}
+.glass-pane{position:absolute;inset:0;overflow:hidden;filter:drop-shadow(0 .5px .5px #00000026)}
+.glass-pane.broken{animation:paneGone .12s forwards}
+@keyframes paneGone{to{opacity:0}}
+.glass-pane svg{display:block;overflow:visible}
+.glass-pane path{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;animation:crackGrow .16s linear forwards}
+@keyframes crackGrow{to{stroke-dashoffset:0}}
+.glass-crack path,.glass-arcs path,.glass-fine path{stroke:#2b3034}
+.glass-light path{stroke:#fff}
+.glass-hole{fill:#0b0b0d}
+.glass-glint{fill:#fff;opacity:.6}
+.glass-shard{position:absolute;inset:0;overflow:hidden;animation:glassShard .9s var(--d) cubic-bezier(.35,0,.7,.6) both}
+.glass-shard>*{filter:brightness(1.03)}
+@keyframes glassShard{0%{transform:none;opacity:1}10%{transform:translate(calc(var(--dx) * .06),calc(var(--dy) * .02))}100%{transform:translate(var(--dx),var(--dy)) rotate(var(--rot));opacity:0}}
