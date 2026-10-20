@@ -10,6 +10,9 @@
     bossWarning(){A()?.tone(285,.18,'sawtooth',.028,65);A()?.tone(210,.22,'sawtooth',.03,-30,.17)},
     blocked(){A()?.tone(490,.075,'sine',.018,-190)},
     hurt(){A()?.noise(.14,.04,0,650);A()?.tone(92,.13,'sawtooth',.018,-22)},
+    diceRoll(){[0,.07,.16,.27,.4,.55].forEach((d,i)=>A()?.noise(.022,.014+i*.002,d,2600+i*200))},
+    diceLand(){A()?.noise(.035,.022,0,1500);A()?.tone(560,.05,'triangle',.016,-180)},
+    diceClash(){A()?.tone(1480,.08,'square',.014,-760);A()?.noise(.09,.026,0,4200);A()?.tone(740,.12,'triangle',.014,-260,.03)},
     victory(){[523,659,784,1047].forEach((f,i)=>A()?.tone(f,.22,'triangle',.035,30,i*.105))},
     attack(type){if(type&&typeof sfx[type]==='function')return sfx[type]();return sfx.anomaly();}
   };

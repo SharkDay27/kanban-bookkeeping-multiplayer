@@ -1,0 +1,25 @@
+/* Combat motion: attacker lunge, contact shake and flash, typed damage numbers, and enemy defeat. */
+.actor-lunge{animation:actorLunge .56s cubic-bezier(.3,.7,.3,1);z-index:5}
+@keyframes actorLunge{0%{transform:none}22%{transform:translate(calc(var(--lunge-x) * -.35),calc(var(--lunge-y) * -.35)) scale(.98)}40%{transform:translate(var(--lunge-x),var(--lunge-y)) scale(1.03)}62%{transform:translate(calc(var(--lunge-x) * .8),calc(var(--lunge-y) * .8))}100%{transform:none}}
+#combatPanel.impact-shake{animation:impactShake .42s linear}
+@keyframes impactShake{0%,100%{transform:none}10%{transform:translate(calc(var(--shake) * -1),calc(var(--shake) * .5))}25%{transform:translate(var(--shake),calc(var(--shake) * -.6))}40%{transform:translate(calc(var(--shake) * -.6),calc(var(--shake) * .3))}60%{transform:translate(calc(var(--shake) * .35),0)}80%{transform:translate(calc(var(--shake) * -.15),0)}}
+.impact-flash{position:fixed;inset:0;z-index:1230;pointer-events:none;--flash-color:#c74565;background:radial-gradient(circle at 50% 45%,transparent 30%,var(--flash-color) 130%);animation:impactFlash .46s ease-out forwards}
+.impact-flash.flash-blunt{--flash-color:#c89235}.impact-flash.flash-pierce{--flash-color:#398fae}.impact-flash.flash-anomaly{--flash-color:#9165c4}
+@keyframes impactFlash{0%{opacity:0}15%{opacity:var(--flash)}100%{opacity:0}}
+
+/* Damage numbers carry their attack type: colour, outline and a small type caption. */
+.combat-float[class*=dmg-]{--dmg:#a14f5c;right:auto;left:50%;top:22%;z-index:6;font:italic 900 34px/1 Georgia,"Times New Roman",serif;color:var(--dmg);text-shadow:-2px -2px 0 #fffdf8,2px -2px 0 #fffdf8,-2px 2px 0 #fffdf8,2px 2px 0 #fffdf8,4px 4px 0 color-mix(in srgb,var(--dmg) 30%,transparent);white-space:nowrap;animation:dmgPop 1.9s cubic-bezier(.2,.8,.3,1) forwards}
+.combat-float[class*=dmg-]:after{display:block;margin-top:2px;font:700 10px/1 system-ui,sans-serif;letter-spacing:.3em;text-align:center;text-shadow:none;color:var(--dmg);opacity:.85}
+.combat-float.dmg-slash{--dmg:#c23d5c}.combat-float.dmg-slash:after{content:'斬擊'}
+.combat-float.dmg-blunt{--dmg:#b07a1f}.combat-float.dmg-blunt:after{content:'鈍擊'}
+.combat-float.dmg-pierce{--dmg:#2d7f9d}.combat-float.dmg-pierce:after{content:'突擊'}
+.combat-float.dmg-anomaly{--dmg:#7d55b0}
+.combat-float.dmg-block{--dmg:#5f7f95;font-size:24px;letter-spacing:.1em}.combat-float.dmg-block:after{content:'抵擋'}
+.combat-float.dmg-heavy{font-size:46px}
+@keyframes dmgPop{0%{opacity:0;transform:translateX(-50%) scale(2.3)}10%{opacity:1;transform:translateX(-50%) scale(.88)}18%{transform:translateX(-50%) scale(1.06)}26%{transform:translateX(-50%) scale(1)}70%{opacity:1;transform:translate(-50%,-10px)}100%{opacity:0;transform:translate(-50%,-30px)}}
+
+/* Defeat: a bright hit, then the card drains of colour and sinks away. */
+.enemy-card.enemy-dying{animation:enemyShatter .9s ease-in forwards!important}
+@keyframes enemyShatter{0%{filter:none;transform:none}12%{filter:brightness(1.8);transform:scale(1.03)}30%{filter:grayscale(1);transform:translateX(-4px) skewX(-4deg)}100%{opacity:0;filter:grayscale(1) blur(2px);transform:translateY(16px) scale(.94)}}
+@media(max-width:719px){.combat-float[class*=dmg-]{font-size:28px}.combat-float.dmg-heavy{font-size:36px}}
+@media(prefers-reduced-motion:reduce){.actor-lunge,#combatPanel.impact-shake,.impact-flash{animation:none!important}.impact-flash{display:none}.combat-float[class*=dmg-]{animation:none;transform:translateX(-50%)}}
