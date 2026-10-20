@@ -1,0 +1,41 @@
+/* Phone combat layout: the fight starts near the top, the hand is one swipeable row, and the confirm bar sits directly on the tab rail. */
+#battlePlayerHUD .hud-hp{flex-basis:100%;height:4px;border-radius:99px;background:#e3e8e1;overflow:hidden}
+#battlePlayerHUD .hud-hp i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#6f9a78,#8fb98f);transition:width .4s ease}
+#battlePlayerHUD .hud-hp.low i{background:linear-gradient(90deg,#b34a4a,#d6735f)}
+.binary-tray.no-dice{align-items:center;color:#a49c92;font-size:12px}
+@media(max-width:640px){
+ /* Room and route panels are not needed mid-fight. */
+ body.combat-active .left-stack,body.combat-active #expeditionOverview,body.combat-active #routePanel,body.combat-active #routeChoicePanel,body.combat-active #chapterBar,body.combat-active #resumeStatus,body.combat-active .topbar h1,body.combat-active .topbar .eyebrow,body.combat-active #mobileBackToTop{display:none!important}
+ body.combat-active{padding-top:52px!important}body.combat-active .topbar{min-height:0!important;margin:0 0 8px!important;padding:0!important;border:0!important;gap:0!important}body.combat-active .topbar>div:first-child{display:none!important}
+ body.combat-active #combatPanel .action-prompt,body.combat-active .card-gesture-note{display:none!important}
+ body.combat-active #battlePlayerHUD{top:8px;left:54px;right:8px;min-height:38px;align-items:center;border-radius:10px!important}
+ #battlePlayerHUD strong{font-size:12px}#battlePlayerHUD b{font-size:12px;font-variant-numeric:tabular-nums}
+
+ /* Enemy card: name and HP on one line, weaknesses and intent below at full width. */
+ .enemy-card .enemy-card-head{display:grid!important;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"id hp" "res res" "intent intent";gap:6px 8px!important;align-items:center}
+ .enemy-card .enemy-identity{grid-area:id;min-width:0}.enemy-card .enemy-identity strong{display:block;font-size:15px;line-height:1.25;word-break:keep-all;overflow-wrap:anywhere}
+ .enemy-card .enemy-hp-value{grid-area:hp;font-size:15px!important;font-variant-numeric:tabular-nums}
+ .enemy-card .enemy-card-head .damage-resistances{grid-area:res;display:flex!important;flex-direction:row!important;flex-wrap:wrap;gap:4px!important}.enemy-card-head .damage-resistances b,.enemy-card-head .damage-resistances em{font-size:11px!important}.enemy-card .damage-resistances:empty{display:none}
+ .enemy-card .intent-card{grid-area:intent;display:flex!important;align-items:center;gap:8px;width:auto!important;max-width:none!important;padding:6px 8px!important}
+ .enemy-card .intent-card>span{flex:none;font-size:10px}.enemy-card .intent-copy{min-width:0}.enemy-card .intent-copy b{font-size:13px}.enemy-card .intent-copy small{display:block;font-size:11px;line-height:1.4}
+ .enemy-card .enemy-played-cards span{font-size:11px!important}
+
+ /* Hand: a single swipeable row instead of wrapping into two grids. */
+ #combatOptions .card-hand{display:flex!important;gap:8px!important;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;scroll-snap-type:x proximity;scroll-padding:0 4px;padding:14px 4px 8px!important;margin:0 -4px;scrollbar-width:none}
+ #combatOptions .card-hand::-webkit-scrollbar{display:none}
+ #combatOptions .card-hand>.hand-card{flex:0 0 92px;min-width:0;scroll-snap-align:start}
+ #combatOptions .card-hand .card-surface{touch-action:manipulation}
+ #combatOptions .hand-card.is-action .card-surface,#combatOptions .hand-card.ability-card .card-surface{height:134px!important}
+ #combatOptions .hand-card .card-controls button{min-height:36px!important;font-size:12px!important}
+ #combatOptions .card-hand>.empty-hand{flex:1}
+ .card-deck-bar{gap:6px!important}.card-deck-bar button{min-height:34px}
+ .card-inspection{font-size:12px}
+
+ /* Confirm bar docks on the tab rail as one control strip. */
+ #combatPanel:not(.combat-result-only) .confirm-bar{position:sticky;bottom:calc(54px + env(safe-area-inset-bottom))!important;margin:8px -12px 0!important;padding:8px 12px!important;min-height:0;border-radius:12px 12px 0 0!important;border:0!important;border-top:1px solid #d9e2d7!important;background:#fbfaf6f7!important;box-shadow:0 -6px 18px #2c3b2514!important;z-index:60}
+ #combatPanel .confirm-bar>button{min-height:44px!important;font-size:14px!important;border-radius:9px!important}
+ #combatPanel .confirm-bar>span{font-size:11px!important;text-align:center}
+
+ /* Slightly smaller clash dice so a full attack fits on one or two rows. */
+ .binary-clash{padding:12px 12px 14px!important}.binary-tray{gap:6px}.coin-die{width:32px;height:32px}.clash-net b{font-size:36px}
+}

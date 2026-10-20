@@ -35,7 +35,7 @@
    for(const [label,rolls] of [['攻擊骰',r.attackRolls],['防禦骰',r.defenseRolls]]){
     if(trays.length){const divider=document.createElement('div');divider.className='clash-divider';divider.setAttribute('aria-hidden','true');divider.innerHTML='<b>VS</b>';panel.appendChild(divider);}
     const side=document.createElement('div');side.className='binary-side '+(trays.length?'defense-side':'attack-side');if(trays.length)side.style.setProperty('--dice-color',r.targetColor||'#5f7f95');const h=document.createElement('small');h.textContent=label;const tray=document.createElement('div');tray.className='binary-tray';
-    rolls.forEach(()=>tray.appendChild(coin()));side.append(h,tray);panel.appendChild(side);trays.push(tray);
+    rolls.forEach(()=>tray.appendChild(coin()));if(!rolls.length){tray.classList.add('no-dice');tray.textContent=label==='防禦骰'?'無防禦骰':'無攻擊骰';}side.append(h,tray);panel.appendChild(side);trays.push(tray);
    }
    const result=document.createElement('p');result.className='coin-result';result.textContent='攻擊擲骰…';panel.appendChild(result);document.body.appendChild(panel);
    try{
