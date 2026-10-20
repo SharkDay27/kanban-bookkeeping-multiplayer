@@ -5,7 +5,7 @@
 .binary-tray.no-dice{align-items:center;color:#a49c92;font-size:12px}
 @media(max-width:640px){
  /* Room and route panels are not needed mid-fight. */
- body.combat-active .left-stack,body.combat-active #expeditionOverview,body.combat-active #routePanel,body.combat-active #routeChoicePanel,body.combat-active #chapterBar,body.combat-active #resumeStatus,body.combat-active .topbar h1,body.combat-active .topbar .eyebrow,body.combat-active #mobileBackToTop{display:none!important}
+ body.combat-active .left-stack,body.combat-active #expeditionOverview,body.combat-active #routePanel,body.combat-active #routeChoicePanel,body.combat-active #chapterBar,body.combat-active #resumeStatus,body.combat-active .topbar h1,body.combat-active .topbar .eyebrow{display:none!important}
  body.combat-active{padding-top:52px!important}body.combat-active .topbar{min-height:0!important;margin:0 0 8px!important;padding:0!important;border:0!important;gap:0!important}body.combat-active .topbar>div:first-child{display:none!important}
  body.combat-active #combatPanel .action-prompt,body.combat-active .card-gesture-note{display:none!important}
  body.combat-active #battlePlayerHUD{top:8px;left:54px;right:8px;min-height:38px;align-items:center;border-radius:10px!important}

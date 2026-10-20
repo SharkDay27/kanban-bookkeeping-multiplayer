@@ -67,7 +67,7 @@
 .cut-left{animation:cutLeft .88s cubic-bezier(.15,.7,.3,1) both}.cut-right{animation:cutRight .88s cubic-bezier(.15,.7,.3,1) both}
 @keyframes cutLeft{0%,15%{transform:none}24%{transform:translateX(calc(-1.3 * var(--cut-lift) * var(--cut-power))) rotate(-.5deg)}50%{transform:translateX(calc(-1.1 * var(--cut-lift) * var(--cut-power))) rotate(-.4deg)}82%{transform:translateX(2px)}90%,100%{transform:none}}
 @keyframes cutRight{0%,15%{transform:none}24%{transform:translateX(calc(1.3 * var(--cut-lift) * var(--cut-power))) rotate(.5deg)}50%{transform:translateX(calc(1.1 * var(--cut-lift) * var(--cut-power))) rotate(.4deg)}82%{transform:translateX(-2px)}90%,100%{transform:none}}
-@media(prefers-reduced-motion:reduce){.glass-break,.bullet-wake,.bullet-shock,.blunt-fx,.shred{display:none}.blunt-smash,.blunt-swat,.blunt-dent,.shred-return,.cut-left,.cut-right{animation:none!important}}
+@media(prefers-reduced-motion:reduce){.glass-break,.bullet-wake,.bullet-shock,.slash-wake,.blunt-fx,.shred{display:none}.blunt-smash,.blunt-swat,.blunt-dent,.shred-return,.cut-left,.cut-right{animation:none!important}}
 
 
 /* Blunt without props: the force shows in streaks, dust, shockwaves and the panel deforming. */
@@ -97,3 +97,13 @@
 .bullet-shock i{position:absolute;inset:0;border-radius:50%;border:1.5px solid #ffffffe6;box-shadow:0 0 0 1px #1f1f1d24,0 0 8px #ffffffb3,inset 0 0 6px #ffffff80;opacity:0;animation:bulletRing .6s ease-out forwards}
 .bullet-shock i:nth-child(2){animation-delay:.07s;border-width:1px}.bullet-shock i:nth-child(3){animation-delay:.14s;border-width:.8px}
 @keyframes bulletRing{0%{opacity:.95;transform:scale(.12)}100%{opacity:0;transform:scale(1.25)}}
+
+/* Slash impact through the air: a clear crescent of compressed air sweeps across, a pressure line flares along the cut, the air ripples. */
+.slash-wake{position:fixed;z-index:1242;width:var(--w);height:var(--h);margin:calc(var(--h) / -2) 0 0 calc(var(--w) / -2);transform:rotate(var(--ang));pointer-events:none}
+.slash-crescent{position:absolute;inset:0;-webkit-backdrop-filter:blur(2.5px) brightness(1.2) contrast(1.15);backdrop-filter:blur(2.5px) brightness(1.2) contrast(1.15);background:radial-gradient(ellipse 50% 100% at 50% 100%,#0000 54%,#ffffffe6 calc(57% + var(--thick) * 1%),#ffffff59 70%,#0000 78%);-webkit-mask-image:radial-gradient(ellipse 50% 100% at 50% 100%,#0000 52%,#000 56%,#000 74%,#0000 79%);mask-image:radial-gradient(ellipse 50% 100% at 50% 100%,#0000 52%,#000 56%,#000 74%,#0000 79%);filter:drop-shadow(0 1px 0 #1f1f1d59) drop-shadow(0 -1px 0 #1f1f1d2e);animation:slashCrescent .56s cubic-bezier(.2,.8,.3,1) forwards}
+@keyframes slashCrescent{0%{opacity:0;transform:translateX(-35%) scaleX(.35)}18%{opacity:1}60%{opacity:1;transform:translateX(4%) scaleX(1.05)}100%{opacity:0;transform:translateX(16%) scaleX(1.12)}}
+.slash-pressure{position:absolute;left:0;right:0;top:100%;height:6px;margin-top:-3px;-webkit-backdrop-filter:blur(2px) brightness(1.25);backdrop-filter:blur(2px) brightness(1.25);background:linear-gradient(90deg,#0000,#ffffffcc 30%,#fff 50%,#ffffffcc 70%,#0000);box-shadow:0 -1px 0 #1f1f1d26,0 1px 0 #1f1f1d26;transform:scaleX(0);animation:slashPressure .5s .1s cubic-bezier(.2,.8,.3,1) forwards}
+@keyframes slashPressure{0%{transform:scaleX(0) scaleY(.4);opacity:1}35%{transform:scaleX(1) scaleY(1.6);opacity:1}100%{transform:scaleX(1.05) scaleY(.3);opacity:0}}
+.slash-ripple{position:absolute;left:50%;top:100%;width:62%;height:34%;margin:-17% 0 0 -31%;border-radius:50%;border:1.5px solid #ffffffe6;box-shadow:0 0 0 1px #1f1f1d1f,0 0 8px #ffffffb3;opacity:0;animation:slashRipple .55s .14s ease-out forwards}
+.slash-ripple+.slash-ripple{animation-delay:.22s;border-width:1px}
+@keyframes slashRipple{0%{opacity:.95;transform:scale(.2)}100%{opacity:0;transform:scale(2.2)}}
