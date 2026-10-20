@@ -70,7 +70,7 @@
  // A clear crescent of compressed air sweeps across the target, a pressure line flares along the cut, and the air ripples.
  // opts.angle (deg) and opts.x/y/w place the wake on the cut line so the air blade follows the same direction as the cut.
  function slashWake(target,power=0,opts={}){const r=box(target);if(still()||!r)return 0;const cx=opts.x??r.left+r.width/2,cy=opts.y??r.top+r.height/2,w=opts.w??Math.min(innerWidth*1.1,Math.max(220,r.width*1.4)),ang=opts.angle??rand(-38,38),power01=Math.min(1,Number(power||0)/30);
-  const el=document.createElement('div');el.className='slash-wake';el.setAttribute('aria-hidden','true');el.style.cssText=`left:${cx}px;top:${cy}px;--w:${w}px;--h:${Math.round(w*.42)}px;--ang:${ang.toFixed(1)}deg;--thick:${(1+power01*.6).toFixed(2)}`;el.innerHTML='<i class="slash-crescent"></i><i class="slash-pressure"></i><i class="slash-ripple"></i><i class="slash-ripple"></i>';document.body.appendChild(el);setTimeout(()=>el.remove(),720);return 720;}
+  const el=document.createElement('div');el.className='slash-wake';el.setAttribute('aria-hidden','true');el.style.cssText=`left:${cx}px;top:${cy}px;--w:${w}px;--h:${Math.round(Math.min(w*.42,150))}px;--ang:${ang.toFixed(1)}deg;--thick:${(1+power01*.6).toFixed(2)}`;el.innerHTML='<i class="slash-crescent"></i><i class="slash-pressure"></i><i class="slash-ripple"></i><i class="slash-ripple"></i>';document.body.appendChild(el);setTimeout(()=>el.remove(),720);return 720;}
 
  window.KBMStrikes={gun,blunt,shred,slashWake};
 })();
