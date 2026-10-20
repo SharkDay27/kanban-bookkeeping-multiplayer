@@ -23,3 +23,25 @@
 @keyframes enemyShatter{0%{filter:none;transform:none}12%{filter:brightness(1.8);transform:scale(1.03)}30%{filter:grayscale(1);transform:translateX(-4px) skewX(-4deg)}100%{opacity:0;filter:grayscale(1) blur(2px);transform:translateY(16px) scale(.94)}}
 @media(max-width:719px){.combat-float[class*=dmg-]{font-size:28px}.combat-float.dmg-heavy{font-size:36px}}
 @media(prefers-reduced-motion:reduce){.actor-lunge,#combatPanel.impact-shake,.impact-flash{animation:none!important}.impact-flash{display:none}.combat-float[class*=dmg-]{animation:none;transform:translateX(-50%)}}
+
+/* Blunt impact frame: dark radial burst lines around a white core for two beats, then gone. */
+.impact-frame{position:fixed;inset:0;z-index:1235;pointer-events:none;background:radial-gradient(circle at var(--ix) var(--iy),#fff 0 calc(var(--core) * .45),#fff0 var(--core)),repeating-conic-gradient(from 0deg at var(--ix) var(--iy),#1f1f1dcc 0 1.6deg,#0000 1.6deg 7deg);-webkit-mask-image:radial-gradient(circle at var(--ix) var(--iy),#000 0 var(--core),#0000 calc(var(--core) * 1.05),#000 calc(var(--core) * 1.4));mask-image:radial-gradient(circle at var(--ix) var(--iy),#000 0 var(--core),#0000 calc(var(--core) * 1.05),#000 calc(var(--core) * 1.4));animation:impactFrame .42s steps(1,end) forwards}
+@keyframes impactFrame{0%{opacity:1;filter:invert(0)}18%{opacity:1;filter:invert(1)}36%{opacity:.85;filter:invert(0)}60%{opacity:.35}100%{opacity:0}}
+.impact-crunch{animation:impactCrunch .46s cubic-bezier(.3,1.6,.5,1)!important}
+@keyframes impactCrunch{0%{transform:none}15%{transform:scale(1.04,.92) translateY(4px)}40%{transform:scale(.98,1.03)}100%{transform:none}}
+
+/* Gunshot: bullet holes punched where the shots land, fading after a moment. */
+.bullet-hole{position:fixed;z-index:1236;width:46px;height:46px;margin:-23px 0 0 -23px;pointer-events:none;transform:rotate(var(--spin));animation:bulletHole 1.5s ease-out forwards}
+.bullet-hole svg{display:block;width:100%;height:100%}
+@keyframes bulletHole{0%{opacity:0;transform:rotate(var(--spin)) scale(1.8)}6%{opacity:1;transform:rotate(var(--spin)) scale(.9)}12%{transform:rotate(var(--spin)) scale(1)}75%{opacity:1}100%{opacity:0;transform:rotate(var(--spin)) scale(1)}}
+
+/* Shield deployment: a hexagonal lattice barrier unfolds from the centre with a ring wave and a light sweep. */
+.shield-deploy{position:fixed;z-index:1234;width:var(--size);height:var(--size);margin:calc(var(--size) / -2) 0 0 calc(var(--size) / -2);pointer-events:none;filter:drop-shadow(0 0 6px #4fa3c4aa)}
+.shield-hex{position:absolute;inset:0;clip-path:polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%);background:radial-gradient(circle,#e6f4fa55,#4fa3c433 60%,#2f6b8666),repeating-linear-gradient(60deg,#0000 0 9px,#7fc3dccc 9px 10px),repeating-linear-gradient(-60deg,#0000 0 9px,#7fc3dccc 9px 10px),repeating-linear-gradient(0deg,#0000 0 9px,#7fc3dc99 9px 10px);animation:shieldUnfold 1s cubic-bezier(.2,.9,.3,1.2) forwards}
+.shield-hex:before{content:'';position:absolute;inset:0;clip-path:inherit;box-shadow:inset 0 0 0 3px #bfe6f3}
+.shield-hex b{position:absolute;inset:0;background:linear-gradient(110deg,#0000 35%,#ffffffcc 48%,#0000 60%) no-repeat;background-size:250% 100%;animation:shieldSweep .7s .25s ease-out both}
+.shield-ring{position:absolute;inset:-10%;border:2px solid #7fc3dc;border-radius:50%;opacity:0;animation:shieldRing .7s .05s ease-out forwards}
+@keyframes shieldUnfold{0%{opacity:0;transform:scale(.1) rotate(-30deg)}30%{opacity:.95;transform:scale(1.08) rotate(0)}45%{transform:scale(.98)}55%,75%{opacity:.9;transform:scale(1)}100%{opacity:0;transform:scale(1.05)}}
+@keyframes shieldSweep{from{background-position:130% 0}to{background-position:-30% 0}}
+@keyframes shieldRing{0%{opacity:.9;transform:scale(.3)}100%{opacity:0;transform:scale(1.35)}}
+@media(prefers-reduced-motion:reduce){.impact-frame,.bullet-hole,.shield-deploy{display:none}.impact-crunch{animation:none!important}}
