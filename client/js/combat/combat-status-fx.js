@@ -40,21 +40,35 @@
  // Family layers. Each sets its own particles inside the overlay box (0–100% of the target).
  const LAYERS={
   bleed(fx){
-   // Liquid blood through a metaball ("goo") filter with specular lighting: a slit oozes, swells into a wet pool,
-   // and heavy drips break away and run down, thinning behind a rounded head, merging where they touch.
-   const w=parseFloat(fx.style.width),h=parseFloat(fx.style.height),U=Math.min(w,h),id='sfxgoo'+(++gooId);
-   const cx=w*rand(.36,.64),cy=h*rand(.24,.36),a=rand(-.35,.35),slit=U*rand(.34,.44),f=n=>n.toFixed(1);
-   let body='';
-   // Ooze along the slit: beads swell from nothing and fuse into one wet line.
-   for(let i=0;i<7;i++){const t=i/6-.5,x=cx+Math.cos(a)*slit*t,y=cy+Math.sin(a)*slit*t,r=U*rand(.03,.05)*(1-Math.abs(t)*.7);body+=`<circle class="ooze" style="--d:${f(i*18+rand(0,40))}ms" cx="${f(x)}" cy="${f(y)}" r="${f(r)}"/>`;}
-   body+=`<ellipse class="ooze" style="--d:120ms" cx="${f(cx)}" cy="${f(cy+U*.03)}" rx="${f(slit*.3)}" ry="${f(U*.04)}" transform="rotate(${f(a*57.3)} ${f(cx)} ${f(cy)})"/>`;
-   // Drips: the trail grows exactly as the head falls (same duration/easing); heads are fatter than trails.
-   const n=3+(Math.random()<.6);for(let i=0;i<n;i++){const t=((i+.5)/n-.5)*.9+rand(-.04,.04),x=cx+Math.cos(a)*slit*t,y=cy+Math.sin(a)*slit*t+U*.03,len=h*rand(.22,.6),hr=U*rand(.028,.038),tw=hr*rand(.75,.95),d=160+i*rand(60,140),dur=rand(780,1050);
-    body+=`<path class="trail" pathLength="100" style="--d:${f(d)}ms;--t:${f(dur)}ms;stroke-width:${f(tw)}" d="M${f(x)} ${f(y)}V${f(y+len)}"/><circle class="head" style="--d:${f(d)}ms;--t:${f(dur)}ms;--len:${f(len)}px" cx="${f(x)}" cy="${f(y)}" r="${f(hr)}"/>`;}
-   // A couple of loose drops flicked off the wound (kept small and few so it stays a liquid, not confetti).
-   for(let i=0;i<4;i++){const ang=rand(0,Math.PI*2),dist=U*rand(.18,.34);body+=`<circle class="fleck" style="--d:${f(rand(40,140))}ms" cx="${f(cx+Math.cos(ang)*dist)}" cy="${f(cy+Math.sin(ang)*dist*.7)}" r="${f(U*rand(.022,.034))}"/>`;}
-   const filt=`<filter id="${id}" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="${f(U*.014)}" result="b"/><feColorMatrix in="b" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 22 -10" result="goo"/><feGaussianBlur in="goo" stdDeviation="1.6" result="gb"/><feSpecularLighting in="gb" surfaceScale="4" specularConstant=".85" specularExponent="26" lighting-color="#ffe9ea" result="sp"><feDistantLight azimuth="235" elevation="52"/></feSpecularLighting><feComposite in="sp" in2="goo" operator="in" result="spi"/><feComposite in="goo" in2="spi" operator="arithmetic" k2="1" k3=".75"/></filter>`;
-   fx.insertAdjacentHTML('beforeend',`<svg class="sfx-blood" viewBox="0 0 ${w} ${h}" aria-hidden="true"><defs>${filt}</defs><ellipse class="soak" cx="${f(cx)}" cy="${f(cy+U*.04)}" rx="${f(slit*.75)}" ry="${f(U*.11)}"/><g class="liquid" filter="url(#${id})">${body}</g></svg>`);},
+   // Modelled on a real cut on an upright surface: a thin slit wells up along its whole length, the blood hangs as a
+   // thin film under the cut, and narrow rivulets slide down under gravity — slightly meandering, tapering, led by a
+   // small bead, starting at different times, some running out early. Thick blood reads near-black, thin film lighter.
+   const w=parseFloat(fx.style.width),h=parseFloat(fx.style.height),U=Math.min(w,h),id='sfxgoo'+(++gooId),f=n=>n.toFixed(1);
+   const cx=w*rand(.38,.62),cy=h*rand(.22,.32),a=rand(-.28,.28),half=Math.min(w*.26,U*rand(.28,.36)),ca=Math.cos(a),sa=Math.sin(a);
+   const at=t=>[cx+ca*half*t,cy+sa*half*t];
+   // The cut: a thin dark lens, deepest in the middle.
+   const [x0,y0]=at(-1),[x1,y1]=at(1),op=U*.012;
+   let cut=`<path class="cut" d="M${f(x0)} ${f(y0)}Q${f(cx-sa*op)} ${f(cy+ca*op)} ${f(x1)} ${f(y1)}Q${f(cx+sa*op*.6)} ${f(cy-ca*op*.6)} ${f(x0)} ${f(y0)}Z"/>`;
+   // Welling film: hangs from the cut with an uneven lower edge, thickest in the middle.
+   let film=`M${f(x0)} ${f(y0)}`;const N=14;for(let k=0;k<=N;k++){const t=k/N*2-1,[x,y]=at(t),sag=U*(.075*(1-t*t)+rand(.004,.03));film+=`L${f(x)} ${f(y+sag)}`;}film+=`L${f(x1)} ${f(y1)}Z`;
+   let body=`<path class="film" d="${film}"/>`;
+   // Rivulets: thin, slightly wandering, thicker near the source, bead at the front; some stop short.
+   const n=4+Math.floor(rand(0,3));
+   for(let i=0;i<n;i++){const t=((i+.5)/n*2-1)*.85+rand(-.06,.06),[sx,sy0]=at(t),sy=sy0+U*(.04*(1-t*t)+.012),len=h*rand(.16,.62)*(1-Math.abs(t)*.35),
+     tw=U*rand(.016,.024)*(1-Math.abs(t)*.3),br=tw*rand(.75,.95),d=rand(120,480),dur=rand(820,1100);
+    let x=sx,path=`M${f(sx)} ${f(sy)}`;for(let s=1;s<=6;s++){x+=rand(-U*.008,U*.008);path+=`L${f(x)} ${f(sy+len*s/6)}`;}
+    const st=`--d:${f(d)}ms;--t:${f(dur)}ms`;
+    body+=`<path class="rill" pathLength="100" style="${st};stroke-width:${f(tw)}" d="${path}"/><path class="rill root" pathLength="100" style="${st};stroke-width:${f(tw*1.7)}" d="M${f(sx)} ${f(sy-U*.01)}L${f(sx+(x-sx)*.2)} ${f(sy+len*.22)}"/>`;
+    body+=`<circle class="bead" style="${st};--dx:${f(x-sx)}px;--dy:${f(len)}px" cx="${f(sx)}" cy="${f(sy)}" r="${f(br)}"/>`;}
+   const sd=f(U*.009);
+   const filt=`<filter id="${id}" x="-20%" y="-20%" width="140%" height="160%" color-interpolation-filters="sRGB">`+
+    `<feGaussianBlur in="SourceGraphic" stdDeviation="${sd}" result="b"/><feColorMatrix in="b" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 26 -11" result="goo"/>`+
+    `<feComponentTransfer in="goo" result="thin"><feFuncA type="linear" slope=".86"/></feComponentTransfer>`+
+    `<feMorphology in="goo" operator="erode" radius="${f(U*.006)}" result="er"/><feGaussianBlur in="er" stdDeviation="${f(U*.006)}" result="erb"/>`+
+    `<feFlood flood-color="#3d0207" flood-opacity=".72"/><feComposite in2="erb" operator="in" result="core"/>`+
+    `<feGaussianBlur in="goo" stdDeviation="${f(U*.005)}" result="gb"/><feSpecularLighting in="gb" surfaceScale="2" specularConstant=".55" specularExponent="38" lighting-color="#ffd9dc" result="sp"><feDistantLight azimuth="225" elevation="58"/></feSpecularLighting><feComposite in="sp" in2="er" operator="in" result="spi"/>`+
+    `<feMerge><feMergeNode in="thin"/><feMergeNode in="core"/><feMergeNode in="spi"/></feMerge></filter>`;
+   fx.insertAdjacentHTML('beforeend',`<svg class="sfx-blood" viewBox="0 0 ${w} ${h}" aria-hidden="true"><defs>${filt}</defs>${cut}<g class="liquid" filter="url(#${id})">${body}</g></svg>`);},
   burn(fx){particles(fx,3,'sfx-tongue',(s,i)=>{v(s,'--x',(20+i*30+rand(-6,6))+'%');v(s,'--d',i*90+'ms');v(s,'--s',rand(.8,1.25));});particles(fx,14,'sfx-ember',(s)=>{v(s,'--x',rand(5,95)+'%');v(s,'--d',rand(0,700)+'ms');v(s,'--rise',-rand(60,140)+'px');v(s,'--drift',rand(-24,24)+'px');});const h=document.createElement('i');h.className='sfx-haze';fx.appendChild(h);},
   shock(fx){const w=100,h=100;let paths='';for(let k=0;k<3;k++){let x=rand(0,15),y=rand(10,90),d=`M${x} ${y}`;while(x<w){x+=rand(6,14);y=Math.max(4,Math.min(h-4,y+rand(-22,22)));d+=`L${x.toFixed(1)} ${y.toFixed(1)}`;}paths+=`<path d="${d}" style="animation-delay:${k*90}ms"/>`;}fx.insertAdjacentHTML('beforeend',`<svg class="sfx-arcs" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${paths}</svg>`);particles(fx,10,'sfx-spark',(s)=>{v(s,'--x',rand(5,95)+'%');v(s,'--y',rand(10,90)+'%');v(s,'--d',rand(0,500)+'ms');});},
   sink(fx){const w=document.createElement('i');w.className='sfx-water';fx.appendChild(w);particles(fx,10,'sfx-bubble',(s)=>{v(s,'--x',rand(8,92)+'%');v(s,'--d',rand(200,800)+'ms');v(s,'--s',rand(.5,1.3));});},
