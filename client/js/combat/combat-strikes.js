@@ -1,7 +1,7 @@
 /* Heavier per-type hit cinematics, three variants each, picked at random per hit:
    gun   – an unseen bullet's wake and shock punch through the panel, which shatters from that point and reforms
            (one heavy shot, a tight burst, or a row of shots across it)
-   blunt – the target panel crushed flat from above, knocked off the side, or driven in so it dents
+   blunt – a clear air palm/fist: the panel pressed flat from above, swatted off one side, or punched in so it dents
    slash – the target panel diced into pieces (the full-screen diagonal and vertical cuts live in combat-vfx). */
 (()=>{
  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
@@ -38,19 +38,17 @@
  }
 
  // ---- Blunt: the target panel treated as a physical object ---------------------------------
- // No props: the force reads from streaks, dust, shockwaves and how the panel itself deforms.
  function layer(r,cls,ms){const el=document.createElement('div');el.className='blunt-fx '+cls;el.setAttribute('aria-hidden','true');el.style.cssText=`left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px`;document.body.appendChild(el);setTimeout(()=>el.remove(),ms);return el;}
- function lines(el,n,make){for(let i=0;i<n;i++){const l=document.createElement('i');make(l,i);el.appendChild(l);}}
  function hit(target,cls,ms){target.classList.remove('blunt-smash','blunt-swat','blunt-dent');void target.offsetWidth;target.classList.add(cls);setTimeout(()=>target.classList.remove(cls),ms);}
+ // Each blow is a clear "air" palm or fist that bends what is behind it, then ripples; the panel reacts in the same direction.
+ function air(fx,cls,style=''){const el=document.createElement('i');el.className='air '+cls;el.style.cssText=style;fx.appendChild(el);return el;}
  function blunt(target,heavy=.5,variant=pick(['smash','swat','dent'])){const r=box(target);if(still()||!r)return 0;target.style.setProperty('--dent',(.8-heavy*.12).toFixed(2));
-  if(variant==='smash'){// A crushing weight from above: streaks drop onto the top edge, the panel flattens, dust bursts out at the base.
-   const fx=layer(r,'fx-smash',900);lines(fx,9,(l,i)=>{l.className='drop-streak';l.style.left=(6+i*11+rand(-3,3))+'%';l.style.setProperty('--d',rand(0,60)+'ms');l.style.setProperty('--len',rand(40,90)+'%');});lines(fx,10,(l,i)=>{l.className='dust';const side=i%2?1:-1;l.style.left=(side>0?rand(70,100):rand(0,30))+'%';l.style.setProperty('--dx',side*rand(20,70)+'px');l.style.setProperty('--dy',-rand(6,26)+'px');l.style.setProperty('--s',rand(.6,1.4));});
-   setTimeout(()=>window.KBMCombatVFX?.impactFrame?.(target,heavy),150);hit(target,'blunt-smash',760);return 760;}
-  if(variant==='swat'){// A sideways blow: horizontal motion streaks across the panel as it is knocked off screen and slides back.
-   const fx=layer(r,'fx-swat',900);lines(fx,12,(l,i)=>{l.className='side-streak';l.style.top=(4+i*8+rand(-2,2))+'%';l.style.setProperty('--d',rand(0,90)+'ms');l.style.setProperty('--len',rand(35,95)+'%');});hit(target,'blunt-swat',900);return 900;}
-  // A blow straight into the centre: shockwave rings, crater shading and the panel pushed back into the screen.
-  const fx=layer(r,'fx-dent',820);lines(fx,3,(l,i)=>{l.className='dent-ring';l.style.setProperty('--d',i*90+'ms');});const crater=document.createElement('b');crater.className='dent-crater';fx.appendChild(crater);
-  setTimeout(()=>window.KBMCombatVFX?.impactFrame?.(target,heavy),110);hit(target,'blunt-dent',760);return 760;
+  if(variant==='smash'){// Pressed flat from above: a clear palm drops onto the top edge, flattens into a pressure band and ripples sideways.
+   const fx=layer(r,'fx-smash',900);air(fx,'air-palm-drop');air(fx,'air-band');air(fx,'air-wave air-wave-l');air(fx,'air-wave air-wave-r');hit(target,'blunt-smash',760);return 760;}
+  if(variant==='swat'){// Swatted sideways: the clear palm sweeps in from one side and the panel flies off the opposite side, then slides back.
+   const dir=Math.random()<.5?1:-1,fx=layer(r,'fx-swat',900);fx.style.setProperty('--dir',dir);target.style.setProperty('--dir',dir);air(fx,'air-palm-side');air(fx,'air-arc');air(fx,'air-arc air-arc-2');hit(target,'blunt-swat',900);return 900;}
+  // Punched in the centre: a clear fist rushes in from the viewer, the panel dents, and rings spread out.
+  const fx=layer(r,'fx-dent',820);air(fx,'air-fist');for(let i=0;i<3;i++)air(fx,'air-ring',`--d:${i*80}ms`);air(fx,'air-crater');hit(target,'blunt-dent',760);return 760;
  }
 
  // ---- Slash: dice the target panel into pieces that fly apart ------------------------------
