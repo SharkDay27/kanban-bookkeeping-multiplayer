@@ -46,16 +46,21 @@
    const w=parseFloat(fx.style.width),h=parseFloat(fx.style.height),U=Math.min(w,h),id='sfxgoo'+(++gooId),f=n=>n.toFixed(1);
    const cx=w*rand(.38,.62),cy=h*rand(.22,.32),a=rand(-.28,.28),half=Math.min(w*.26,U*rand(.28,.36)),ca=Math.cos(a),sa=Math.sin(a);
    const at=t=>[cx+ca*half*t,cy+sa*half*t];
-   // The cut: a thin dark lens, deepest in the middle.
-   const [x0,y0]=at(-1),[x1,y1]=at(1),op=U*.012;
-   let cut=`<path class="cut" d="M${f(x0)} ${f(y0)}Q${f(cx-sa*op)} ${f(cy+ca*op)} ${f(x1)} ${f(y1)}Q${f(cx+sa*op*.6)} ${f(cy-ca*op*.6)} ${f(x0)} ${f(y0)}Z"/>`;
-   // Welling film: hangs from the cut with an uneven lower edge, thickest in the middle.
-   let film=`M${f(x0)} ${f(y0)}`;const N=14;for(let k=0;k<=N;k++){const t=k/N*2-1,[x,y]=at(t),sag=U*(.075*(1-t*t)+rand(.004,.03));film+=`L${f(x)} ${f(y+sag)}`;}film+=`L${f(x1)} ${f(y1)}Z`;
-   let body=`<path class="film" d="${film}"/>`;
+   // The cut: a thin dark lens, deepest in the middle, opened by a blade travelling from one end to the other (CUT ms).
+   // Everything downstream is timed off the moment the blade passes that point, so blood follows the blade.
+   const [x0,y0]=at(-1),[x1,y1]=at(1),op=U*.012,CUT=rand(280,360),dir=Math.random()<.5?1:-1,pass=t=>CUT*(dir>0?(t+1)/2:(1-t)/2);
+   const [bx0,by0]=dir>0?[x0,y0]:[x1,y1],[bx1,by1]=dir>0?[x1,y1]:[x0,y0],mid='sfxcut'+gooId;
+   let cut=`<mask id="${mid}" maskUnits="userSpaceOnUse"><path class="cut-reveal" pathLength="100" style="--t:${f(CUT)}ms" d="M${f(bx0-(bx1-bx0)*.04)} ${f(by0-(by1-by0)*.04)}L${f(bx1+(bx1-bx0)*.04)} ${f(by1+(by1-by0)*.04)}" stroke-width="${f(op*8)}"/></mask>`+
+    `<path class="cut" mask="url(#${mid})" d="M${f(x0)} ${f(y0)}Q${f(cx-sa*op)} ${f(cy+ca*op)} ${f(x1)} ${f(y1)}Q${f(cx+sa*op*.6)} ${f(cy-ca*op*.6)} ${f(x0)} ${f(y0)}Z"/>`+
+    `<path class="glint" style="--t:${f(CUT)}ms;--dx:${f(bx1-bx0)}px;--dy:${f(by1-by0)}px;stroke-width:${f(U*.009)}" d="M${f(bx0-(bx1-bx0)/half/2*U*.09)} ${f(by0-(by1-by0)/half/2*U*.09)}L${f(bx0)} ${f(by0)}"/>`;
+   // Welling film: slices along the cut, each starting to well as the blade passes it; uneven lower edge, thickest mid-cut.
+   let body='';const N=14,sag=[];for(let k=0;k<=N;k++){const t=k/N*2-1;sag.push(U*(.075*(1-t*t)+rand(.004,.03)));}
+   for(let k=0;k<N;k++){const t0=k/N*2-1,t1=(k+1)/N*2-1,[ax,ay]=at(t0-.02),[bx,by]=at(t1+.02),[px,py]=at(t0),[qx,qy]=at(t1);
+    body+=`<path class="film" style="--d:${f(40+pass((t0+t1)/2))}ms" d="M${f(ax)} ${f(ay)}L${f(bx)} ${f(by)}L${f(qx)} ${f(qy+sag[k+1])}L${f(px)} ${f(py+sag[k])}Z"/>`;}
    // Rivulets: thin, slightly wandering, thicker near the source, bead at the front; some stop short.
    const n=4+Math.floor(rand(0,3));
    for(let i=0;i<n;i++){const t=((i+.5)/n*2-1)*.85+rand(-.06,.06),[sx,sy0]=at(t),sy=sy0+U*(.04*(1-t*t)+.012),len=h*rand(.16,.62)*(1-Math.abs(t)*.35),
-     tw=U*rand(.016,.024)*(1-Math.abs(t)*.3),br=tw*rand(.75,.95),d=rand(120,480),dur=rand(820,1100);
+     tw=U*rand(.016,.024)*(1-Math.abs(t)*.3),br=tw*rand(.75,.95),d=pass(t)+rand(110,260),dur=rand(820,1080);
     let x=sx,path=`M${f(sx)} ${f(sy)}`;for(let s=1;s<=6;s++){x+=rand(-U*.008,U*.008);path+=`L${f(x)} ${f(sy+len*s/6)}`;}
     const st=`--d:${f(d)}ms;--t:${f(dur)}ms`;
     body+=`<path class="rill" pathLength="100" style="${st};stroke-width:${f(tw)}" d="${path}"/><path class="rill root" pathLength="100" style="${st};stroke-width:${f(tw*1.7)}" d="M${f(sx)} ${f(sy-U*.01)}L${f(sx+(x-sx)*.2)} ${f(sy+len*.22)}"/>`;

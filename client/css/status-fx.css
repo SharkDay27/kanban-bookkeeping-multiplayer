@@ -22,11 +22,14 @@
 .sfx-bleed .sfx-sigil{display:none}
 .sfx-blood{position:absolute;inset:0;width:100%;height:100%;overflow:visible;animation:sfxBloodFade 1.5s ease-in forwards}
 @keyframes sfxBloodFade{0%,76%{opacity:1}100%{opacity:0}}
-.sfx-blood .cut{fill:#2a0105;transform-box:fill-box;transform-origin:50% 50%;transform:scaleX(0);animation:sfxCut .12s ease-out forwards}
-@keyframes sfxCut{to{transform:scaleX(1)}}
+.sfx-blood .cut{fill:#2a0105}
+.sfx-blood .cut-reveal{fill:none;stroke:#fff;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;animation:sfxRill var(--t) cubic-bezier(.3,.1,.5,1) forwards;animation-name:sfxCutReveal}
+@keyframes sfxCutReveal{to{stroke-dashoffset:0}}
+.sfx-blood .glint{fill:none;stroke:#fff;stroke-linecap:round;opacity:0;filter:drop-shadow(0 0 3px #fff) drop-shadow(0 0 6px #ffb3bb);animation:sfxGlint var(--t) cubic-bezier(.3,.1,.5,1) forwards}
+@keyframes sfxGlint{0%{opacity:0;transform:translate(0,0)}10%{opacity:1}85%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy))}}
 .sfx-blood .liquid{fill:#8f0a18;stroke:#8f0a18;animation:sfxDry 1.3s .25s ease-in forwards}
 @keyframes sfxDry{to{fill:#6a0611;stroke:#6a0611}}
-.sfx-blood .film{stroke:none;transform-box:fill-box;transform-origin:50% 0;transform:scaleY(0);animation:sfxWell .6s 60ms cubic-bezier(.3,.7,.4,1) forwards}
+.sfx-blood .film{stroke:none;transform-box:fill-box;transform-origin:50% 0;transform:scaleY(0);animation:sfxWell .55s var(--d) cubic-bezier(.3,.7,.4,1) forwards}
 @keyframes sfxWell{0%{transform:scaleY(0)}100%{transform:scaleY(1)}}
 .sfx-blood .rill{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100;stroke-dashoffset:100;animation:sfxRill var(--t) var(--d) linear forwards}
 .sfx-blood .rill.root{animation-duration:calc(var(--t) * .4)}
