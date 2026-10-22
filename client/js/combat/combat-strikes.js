@@ -57,33 +57,39 @@
    for(let n=0;n<=12;n++){const u=n/12,t=t0+(t1-t0)*u,[x,y]=P(t),[tx,ty]=tangent(P,t),w=wk*Math.pow(Math.sin(Math.PI*u),.55)/2;L.push([x-ty*(o+w),y+tx*(o+w)]);R.unshift([x-ty*(o-w),y+tx*(o-w)]);}
    const line=el('polygon',{points:poly(L.concat(R)),class:'ink-line'},g),d=delay+rand(0,50),back=rand(26,48);
    line.animate([{transform:`translate(${f1(-ex*back)}px,${f1(-ey*back)}px)`,opacity:0},{transform:'translate(0,0)',opacity:rand(.75,1),offset:.18},{transform:`translate(${f1(ex*6)}px,${f1(ey*6)}px)`,opacity:rand(.6,.9),offset:.55},{transform:`translate(${f1(ex*14)}px,${f1(ey*14)}px)`,opacity:0}],{duration:520,delay:d,easing:'cubic-bezier(.2,.8,.4,1)',fill:'both'});}}
- // Contact: white starburst with an ink outline, radiating impact lines, and screentone dots sprayed along the blow.
- function inkHit(svg,x,y,ux,uy,size,delay){const g=el('g',{class:'ink-hit'},svg),pts=[];
-  for(let k=0;k<18;k++){const a=k/18*Math.PI*2,R=k%2?size*rand(.16,.24):size*rand(.38,.55);pts.push([x+Math.cos(a)*R,y+Math.sin(a)*R]);}
-  el('polygon',{points:poly(pts),class:'ink-burst'},g).animate([{transform:`translate(${f1(x)}px,${f1(y)}px) scale(.2) translate(${f1(-x)}px,${f1(-y)}px)`,opacity:0},{opacity:1,offset:.04},{transform:`translate(${f1(x)}px,${f1(y)}px) scale(1.1) translate(${f1(-x)}px,${f1(-y)}px)`,opacity:1,offset:.25},{transform:`translate(${f1(x)}px,${f1(y)}px) scale(1.2) translate(${f1(-x)}px,${f1(-y)}px)`,opacity:0}],{duration:300,delay,easing:'cubic-bezier(.1,.8,.3,1)',fill:'both'});
-  for(let k=0;k<26;k++){const a=k/26*Math.PI*2+rand(-.1,.1),r0=size*rand(.5,.75),r1=r0+size*rand(.35,1.1),w=rand(1.2,3.4),[c,s2]=[Math.cos(a),Math.sin(a)];
-   el('polygon',{points:poly([[x+c*r0-s2*w,y+s2*r0+c*w],[x+c*r0+s2*w,y+s2*r0-c*w],[x+c*r1,y+s2*r1]]),class:'ink-line'},g).animate([{opacity:0,transform:`translate(${f1(-c*12)}px,${f1(-s2*12)}px)`},{opacity:1,transform:'none',offset:.2},{opacity:0,transform:`translate(${f1(c*10)}px,${f1(s2*10)}px)`}],{duration:340,delay:delay+rand(0,30),easing:'cubic-bezier(.1,.8,.3,1)',fill:'both'});}
-  for(let k=0;k<70;k++){const a=Math.atan2(uy,ux)+rand(-.75,.75)*(Math.random()<.85?1:2.6),d=size*rand(.2,1.6),r=rand(.6,2.2);
-   el('circle',{cx:f1(x),cy:f1(y),r:f1(r),class:'ink-dot'},g).animate([{opacity:0,transform:'translate(0,0)'},{opacity:rand(.6,1),offset:.12},{opacity:0,transform:`translate(${f1(Math.cos(a)*d)}px,${f1(Math.sin(a)*d)}px)`}],{duration:rand(380,620),delay:delay+20,easing:'cubic-bezier(.1,.7,.3,1)',fill:'both'});}}
- // The panel takes the blow: knocked back along it with a squash, a short shudder, then springs back.
- function knock(target,hits,dur){const frames=[{transform:'none',offset:0}];for(const [t,ux,uy,force] of hits){const o=t/dur,d=10+force*16;
-   frames.push({transform:'none',offset:Math.min(.98,o)});frames.push({transform:`translate(${f1(ux*d)}px,${f1(uy*d)}px) scale(${f1(1-force*.05)},${f1(1-force*.03)}) skewX(${f1(-ux*force*4)}deg)`,offset:Math.min(.99,o+.06)});
-   frames.push({transform:`translate(${f1(ux*d*.35-uy*3)}px,${f1(uy*d*.35+ux*3)}px)`,offset:Math.min(.995,o+.14)});}
-  frames.push({transform:'translate(-2px,1px)',offset:.9});frames.push({transform:'none',offset:1});
-  const seen=new Set(),clean=frames.filter(f=>{if(seen.has(f.offset))return false;seen.add(f.offset);return true;}).sort((a,b)=>a.offset-b.offset);
-  target.animate(clean,{duration:dur,easing:'cubic-bezier(.2,.7,.3,1)'});}
+ // Contact, like the reference's misted hit: the struck spot dissolves into a grainy ink mist blown along the blow —
+ // a blurred, hazy patch on the panel, a cone of fine screentone grain and soft dark spray clouds drifting through.
+ function inkHit(svg,x,y,ux,uy,size,delay){const g=el('g',{class:'ink-hit'},svg),host=svg.parentNode,a0=Math.atan2(uy,ux);
+  const fog=document.createElement('i');fog.className='ink-fog';fog.style.cssText=`left:${f1(x)}px;top:${f1(y)}px;--s:${f1(size*1.5)}px`;host.appendChild(fog);
+  fog.animate([{opacity:0,transform:'translate(-50%,-50%) scale(.4)'},{opacity:1,transform:'translate(-50%,-50%) scale(1)',offset:.15},{opacity:.8,offset:.5},{opacity:0,transform:`translate(calc(-50% + ${f1(ux*size*.35)}px),calc(-50% + ${f1(uy*size*.35)}px)) scale(1.3)`}],{duration:760,delay,easing:'cubic-bezier(.2,.7,.4,1)',fill:'both'});
+  for(let k=0;k<4;k++){const d=size*rand(.3,1.1),sp=rand(-.5,.5),cx=x+Math.cos(a0+sp)*d*.25,cy=y+Math.sin(a0+sp)*d*.25,cl=el('ellipse',{cx:f1(cx),cy:f1(cy),rx:f1(size*rand(.28,.45)),ry:f1(size*rand(.16,.26)),class:'ink-cloud',transform:`rotate(${f1(a0*57.3)} ${f1(cx)} ${f1(cy)})`},g);
+   cl.animate([{opacity:0,transform:`rotate(${f1(a0*57.3)}deg) scale(.5)`},{opacity:rand(.22,.38),offset:.2},{opacity:0,transform:`translate(${f1(Math.cos(a0+sp)*d)}px,${f1(Math.sin(a0+sp)*d)}px) rotate(${f1(a0*57.3)}deg) scale(1.6)`}],{duration:rand(700,900),delay:delay+k*25,easing:'cubic-bezier(.15,.7,.35,1)',fill:'both'});cl.style.transformBox='fill-box';cl.style.transformOrigin='50% 50%';cl.removeAttribute('transform');}
+  for(let k=0;k<220;k++){const sp=rand(-.6,.6)*(Math.random()<.85?1:1.8),d=size*Math.pow(Math.random(),.7)*rand(.6,1.9),r0=size*rand(0,.25),px=x+Math.cos(a0+sp+Math.PI/2)*rand(-r0,r0),py=y+Math.sin(a0+sp+Math.PI/2)*rand(-r0,r0);
+   el('circle',{cx:f1(px),cy:f1(py),r:f1(rand(.35,1.5)),class:'ink-dot'},g).animate([{opacity:0,transform:'translate(0,0)'},{opacity:rand(.45,.95),offset:.1},{opacity:rand(.3,.6),offset:.55},{opacity:0,transform:`translate(${f1(Math.cos(a0+sp)*d)}px,${f1(Math.sin(a0+sp)*d)}px)`}],{duration:rand(520,860),delay:delay+rand(0,60),easing:'cubic-bezier(.12,.75,.3,1)',fill:'both'});}}
+ // Motion streaks across the panel itself, all running along the blow, so the struck panel reads as smeared by speed.
+ function panelStreaks(svg,r,ux,uy,delay,count){const g=el('g',{class:'ink-streaks'},svg),W=r.width,H=r.height,L0=Math.hypot(W,H);
+  for(let k=0;k<count;k++){const cx=rand(-.05,1.05)*W,cy=rand(0,1)*H,len=L0*rand(.18,.5),w=rand(.6,2.2),hx=ux*len/2,hy=uy*len/2,nx=-uy*w/2,ny=ux*w/2;
+   el('polygon',{points:poly([[cx-hx,cy-hy],[cx+nx,cy+ny],[cx+hx,cy+hy],[cx-nx,cy-ny]]),class:'ink-line ink-streak'},g).animate([{opacity:0,transform:`translate(${f1(-ux*30)}px,${f1(-uy*30)}px)`},{opacity:rand(.35,.75),transform:'translate(0,0)',offset:.25},{opacity:0,transform:`translate(${f1(ux*26)}px,${f1(uy*26)}px)`}],{duration:rand(300,420),delay:delay+rand(0,70),easing:'cubic-bezier(.2,.8,.4,1)',fill:'both'});}}
+ // The panel takes the blow: it judders strictly back and forth along the blow's line (never sideways), with faint
+ // blurred afterimages trailing behind it in the same direction, then settles.
+ function knock(target,svg,r,hits,dur){const frames=[{transform:'none',offset:0}],at=(o,d,ux,uy)=>({transform:`translate(${f1(ux*d)}px,${f1(uy*d)}px)`,offset:Math.min(.995,o)});
+  for(const [t,ux,uy,force] of hits){const o=t/dur,d=8+force*14;frames.push({transform:'none',offset:o});[[.03,1],[.07,-.45],[.11,.6],[.15,-.25],[.19,.32],[.24,-.1]].forEach(([dt,m])=>frames.push(at(o+dt,d*m,ux,uy)));
+   panelStreaks(svg,r,ux,uy,t,Math.round(10+force*10));
+   const host=svg.parentNode;for(let g=1;g<=2;g++){const ghost=panelCopy(target,r);ghost.classList.add('ink-ghost');host.appendChild(ghost);ghost.animate([{opacity:0,transform:'none'},{opacity:.32/g,transform:`translate(${f1(ux*d*(1-g*.7))}px,${f1(uy*d*(1-g*.7))}px)`,offset:.2},{opacity:0,transform:`translate(${f1(-ux*d*g*1.4)}px,${f1(-uy*d*g*1.4)}px)`}],{duration:320,delay:t+10,easing:'cubic-bezier(.2,.7,.4,1)',fill:'both'});}}
+  frames.push({transform:'none',offset:1});const seen=new Set(),clean=frames.sort((a,b)=>a.offset-b.offset).filter(f=>{if(seen.has(f.offset))return false;seen.add(f.offset);return true;});
+  target.animate(clean,{duration:dur,easing:'linear'});}
  function blunt(target,heavy=.5,variant=pick(['combo','hook','uppercut'])){const r=box(target);if(still()||!r)return 0;const W=r.width,H=r.height,size=Math.max(56,Math.min(110,Math.min(W,H)*.7)),dir=Math.random()<.5?1:-1;
   if(variant==='combo'){// Jab, jab, cross: three straight blows driven in from one side.
    const dur=1050,svg=overlay(r,dur+120),hits=[];
    [[.4,.42,0,.55],[.58,.58,200,.6],[.5,.5,410,1]].forEach(([u,v,t,force],k)=>{const x=W*u+rand(-8,8),y=H*v+rand(-6,6),a=(dir>0?Math.PI:0)+rand(-.22,.22),L=W*rand(.95,1.2),S=[x+Math.cos(a)*L,y+Math.sin(a)*L*.6],ux=-Math.cos(a),uy=-Math.sin(a)*.6,n=Math.hypot(ux,uy);
     speedLines(svg,lineP(S,[x,y]),H*(k===2?.42:.3),k===2?34:20,t,force);inkHit(svg,x,y,ux/n,uy/n,size*(k===2?1:.7),t+70);hits.push([t+70,ux/n,uy/n,force]);if(k)setTimeout(()=>sound('blunt'),t+70);});
-   knock(target,hits,dur);return dur;}
+   knock(target,svg,r,hits,dur);return dur;}
   if(variant==='hook'){// Hook: a wide arc swings round from one side into the near edge.
    const dur=950,svg=overlay(r,dur+120),x=dir>0?W*.2:W*.8,y=H*rand(.4,.55),S=[dir>0?-W*.12:W*1.12,H*1.9],C=[dir>0?-W*.32:W*1.32,-H*.25],P=quadP(S,C,[x,y]),[ux,uy]=tangent(P,1);
-   speedLines(svg,P,H*.5,40,0,1);inkHit(svg,x,y,ux,uy,size*1.1,130);knock(target,[[130,ux,uy,1.1]],dur);return dur;}
+   speedLines(svg,P,H*.5,40,0,1);inkHit(svg,x,y,ux,uy,size*1.1,130);knock(target,svg,r,[[130,ux,uy,1.1]],dur);return dur;}
   // Uppercut: rises from below and drives up into the bottom of the panel.
   const dur=950,svg=overlay(r,dur+120),x=W*rand(.4,.6),y=H*.78,S=[x-dir*W*.35,H*2.4],C=[x+dir*W*.25,H*1.5],P=quadP(S,C,[x,y]),[ux,uy]=tangent(P,1);
-  speedLines(svg,P,W*.16,36,0,1);inkHit(svg,x,y,ux,uy,size*1.1,130);knock(target,[[130,ux,uy,1.1]],dur);return dur;
+  speedLines(svg,P,W*.16,36,0,1);inkHit(svg,x,y,ux,uy,size*1.1,130);knock(target,svg,r,[[130,ux,uy,1.1]],dur);return dur;
  }
 
  // ---- Slash: dice the target panel into pieces that fly apart ------------------------------

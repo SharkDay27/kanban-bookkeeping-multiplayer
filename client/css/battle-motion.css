@@ -124,5 +124,8 @@
 .ink-fx>svg{position:absolute;overflow:visible}
 .ink-line{fill:#141414}
 .ink-dot{fill:#141414}
-.ink-burst{fill:#fff;stroke:#141414;stroke-width:2.2;stroke-linejoin:miter}
+.ink-fx>i{position:absolute;display:block}
+.ink-fog{width:var(--s);height:calc(var(--s) * .8);border-radius:50%;-webkit-backdrop-filter:blur(4px) contrast(.85);backdrop-filter:blur(4px) contrast(.85);background:radial-gradient(closest-side,#3a3a3a33,#3a3a3a14 55%,#0000);-webkit-mask-image:radial-gradient(closest-side,#000 35%,#0000);mask-image:radial-gradient(closest-side,#000 35%,#0000)}
+.ink-cloud{fill:#1a1a1a;filter:blur(7px)}
+.ink-ghost{pointer-events:none;filter:blur(1.5px);z-index:-1}
 @media(prefers-reduced-motion:reduce){.ink-fx{display:none}}
