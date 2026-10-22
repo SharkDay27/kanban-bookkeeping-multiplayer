@@ -1,7 +1,7 @@
 /* Heavier per-type hit cinematics, three variants each, picked at random per hit:
    gun   – an unseen bullet's wake and shock punch through the panel, which shatters from that point and reforms
            (one heavy shot, a tight burst, or a row of shots across it)
-   blunt – the panel is a hanging heavy bag: a jab-jab-cross combo, a hook from the side, or an uppercut from below
+   blunt – manga-style ink speed lines and impact bursts: a jab-jab-cross combo, a hook from the side, or an uppercut
    slash – the target panel diced into pieces (the full-screen diagonal and vertical cuts live in combat-vfx). */
 (()=>{
  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
@@ -37,45 +37,53 @@
   return breakAt+950;
  }
 
- // ---- Blunt: the target panel is a hanging heavy bag -----------------------------------------
- // No fist is drawn: only the blow's path (speed lines / a hook's arc / an uppercut's rise), a shock ring, a dent shadow
- // and canvas dust where it lands. The panel swings from a pivot above it, squashes on contact and settles with damped
- // swings. Everything runs on Web Animations so the overlay cleans itself up when its timeline ends.
- const ease='cubic-bezier(.3,.6,.4,1)';
- function overlay(r,ms){const host=document.createElement('div');host.className='bag-fx';host.setAttribute('aria-hidden','true');host.style.cssText=`left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px`;
-  const pad=Math.max(r.width,r.height),svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('class','bag-trails');svg.setAttribute('viewBox',`${-pad} ${-pad} ${r.width+pad*2} ${r.height+pad*2}`);svg.style.cssText=`left:${-pad}px;top:${-pad}px;width:${r.width+pad*2}px;height:${r.height+pad*2}px`;host.appendChild(svg);
-  document.body.appendChild(host);host.animate([{opacity:1},{opacity:1}],{duration:ms}).finished.then(()=>host.remove(),()=>host.remove());return {host,svg};}
- // A blow's path: a bright streak runs along it into the contact point, with thinner parallel speed lines.
- function trail(svg,d,delay,dur,width,lines=3){const NS='http://www.w3.org/2000/svg';
-  // The smear: a wide, soft band laid down along the whole path as the blow travels, lingering a moment like a motion blur.
-  const band=document.createElementNS(NS,'path');band.setAttribute('d',d);band.setAttribute('class','bag-smear');band.style.strokeWidth=f1(width*4.2);svg.appendChild(band);const bl=band.getTotalLength();band.style.strokeDasharray=`${f1(bl)} ${f1(bl)}`;
-  band.animate([{strokeDashoffset:bl,opacity:.95},{strokeDashoffset:0,opacity:.95,offset:.38},{strokeDashoffset:0,opacity:0}],{duration:dur*2.6,delay,easing:'cubic-bezier(.25,.7,.4,1)',fill:'both'});for(let k=0;k<lines;k++){const p=document.createElementNS(NS,'path');p.setAttribute('d',d);p.setAttribute('class','bag-trail'+(k?' thin':''));
-   const off=(k-(lines-1)/2)*width*1.6;if(k)p.setAttribute('transform',`translate(0 ${f1(off)})`);p.style.strokeWidth=f1(k?width*.35:width);svg.appendChild(p);const len=p.getTotalLength(),seg=len*(k?.4:.55);
-   p.style.strokeDasharray=`${f1(seg)} ${f1(len+seg)}`;p.animate([{strokeDashoffset:seg,opacity:0},{opacity:k?.5:1,offset:.25},{strokeDashoffset:-len*.15,opacity:k?.4:.9,offset:.7},{strokeDashoffset:-len,opacity:0}],{duration:dur+k*30,delay:delay+k*18,easing:'cubic-bezier(.2,.7,.4,1)',fill:'both'});}}
- // Contact: shock ring, short radial spikes, a dent shadow on the bag and a puff of canvas dust thrown back out.
- function contact(host,x,y,delay,size,back){const add=(cls,css)=>{const el=document.createElement('i');el.className=cls;el.style.cssText=`left:${f1(x)}px;top:${f1(y)}px;${css||''}`;host.appendChild(el);return el;};
-  add('bag-dent',`--s:${f1(size)}px`).animate([{opacity:0,transform:'translate(-50%,-50%) scale(.3)'},{opacity:1,transform:'translate(-50%,-50%) scale(1)',offset:.15},{opacity:0,transform:'translate(-50%,-50%) scale(1.2)'}],{duration:520,delay,easing:ease,fill:'both'});
-  for(let k=0;k<2;k++)add('bag-ring',`--s:${f1(size)}px`).animate([{opacity:.9,transform:'translate(-50%,-50%) scale(.2)'},{opacity:0,transform:`translate(-50%,-50%) scale(${2.2+k*.8})`}],{duration:340+k*90,delay:delay+k*50,easing:'cubic-bezier(.1,.7,.3,1)',fill:'both'});
-  for(let k=0;k<9;k++){const a=k/9*Math.PI*2+rand(-.2,.2),d=size*rand(.7,1.2);add('bag-spike').animate([{opacity:0,transform:`translate(-50%,-50%) rotate(${f1(a)}rad) translateX(${f1(size*.25)}px) scaleX(.3)`},{opacity:1,offset:.2},{opacity:0,transform:`translate(-50%,-50%) rotate(${f1(a)}rad) translateX(${f1(d)}px) scaleX(1)`}],{duration:260,delay,easing:'cubic-bezier(.1,.8,.3,1)',fill:'both'});}
-  for(let k=0;k<7;k++){const a=back+rand(-.9,.9),d=size*rand(.6,1.4);add('bag-dust',`--d:${f1(rand(6,14))}px`).animate([{opacity:0,transform:'translate(-50%,-50%) scale(.4)'},{opacity:.55,offset:.2},{opacity:0,transform:`translate(calc(-50% + ${f1(Math.cos(a)*d)}px),calc(-50% + ${f1(Math.sin(a)*d+size*.4)}px)) scale(1.8)`}],{duration:620,delay:delay+20,easing:'cubic-bezier(.2,.7,.4,1)',fill:'both'});}}
- // The bag itself: swings about a pivot above the panel. Chains drawn in the overlay swing with it.
- function swing(target,host,r,frames,dur){const origin=`50% ${f1(-r.height*.9)}px`,opts={duration:dur,easing:'linear'};
-  const rig=document.createElement('div');rig.className='bag-rig';rig.style.transformOrigin=origin;rig.innerHTML='<i class="bag-chain l"></i><i class="bag-chain r"></i>';const lift=r.height*.9,dx=r.width*.4;rig.style.setProperty('--cl',f1(Math.hypot(dx,lift))+'px');rig.style.setProperty('--ca',f1(Math.atan2(dx,lift)*57.3)+'deg');host.prepend(rig);rig.animate(frames,opts);
-  rig.animate([{opacity:0},{opacity:1,offset:.06},{opacity:1,offset:.8},{opacity:0}],{duration:dur,fill:'both'});
-  const prev=target.style.transformOrigin;target.style.transformOrigin=origin;target.animate(frames,opts).finished.then(()=>{target.style.transformOrigin=prev;},()=>{target.style.transformOrigin=prev;});}
- function blunt(target,heavy=.5,variant=pick(['combo','hook','uppercut'])){const r=box(target);if(still()||!r)return 0;const W=r.width,H=r.height,size=Math.max(46,Math.min(96,Math.min(W,H)*.55)),dir=Math.random()<.5?1:-1;
-  if(variant==='combo'){// Jab, jab, cross: three straight blows from the same side land at slightly different spots.
-   const dur=1150,{host,svg}=overlay(r,dur+80),a=(dir>0?Math.PI:0)+rand(-.35,.35),hits=[[.42,.4,0],[.56,.55,210],[.48,.46,430]];
-   hits.forEach(([u,v,t],k)=>{const x=W*u+rand(-10,10),y=H*v+rand(-8,8),L=W*.85,sx=x+Math.cos(a)*L,sy=y+Math.sin(a)*L*.5;trail(svg,`M${f1(sx)} ${f1(sy)}L${f1(x)} ${f1(y)}`,t,170,k===2?5:3.4,k===2?3:2);contact(host,x,y,t+90,size*(k===2?1.15:.8),a);if(k)setTimeout(()=>sound('blunt'),t+90);});
-   const s=-dir;swing(target,host,r,[{transform:'none'},{transform:`rotate(${s*1.2}deg) scale(.95,.97)`,offset:.09},{transform:`rotate(${-s*.8}deg) scale(1.01)`,offset:.17},{transform:`rotate(${s*1.8}deg) scale(.95,.97)`,offset:.27},{transform:`rotate(${-s*.9}deg) scale(1.01)`,offset:.35},{transform:`rotate(${s*4.5}deg) scale(.92,.95)`,offset:.46},{transform:`rotate(${-s*3}deg) scale(1.02,.99)`,offset:.62},{transform:`rotate(${s*1.6}deg)`,offset:.76},{transform:`rotate(${-s*.7}deg)`,offset:.89},{transform:'none'}],dur);return dur;}
-  if(variant==='hook'){// Hook: a wide arc sweeps in from one side and drives into that edge; the bag swings hard away and back.
-   const dur=1250,{host,svg}=overlay(r,dur+80),x=dir>0?W*.16:W*.84,y=H*rand(.38,.55),sx=dir>0?-W*.55:W*1.55,sy=H*1.25,cx=dir>0?-W*.2:W*1.2,cy=-H*.55;
-   trail(svg,`M${f1(sx)} ${f1(sy)}Q${f1(cx)} ${f1(cy)} ${f1(x)} ${f1(y)}`,0,230,7,3);contact(host,x,y,140,size*1.25,dir>0?Math.PI:0);
-   swing(target,host,r,[{transform:'none'},{transform:'none',offset:.1},{transform:`rotate(${-dir*4}deg) skewX(${-dir*7}deg) scale(.93,1)`,offset:.15},{transform:`rotate(${-dir*15}deg) skewX(${dir*3}deg)`,offset:.32},{transform:`rotate(${dir*8}deg) skewX(${-dir*2}deg)`,offset:.52},{transform:`rotate(${-dir*4.5}deg)`,offset:.68},{transform:`rotate(${dir*2}deg)`,offset:.82},{transform:`rotate(${-dir*.7}deg)`,offset:.92},{transform:'none'}],dur);return dur;}
-  // Uppercut: the path rises from below into the bottom of the bag, which lifts, tips, drops back and swings.
-  const dur=1200,{host,svg}=overlay(r,dur+80),x=W*rand(.4,.6),y=H*.84,sx=x-dir*W*.25,sy=H*2.1,cx=x+dir*W*.3,cy=H*1.45;
-  trail(svg,`M${f1(sx)} ${f1(sy)}Q${f1(cx)} ${f1(cy)} ${f1(x)} ${f1(y)}`,0,210,6.5,3);contact(host,x,y,130,size*1.2,Math.PI/2);
-  swing(target,host,r,[{transform:'none'},{transform:'none',offset:.1},{transform:'translateY(4px) scale(1.04,.9)',offset:.15},{transform:`translateY(${f1(-H*.2)}px) rotate(${dir*5}deg) scale(.98,1.04)`,offset:.32},{transform:`translateY(${f1(-H*.24)}px) rotate(${dir*6}deg)`,offset:.42},{transform:`translateY(3px) rotate(${-dir*3}deg) scale(1.03,.95)`,offset:.58},{transform:`translateY(-3px) rotate(${dir*2}deg)`,offset:.72},{transform:`rotate(${-dir*.8}deg)`,offset:.86},{transform:'none'}],dur);return dur;
+ // ---- Blunt: manga-style blows, the target panel taking hits like a heavy bag --------------------------------
+ // No fist is drawn. Each blow is a band of tapered ink speed lines along its path (straight for jabs, curved for a hook
+ // or an uppercut), an ink starburst with radiating impact lines where it lands and a spray of screentone dots blown
+ // through. The panel is knocked back along the blow and springs back. Web Animations throughout, self-cleaning.
+ const NS='http://www.w3.org/2000/svg';
+ function overlay(r,ms){const host=document.createElement('div');host.className='ink-fx';host.setAttribute('aria-hidden','true');host.style.cssText=`left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px`;
+  const pad=Math.max(r.width,r.height)*1.2,svg=document.createElementNS(NS,'svg');svg.setAttribute('viewBox',`${f1(-pad)} ${f1(-pad)} ${f1(r.width+pad*2)} ${f1(r.height+pad*2)}`);svg.style.cssText=`left:${f1(-pad)}px;top:${f1(-pad)}px;width:${f1(r.width+pad*2)}px;height:${f1(r.height+pad*2)}px`;host.appendChild(svg);
+  document.body.appendChild(host);host.animate([{opacity:1},{opacity:1}],{duration:ms}).finished.then(()=>host.remove(),()=>host.remove());return svg;}
+ const el=(tag,attrs,parent)=>{const n=document.createElementNS(NS,tag);for(const k in attrs)n.setAttribute(k,attrs[k]);parent.appendChild(n);return n;};
+ const poly=pts=>pts.map(p=>f1(p[0])+','+f1(p[1])).join(' ');
+ // Path helpers: P(t) along a straight line or a quadratic curve, with unit tangent.
+ const lineP=(S,E)=>t=>[S[0]+(E[0]-S[0])*t,S[1]+(E[1]-S[1])*t];
+ const quadP=(S,C,E)=>t=>{const u=1-t;return [u*u*S[0]+2*u*t*C[0]+t*t*E[0],u*u*S[1]+2*u*t*C[1]+t*t*E[1]];};
+ const tangent=(P,t)=>{const a=P(Math.max(0,t-.01)),b=P(Math.min(1,t+.01)),d=Math.hypot(b[0]-a[0],b[1]-a[1])||1;return [(b[0]-a[0])/d,(b[1]-a[1])/d];};
+ // Speed lines: spindle-shaped ink strokes offset across a band around the path, front ends staggered near the contact.
+ function speedLines(svg,P,band,count,delay,heavy){const g=el('g',{class:'ink-lines'},svg),[ex,ey]=tangent(P,1);
+  for(let k=0;k<count;k++){const o=band*Math.sign(rand(-1,1))*Math.pow(Math.random(),.8),t1=rand(.72,.98)-Math.abs(o)/band*.12,t0=Math.max(0,t1-rand(.3,.75)),wk=rand(.8,2.2)+(1-Math.abs(o)/band)*rand(1,2.6)*heavy,L=[],R=[];
+   for(let n=0;n<=12;n++){const u=n/12,t=t0+(t1-t0)*u,[x,y]=P(t),[tx,ty]=tangent(P,t),w=wk*Math.pow(Math.sin(Math.PI*u),.55)/2;L.push([x-ty*(o+w),y+tx*(o+w)]);R.unshift([x-ty*(o-w),y+tx*(o-w)]);}
+   const line=el('polygon',{points:poly(L.concat(R)),class:'ink-line'},g),d=delay+rand(0,50),back=rand(26,48);
+   line.animate([{transform:`translate(${f1(-ex*back)}px,${f1(-ey*back)}px)`,opacity:0},{transform:'translate(0,0)',opacity:rand(.75,1),offset:.18},{transform:`translate(${f1(ex*6)}px,${f1(ey*6)}px)`,opacity:rand(.6,.9),offset:.55},{transform:`translate(${f1(ex*14)}px,${f1(ey*14)}px)`,opacity:0}],{duration:520,delay:d,easing:'cubic-bezier(.2,.8,.4,1)',fill:'both'});}}
+ // Contact: white starburst with an ink outline, radiating impact lines, and screentone dots sprayed along the blow.
+ function inkHit(svg,x,y,ux,uy,size,delay){const g=el('g',{class:'ink-hit'},svg),pts=[];
+  for(let k=0;k<18;k++){const a=k/18*Math.PI*2,R=k%2?size*rand(.16,.24):size*rand(.38,.55);pts.push([x+Math.cos(a)*R,y+Math.sin(a)*R]);}
+  el('polygon',{points:poly(pts),class:'ink-burst'},g).animate([{transform:`translate(${f1(x)}px,${f1(y)}px) scale(.2) translate(${f1(-x)}px,${f1(-y)}px)`,opacity:0},{opacity:1,offset:.04},{transform:`translate(${f1(x)}px,${f1(y)}px) scale(1.1) translate(${f1(-x)}px,${f1(-y)}px)`,opacity:1,offset:.25},{transform:`translate(${f1(x)}px,${f1(y)}px) scale(1.2) translate(${f1(-x)}px,${f1(-y)}px)`,opacity:0}],{duration:300,delay,easing:'cubic-bezier(.1,.8,.3,1)',fill:'both'});
+  for(let k=0;k<26;k++){const a=k/26*Math.PI*2+rand(-.1,.1),r0=size*rand(.5,.75),r1=r0+size*rand(.35,1.1),w=rand(1.2,3.4),[c,s2]=[Math.cos(a),Math.sin(a)];
+   el('polygon',{points:poly([[x+c*r0-s2*w,y+s2*r0+c*w],[x+c*r0+s2*w,y+s2*r0-c*w],[x+c*r1,y+s2*r1]]),class:'ink-line'},g).animate([{opacity:0,transform:`translate(${f1(-c*12)}px,${f1(-s2*12)}px)`},{opacity:1,transform:'none',offset:.2},{opacity:0,transform:`translate(${f1(c*10)}px,${f1(s2*10)}px)`}],{duration:340,delay:delay+rand(0,30),easing:'cubic-bezier(.1,.8,.3,1)',fill:'both'});}
+  for(let k=0;k<70;k++){const a=Math.atan2(uy,ux)+rand(-.75,.75)*(Math.random()<.85?1:2.6),d=size*rand(.2,1.6),r=rand(.6,2.2);
+   el('circle',{cx:f1(x),cy:f1(y),r:f1(r),class:'ink-dot'},g).animate([{opacity:0,transform:'translate(0,0)'},{opacity:rand(.6,1),offset:.12},{opacity:0,transform:`translate(${f1(Math.cos(a)*d)}px,${f1(Math.sin(a)*d)}px)`}],{duration:rand(380,620),delay:delay+20,easing:'cubic-bezier(.1,.7,.3,1)',fill:'both'});}}
+ // The panel takes the blow: knocked back along it with a squash, a short shudder, then springs back.
+ function knock(target,hits,dur){const frames=[{transform:'none',offset:0}];for(const [t,ux,uy,force] of hits){const o=t/dur,d=10+force*16;
+   frames.push({transform:'none',offset:Math.min(.98,o)});frames.push({transform:`translate(${f1(ux*d)}px,${f1(uy*d)}px) scale(${f1(1-force*.05)},${f1(1-force*.03)}) skewX(${f1(-ux*force*4)}deg)`,offset:Math.min(.99,o+.06)});
+   frames.push({transform:`translate(${f1(ux*d*.35-uy*3)}px,${f1(uy*d*.35+ux*3)}px)`,offset:Math.min(.995,o+.14)});}
+  frames.push({transform:'translate(-2px,1px)',offset:.9});frames.push({transform:'none',offset:1});
+  const seen=new Set(),clean=frames.filter(f=>{if(seen.has(f.offset))return false;seen.add(f.offset);return true;}).sort((a,b)=>a.offset-b.offset);
+  target.animate(clean,{duration:dur,easing:'cubic-bezier(.2,.7,.3,1)'});}
+ function blunt(target,heavy=.5,variant=pick(['combo','hook','uppercut'])){const r=box(target);if(still()||!r)return 0;const W=r.width,H=r.height,size=Math.max(56,Math.min(110,Math.min(W,H)*.7)),dir=Math.random()<.5?1:-1;
+  if(variant==='combo'){// Jab, jab, cross: three straight blows driven in from one side.
+   const dur=1050,svg=overlay(r,dur+120),hits=[];
+   [[.4,.42,0,.55],[.58,.58,200,.6],[.5,.5,410,1]].forEach(([u,v,t,force],k)=>{const x=W*u+rand(-8,8),y=H*v+rand(-6,6),a=(dir>0?Math.PI:0)+rand(-.22,.22),L=W*rand(.95,1.2),S=[x+Math.cos(a)*L,y+Math.sin(a)*L*.6],ux=-Math.cos(a),uy=-Math.sin(a)*.6,n=Math.hypot(ux,uy);
+    speedLines(svg,lineP(S,[x,y]),H*(k===2?.42:.3),k===2?34:20,t,force);inkHit(svg,x,y,ux/n,uy/n,size*(k===2?1:.7),t+70);hits.push([t+70,ux/n,uy/n,force]);if(k)setTimeout(()=>sound('blunt'),t+70);});
+   knock(target,hits,dur);return dur;}
+  if(variant==='hook'){// Hook: a wide arc swings round from one side into the near edge.
+   const dur=950,svg=overlay(r,dur+120),x=dir>0?W*.2:W*.8,y=H*rand(.4,.55),S=[dir>0?-W*.12:W*1.12,H*1.9],C=[dir>0?-W*.32:W*1.32,-H*.25],P=quadP(S,C,[x,y]),[ux,uy]=tangent(P,1);
+   speedLines(svg,P,H*.5,40,0,1);inkHit(svg,x,y,ux,uy,size*1.1,130);knock(target,[[130,ux,uy,1.1]],dur);return dur;}
+  // Uppercut: rises from below and drives up into the bottom of the panel.
+  const dur=950,svg=overlay(r,dur+120),x=W*rand(.4,.6),y=H*.78,S=[x-dir*W*.35,H*2.4],C=[x+dir*W*.25,H*1.5],P=quadP(S,C,[x,y]),[ux,uy]=tangent(P,1);
+  speedLines(svg,P,W*.16,36,0,1);inkHit(svg,x,y,ux,uy,size*1.1,130);knock(target,[[130,ux,uy,1.1]],dur);return dur;
  }
 
  // ---- Slash: dice the target panel into pieces that fly apart ------------------------------

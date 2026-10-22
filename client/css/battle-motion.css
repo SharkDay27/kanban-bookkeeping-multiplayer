@@ -119,18 +119,10 @@
 @keyframes airRing{0%{opacity:.95;transform:scale(.2)}100%{opacity:0;transform:scale(2.6)}}
 .air-crater{inset:0;-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:none;background:radial-gradient(ellipse at 50% 50%,#0000003d 0,#0000001f 22%,#0000 48%),radial-gradient(ellipse at 46% 44%,#ffffff40 0 6%,#0000 7%);animation:airCrater .76s .12s ease-out both}
 @keyframes airCrater{0%,10%{opacity:0}20%,55%{opacity:1}100%{opacity:0}}
-/* Blunt as a heavy bag (combat-strikes.js): blow paths, shock ring, dent shadow, canvas dust, and the chains it hangs from. */
-.bag-fx{position:fixed;z-index:1236;pointer-events:none;overflow:visible}
-.bag-trails{position:absolute;overflow:visible}
-.bag-trail{fill:none;stroke:#fff;stroke-linecap:round;filter:drop-shadow(0 0 1.5px #2b2b2bb3) drop-shadow(0 0 6px #ffffffcc)}
-.bag-trail.thin{stroke:#3a3a3a;filter:none}
-.bag-fx>i{position:absolute;display:block}
-.bag-dent{width:var(--s);height:var(--s);border-radius:50%;background:radial-gradient(circle,#0000004d 0,#00000026 35%,#0000 68%),radial-gradient(circle at 40% 35%,#ffffff99 0,#fff0 40%)}
-.bag-ring{width:var(--s);height:var(--s);border-radius:50%;border:2px solid #fffffff2;box-shadow:0 0 0 1.5px #2b2b2b59,inset 0 0 8px #ffffffaa}
-.bag-spike{width:16px;height:2.5px;border-radius:2px;background:#2b2b2b;box-shadow:0 0 0 1px #fff;transform-origin:0 50%}
-.bag-dust{width:var(--d);height:var(--d);border-radius:50%;background:#b9ab98;filter:blur(2.5px)}
-.bag-rig{position:absolute;inset:0;opacity:0}
-.bag-chain{position:absolute;bottom:100%;width:2px;height:var(--cl);background:repeating-linear-gradient(#6d6d6d 0 5px,#0000 5px 7px);transform-origin:50% 100%}
-.bag-chain.l{left:10%;transform:rotate(var(--ca))}.bag-chain.r{right:10%;transform:rotate(calc(var(--ca) * -1))}
-.bag-smear{fill:none;stroke:#ffffffd9;stroke-linecap:round;filter:drop-shadow(0 0 1px #00000040) drop-shadow(0 2px 6px #0000002e)}
-@media(prefers-reduced-motion:reduce){.bag-fx{display:none}}
+/* Blunt (combat-strikes.js): manga ink speed lines, starburst, impact lines and screentone spray. */
+.ink-fx{position:fixed;z-index:1236;pointer-events:none;overflow:visible}
+.ink-fx>svg{position:absolute;overflow:visible}
+.ink-line{fill:#141414}
+.ink-dot{fill:#141414}
+.ink-burst{fill:#fff;stroke:#141414;stroke-width:2.2;stroke-linejoin:miter}
+@media(prefers-reduced-motion:reduce){.ink-fx{display:none}}
