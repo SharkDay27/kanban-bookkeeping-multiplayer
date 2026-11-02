@@ -2,7 +2,7 @@
 // never confirms, or the last unconfirmed player disconnecting. Each waiting step gets a deadline; when it passes the
 // server acknowledges or confirms for whoever is missing. Timers live in memory and are rebuilt from the stored
 // deadline on the next room update after a restart.
-const LIMITS={initiative:15000,resolving:40000,select:75000};
+const LIMITS={initiative:10000,resolving:30000,select:75000};
 const timers=new Map();
 const active=room=>room.players.filter(p=>p.connected&&p.hp>0);
 function step(c){

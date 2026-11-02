@@ -32,6 +32,6 @@ function applyPartDamage(combat,target,part,dealt){
  if(combat.blockChallenge?.partId===part.id)combat.blockChallenge.currentDamage+=dealt;
  const destroyed=before>0&&part.currentHp<=0;
  if(destroyed){part.destroyed=true;if(part.type==='weapon')reduceAttack(target,.8);if(part.type==='armor'){target.defenseDicePenalty=Math.min(4,Number(target.defenseDicePenalty||0)+2);target.defensePenalty=Math.min(8,(target.defensePenalty||0)+2);}}
- const mainDamage=Math.round(dealt*.55);target.currentHp=Math.max(0,target.currentHp-mainDamage);return {destroyed,mainDamage};
+ const mainDamage=Math.max(0,dealt-(before-part.currentHp));target.currentHp=Math.max(0,target.currentHp-mainDamage);return {destroyed,mainDamage};
 }
 module.exports={anatomy,makeParts,findPart,applyPartDamage,reduceAttack};
