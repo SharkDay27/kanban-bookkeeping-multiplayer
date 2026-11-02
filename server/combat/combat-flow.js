@@ -21,6 +21,7 @@ function movement(room) {
   c.intents = {};
   c.intent = null;
   c.blockChallenge = null;
+  require('./boss-mechanics').tick(room);
 }
 function initialize(room) {
   room.combat.chapterIndex = room.areaIndex||0;
@@ -38,8 +39,20 @@ function open(room) {
   if(c.exchange===1)J.write(room,'機動投骰：'+c.initiative.map(x=>x.name+' 機動 '+x.mobility+'／['+(x.rolls||[]).join(',')+']＝'+x.total).join('；')+'。'+(c.firstSide==='player'?'我方':'敵方')+'先攻。');
   J.write(room,c.phase==='attack'?'我方攻擊／敵方防守。':'敵方攻擊／我方防守。');
   setEnemyIntents(c);
+  lockTargets(room);
   if(c.blockChallenge)J.write(room,'蓄力部位顯現：需對部位造成 '+c.blockChallenge.requiredDamage+' 傷害中斷；目前 '+c.blockChallenge.currentDamage+'。');
   Cards.prepareAutomatic(room);
+}
+// Single-target attacks pick their victim when the exchange opens, so the intent can show who will be hit.
+function lockTargets(room) {
+  const c = room.combat, alive = active(room);
+  if (c.phase !== 'defense' || !alive.length) return;
+  for (const intent of Object.values(c.intents || {})) {
+    if (!intent || intent.target === 'all' || !(Number(intent.attackDice || 0) > 0)) continue;
+    const p = alive[crypto.randomInt(alive.length)], who = require('../status/status-manager').sinnerOf(p)?.name || p.name;
+    intent.targetPlayerId = p.id; intent.targetName = who;
+    intent.description += ' · 目標：' + who;
+  }
 }
 function advance(room) {
   const c = room.combat, actors = active(room);
@@ -67,6 +80,7 @@ function resolve(room) {
   const actors = active(room);
   if (!actors.length || actors.some(p => !c.selections[p.id]?.confirmed)) return null;
   const phase = c.phase, records = [], enemyResults = [], guards = new Set();
+  B.setExchange(c.exchange);
   let incoming = 0;
   c.timeline = [];J.picks(room);
   require('./opposed-dice').prepare(room);
@@ -75,7 +89,9 @@ function resolve(room) {
       const result = resolveEnemyActions(room, guards, turn.id);
       incoming += result.total;
       for (const rec of result.results) {
-        c.timeline.push({side: 'enemy', index: enemyResults.length});
+        // A plain card guard only rolls defence dice, which the players' clashes already show: log it, don't replay it.
+        const plainGuard = c.intents[turn.id]?.type === 'guard' && !rec.gainedShield && !rec.enraged;
+        if (!plainGuard) c.timeline.push({side: 'enemy', index: enemyResults.length});
         enemyResults.push(rec);J.actions(room,[rec],true);
       }
     });
@@ -94,7 +110,7 @@ function resolve(room) {
     if (!player || player.hp <= 0 || !aliveEnemies(c).length) continue;
     const before = records.length;
     const events = B.captureEffects(() => {
-      if (B.skip(player)) records.push({playerId: player.id, sinner: turn.name, action: '麻痺：本次無法行動', kind: 'card-guard', cardBased: true, dealt: 0});
+      if (phase === 'attack' && B.skip(player)) records.push({playerId: player.id, sinner: turn.name, action: '麻痺：本次無法行動', kind: 'card-guard', cardBased: true, dealt: 0});
       else resolvePlayerAction(room, player, c.selections[player.id], guards, records);
     });
     for (let i = before; i < records.length; i++) c.timeline.push({side: 'player', index: i});
@@ -120,6 +136,7 @@ function resolve(room) {
       for(const entity of [...room.players,...aliveEnemies(c)]){const beforeHp=entity.hp??entity.currentHp,beforeShield=entity.temporaryShield??entity.shield??0;const tick=B.tick(entity);if(tick.damage||tick.healed)J.write(room,entity.name+' 回合末：持續傷害 '+tick.damage+'、再生 '+tick.healed+'；HP '+beforeHp+' → '+(entity.hp??entity.currentHp)+'，護盾 '+beforeShield+' → '+(entity.temporaryShield??entity.shield??0)+'。');}
     });
     if (events.length){c.timeline.push({side: 'status', events});J.effects(room,events);}
+    for (const player of room.players) {const s=Number(player.temporaryShield||0);if(s>0){player.temporaryShield=Math.floor(s/2);J.write(room,player.name+' 的護盾回合末減半：'+s+' → '+player.temporaryShield+'。');}}
     for (const player of room.players) {
       if (player.controlFresh) player.controlFresh = false;
       else player.serverControl = Math.max(0, Number(player.serverControl || 0) - 1);

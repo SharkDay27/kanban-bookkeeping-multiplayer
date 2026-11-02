@@ -119,3 +119,13 @@
 @keyframes airRing{0%{opacity:.95;transform:scale(.2)}100%{opacity:0;transform:scale(2.6)}}
 .air-crater{inset:0;-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:none;background:radial-gradient(ellipse at 50% 50%,#0000003d 0,#0000001f 22%,#0000 48%),radial-gradient(ellipse at 46% 44%,#ffffff40 0 6%,#0000 7%);animation:airCrater .76s .12s ease-out both}
 @keyframes airCrater{0%,10%{opacity:0}20%,55%{opacity:1}100%{opacity:0}}
+/* Blunt (combat-strikes.js): manga ink speed lines, starburst, impact lines and screentone spray. */
+.ink-fx{position:fixed;z-index:1236;pointer-events:none;overflow:visible}
+.ink-fx>svg{position:absolute;overflow:visible}
+.ink-line{fill:#141414}
+.ink-dot{fill:#141414}
+.ink-fx>i{position:absolute;display:block}
+.ink-fog{width:var(--s);height:calc(var(--s) * .8);border-radius:50%;-webkit-backdrop-filter:blur(4px) contrast(.85);backdrop-filter:blur(4px) contrast(.85);background:radial-gradient(closest-side,#3a3a3a33,#3a3a3a14 55%,#0000);-webkit-mask-image:radial-gradient(closest-side,#000 35%,#0000);mask-image:radial-gradient(closest-side,#000 35%,#0000)}
+.ink-cloud{fill:#1a1a1a;filter:blur(7px)}
+.ink-ghost{pointer-events:none;filter:blur(1.5px);z-index:-1}
+@media(prefers-reduced-motion:reduce){.ink-fx{display:none}}

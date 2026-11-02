@@ -31,5 +31,6 @@ function applySkillUtility(room,player,action,target,dealt=0){
  if(action.stealPile)alterEnemyCards(room,player,target,action.stealPile,false,true);
  if(action.destroyEnemy)for(const pile of ['hand','draw','discard'])if(alterEnemyCards(room,player,target,pile,true))break;
  if(action.clue)room.exploration.clues+=action.clue;
+ require('./archetypes').apply(room,player,action,target,dealt);
 }
 module.exports={applySkillUtility,grantShield,alterEnemyCards};

@@ -24,6 +24,7 @@ const automaticTimers=new Map();
 function emitRoom(io,room){
  require('./expedition/rest-event').complete(room);require('./cards/card-manager').upgradePersonalDecks(room);
  if(room.combat&&!room.combat.ended){const flow=require('./combat/combat-flow');if(!room.combat.flowVersion)flow.initialize(room);flow.advance(room);}
+ require('./combat/combat-timers').guard(room,()=>emitRoom(io,room));
  if(room.phase==='exploration'&&room.combat&&!room.combat.ended){const active=room.players.filter(p=>p.connected&&p.hp>0);if((!room.combat.flowVersion||['attack','defense'].includes(room.combat.phase))&&active.length&&active.every(p=>p.serverControl>0)&&!automaticTimers.has(room.id)){automaticTimers.set(room.id,setTimeout(()=>{automaticTimers.delete(room.id);if(room.phase==='exploration'&&room.combat&&!room.combat.ended&&(!room.combat.flowVersion||['attack','defense'].includes(room.combat.phase))&&room.players.filter(p=>p.connected&&p.hp>0).every(p=>p.serverControl>0)){require('./combat/combat-manager').resolveCombatRound(room);emitRoom(io,room);}},3000));}}
 io.to(room.id).emit('room:update',publicRoom(room));const host=room.players.find(p=>p.id===room.hostId&&p.connected&&p.socketId);if(host)io.to(host.socketId).emit('room:recovery',{recoveryToken:signRecovery(room),recoverySnapshot:recoverySnapshot(room)});}
 function withRoom(roomId,socket){const room=rooms.get(String(roomId||'').toUpperCase());const player=getContext(room,socket);return {room,player};}

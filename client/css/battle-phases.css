@@ -15,3 +15,11 @@
 @media(prefers-reduced-motion:reduce){.sinking-current i{animation:none;opacity:.7}.status-lightning{filter:none}}
 
 .hud-statuses{max-height:26px;overflow-y:auto;pointer-events:auto}@media(max-width:640px){#battlePlayerHUD{left:54px}.combat-phase-banner{top:72px}}
+.combat-turn-timer{display:inline-block;margin:4px 0;padding:3px 10px;font-size:12px;font-weight:700;color:#4a4a46;background:#fff;border:1px solid #d3d3cf;border-left:3px solid #2f6b86}
+.combat-turn-timer.urgent{color:#a3221a;border-left-color:#a3221a}
+.combat-turn-timer.hidden{display:none}
+.part-alert{display:flex;flex-direction:column;gap:2px;margin:6px 0 2px;padding:5px 8px;font-size:12px;background:#fff4f2;border:1px solid #e8b9b3;border-left:3px solid #a3221a;animation:partAlert 1.2s ease-in-out infinite alternate}
+.part-alert b{color:#a3221a}.part-alert span{color:#5a4a46}
+.part-alert.brewing{background:#f7f5f0;border-color:#ddd5c4;border-left-color:#b98a3a;animation:none}.part-alert.brewing b{color:#7a4f0e}
+@keyframes partAlert{from{box-shadow:0 0 0 0 #a3221a00}to{box-shadow:0 0 0 3px #a3221a26}}
+@media(prefers-reduced-motion:reduce){.part-alert{animation:none}}
