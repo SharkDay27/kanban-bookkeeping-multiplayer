@@ -24,7 +24,9 @@ const STATUS_EFFECTS = [
   {id:'attack-down',name:'攻勢削弱',type:'debuff',duration:2,stacking:true,description:'每層減少 1 顆攻擊骰，持續 2 回合。'},
   {id:'defense-down',name:'防勢削弱',type:'debuff',duration:2,stacking:true,description:'每層減少 1 顆防禦骰，持續 2 回合。'},
   {id:'suppressed',name:'鏡中壓制',type:'debuff',duration:2,description:'攻擊與防禦各減 3 顆骰子，持續 2 回合。李箱發動時本回合攻擊變為 0。'},
-  {id:'imprint',name:'刻印',type:'buff',duration:99,description:'辛克萊專有，每層隨機提高戰鬥／穩定／機動中的一項；加成最多 +3，每次刻印重新抽選。只持續本場戰鬥。'}
+  {id:'imprint',name:'刻印',type:'buff',duration:99,description:'辛克萊專有，每層隨機提高戰鬥／穩定／機動中的一項；加成最多 +3，每次刻印重新抽選。只持續本場戰鬥。'},
+  {id:'rupture',name:'破裂',type:'debuff',duration:3,stacking:true,description:'每次被攻擊命中，額外受到「層數 × 2」傷害，然後層數 -1。'},
+  {id:'counter',name:'反擊',type:'buff',duration:1,stacking:true,description:'敵人攻擊你時，每擋下 1 顆命中骰反擊 2 傷害，另加「層數 × 2」。'},
 ];
 
 function getStatus(id){ return STATUS_EFFECTS.find((s)=>s.id===id); }

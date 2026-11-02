@@ -10,11 +10,11 @@ function tune(skills){for(const sinnerId of new Set(skills.map(s=>s.sinnerId))){
  case '01':if(i===0){s.nextDraw=1;extra='下回合多抽 1 張牌。';}if(i===1){s.specialDamage=false;s.zeroAttack=true;s.applyStatus='suppressed';s.statusDuration=2;extra='本回合攻擊歸零，敵方攻防各減 3 骰，持續 2 回合。';}if(i===3){s.onBlockBuff='damage-up';extra='本回合防禦完全抵擋攻擊時獲得 1 層增傷。';}if(i===4){s.nextDraw=2;extra='下回合多抽 2 張牌。';}break;
  case '02':if(i===4)s.team=true;if(i===0){s.randomAllyBuff=true;extra='隨機給予全隊一種增益（增傷／護盾／再生／靈敏）。';}else if(i===1||i===3){s.randomEnemyDebuff=true;extra='隨機給予目標一種負面狀態。';}break;
  case '03':if(s.kind==='heal'){s.healOveruse=true;extra='本場第 3 次治療後，接下來 2 回合由伺服器接管出牌；接管期間不觸發治療技能。';}else if(i===3){s.applyStatus='paralysis';s.statusStacks=2;extra='造成傷害時施加 2 層麻痺。';}break;
- case '04':s.onHitStatus=i%2?'burning':'bleeding';s.statusStacks=i>=4?2:1;if(i===2||i===5){s.discardEnemy=1;extra='造成傷害後斬去敵方 1 張手牌，送入回收堆；';}extra+=`造成傷害時施加 ${s.statusStacks} 層${s.onHitStatus==='burning'?'燒傷':'流血'}。`;break;
+ case '04':s.onHitStatus='burning';s.statusStacks=i===5?3:i>=4?2:1;extra=`造成傷害時施加 ${s.statusStacks} 層燒傷。`;break;
  case '05':if(i===0){s.kind='team-buff';s.teamBuff=false;s.activationSide='guard';s.skillClass='防禦技能';s.specialDamage=false;s.shield=12;s.guardDiceBonus=3;s.applyStatus='paralysis';s.statusStacks=2;extra='防禦 +3 骰、自己護盾 +12，敵方麻痺 +2 層。';}else if(i===3){extra='保留自身治療。';}else if(i===1||i===4){s.applyStatus='paralysis';s.statusStacks=2;extra='敵方麻痺 +2 層，機動下降。';}break;
  case '06':if(i===0||i===4){s.goldBonus=i>=4?8:4;extra=`本場戰鬥結束額外 +${s.goldBonus} 金幣；累積上限 24。`;}if(i===1){s.applyStatus='sinking';extra+='敵方沉淪 +1。';}break;
- case '07':if(i===0||i===3){s.onHitStatus='vulnerable';s.statusStacks=i>=4?2:1;extra=`造成傷害時施加 ${s.statusStacks} 層易傷。`;}break;
- case '08':if(i===3||i===4){s.teamShield=i===3?8:4;extra=`給予所有存活隊友 ${s.teamShield} 護盾。`;}break;
+ case '07':if(!support){s.onHitStatus='rupture';s.statusStacks=i===0||i===3||i===5?2:1;extra=`造成傷害時施加 ${s.statusStacks} 層破裂。`;}break;
+ case '08':if(i===3){s.teamShield=4;s.selfCounter=2;extra='給予所有存活隊友 4 護盾；自己獲得反擊 +2 層。';}if(i===2||i===4){s.selfCounter=1;extra+='自己獲得反擊 +1 層。';}break;
  case '09':if(i===1||i===2||i===4){s.stealPile=i===1?'hand':i===2?'draw':'discard';extra=`偷取敵方${{hand:'手牌',draw:'抽牌堆',discard:'回收堆'}[s.stealPile]} 1 張行動牌，本場可用；無牌則不偷取。`;}if(i===0||i===4){s.bestOfTwo=true;extra+='本回合攻擊與防禦各擲兩次取正面數較高者。';}if(i===4){s.kind='team-buff';s.activationSide='guard';s.skillClass='防禦技能';s.specialDamage=false;s.shield=12;}break;
  case '11':if(s.kind==='heal'||s.lifesteal||i===0){s.imprint=true;extra='增加 1 層刻印，隨機提高戰鬥／穩定／機動一項（最多 +3）。';}if(i===5){s.applyStatus='terror';extra='敵方恐怖 2 回合，攻擊傷害減半。';}break;
  case '12':if(i===1||i===4){s.agile=2;extra='全隊靈敏 +2，持續 2 回合。';}else {s.enemyDiceDown=i>=4?2:1;s.enemyDiceType=i===2?'defense':'attack';extra=`敵方${s.enemyDiceType==='attack'?'攻擊':'防禦'}減少 ${s.enemyDiceDown} 骰（2 回合）。`;}if(i===5){s.applyStatus='sealed';s.statusDuration=1;extra+='封印敵方技能 1 回合。';}break;
