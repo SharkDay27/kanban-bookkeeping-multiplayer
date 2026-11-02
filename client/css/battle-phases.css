@@ -15,3 +15,6 @@
 @media(prefers-reduced-motion:reduce){.sinking-current i{animation:none;opacity:.7}.status-lightning{filter:none}}
 
 .hud-statuses{max-height:26px;overflow-y:auto;pointer-events:auto}@media(max-width:640px){#battlePlayerHUD{left:54px}.combat-phase-banner{top:72px}}
+.combat-turn-timer{display:inline-block;margin:4px 0;padding:3px 10px;font-size:12px;font-weight:700;color:#4a4a46;background:#fff;border:1px solid #d3d3cf;border-left:3px solid #2f6b86}
+.combat-turn-timer.urgent{color:#a3221a;border-left-color:#a3221a}
+.combat-turn-timer.hidden{display:none}

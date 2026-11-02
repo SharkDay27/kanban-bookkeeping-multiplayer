@@ -22,7 +22,7 @@ function anatomy(name){
 function makeParts(enemy,kind){
  if(!['elite','boss'].includes(kind))return [];
  const names=anatomy(enemy.baseName||enemy.name),ratios=kind==='boss'?[.22,.20,.18]:[.20,.18,.16];
- const defs=[['weapon','未破壞前免疫降低攻擊的效果；破壞後輸出降低 20%，停止部位蓄力攻擊。'],['armor','破壞後每回合防禦骰減少 2 顆。'],['summon','破壞後無法再召喚小怪。']];
+ const defs=[['weapon','未破壞前免疫永久降低攻擊的效果；破壞後輸出降低 20%。'],['armor','破壞後每回合防禦骰減少 2 顆。'],['summon','破壞後無法再召喚小怪。']];
  return defs.map(([type,effect],i)=>{const hp=Math.max(6,Math.round(enemy.maxHp*ratios[i]));return {id:`${enemy.instanceId}-part-${i}`,type,name:names[i],maxHp:hp,currentHp:hp,destroyed:false,effect};});
 }
 function findPart(target,id){return target?.parts?.find(p=>p.id===id&&!p.destroyed)||null;}
@@ -31,7 +31,7 @@ function applyPartDamage(combat,target,part,dealt){
  if(!part||part.destroyed)return {destroyed:false,mainDamage:0};const before=part.currentHp;part.currentHp=Math.max(0,before-dealt);
  if(combat.blockChallenge?.partId===part.id)combat.blockChallenge.currentDamage+=dealt;
  const destroyed=before>0&&part.currentHp<=0;
- if(destroyed){part.destroyed=true;if(part.type==='weapon')reduceAttack(target,.8);if(part.type==='armor'){target.defenseDicePenalty=2;target.defensePenalty=Math.min(8,(target.defensePenalty||0)+2);}}
+ if(destroyed){part.destroyed=true;if(part.type==='weapon')reduceAttack(target,.8);if(part.type==='armor'){target.defenseDicePenalty=Math.min(4,Number(target.defenseDicePenalty||0)+2);target.defensePenalty=Math.min(8,(target.defensePenalty||0)+2);}}
  const mainDamage=Math.round(dealt*.55);target.currentHp=Math.max(0,target.currentHp-mainDamage);return {destroyed,mainDamage};
 }
 module.exports={anatomy,makeParts,findPart,applyPartDamage,reduceAttack};

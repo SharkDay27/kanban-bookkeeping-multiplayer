@@ -1,7 +1,7 @@
 const STATUS_EFFECTS = [
   { id:'focused', name:'專注', type:'buff', rarity:'common', duration:2, description:'本場戰鬥中戰鬥 +2。', mods:{combat:2} },
   { id:'adrenaline', name:'腎上腺素', type:'buff', rarity:'uncommon', duration:2, description:'戰鬥與機動 +2。', mods:{combat:2,mobility:2} },
-  { id:'guarded', name:'防護', type:'buff', rarity:'common', duration:1, description:'下一次受到的傷害降低 35%。', damageTakenMultiplier:.65 },
+  { id:'guarded', name:'防護', type:'buff', rarity:'common', duration:1, description:'受到的傷害降低 35%。', damageTakenMultiplier:.65 },
   { id:'steady-mind', name:'心神穩定', type:'buff', rarity:'uncommon', duration:3, description:'本場戰鬥中穩定 +2。', mods:{stability:2} },
   { id:'lucky-find', name:'幸運搜刮', type:'buff', rarity:'rare', duration:3, description:'本場戰鬥中機動 +2，不影響戰利品。', mods:{mobility:2} },
   { id:'bleeding', name:'流血', type:'debuff', rarity:'common', duration:3, description:'每層於回合結束造成 2 傷害，最多 9 層；護盾可吸收。', stacking:true },
