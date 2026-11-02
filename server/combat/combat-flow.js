@@ -21,6 +21,7 @@ function movement(room) {
   c.intents = {};
   c.intent = null;
   c.blockChallenge = null;
+  require('./boss-mechanics').tick(room);
 }
 function initialize(room) {
   room.combat.chapterIndex = room.areaIndex||0;

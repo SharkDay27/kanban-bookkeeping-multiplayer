@@ -22,10 +22,10 @@ function anatomy(name){
 function makeParts(enemy,kind){
  if(!['elite','boss'].includes(kind))return [];
  const names=anatomy(enemy.baseName||enemy.name),ratios=kind==='boss'?[.22,.20,.18]:[.20,.18,.16];
- const defs=[['weapon','未破壞前免疫永久降低攻擊的效果；破壞後輸出降低 20%。'],['armor','破壞後每回合防禦骰減少 2 顆。'],['summon','破壞後無法再召喚小怪。']];
- return defs.map(([type,effect],i)=>{const hp=Math.max(6,Math.round(enemy.maxHp*ratios[i]));return {id:`${enemy.instanceId}-part-${i}`,type,name:names[i],maxHp:hp,currentHp:hp,destroyed:false,effect};});
+ const defs=[['weapon','醞釀「蓄力重擊」時顯現；破壞可中斷，之後輸出降低 20%。'],['armor','醞釀「硬化外殼」時顯現；破壞可中斷，之後防禦骰減少 2 顆。'],['summon','醞釀「呼叫增援」時顯現；破壞可中斷，之後無法再召喚小怪。']];
+ return defs.map(([type,effect],i)=>{const hp=Math.max(6,Math.round(enemy.maxHp*ratios[i]));return {id:`${enemy.instanceId}-part-${i}`,type,name:names[i],maxHp:hp,currentHp:hp,destroyed:false,hidden:true,effect};});
 }
-function findPart(target,id){return target?.parts?.find(p=>p.id===id&&!p.destroyed)||null;}
+function findPart(target,id){return target?.parts?.find(p=>p.id===id&&!p.destroyed&&!p.hidden)||null;}
 function reduceAttack(enemy,factor){if((enemy.parts||[]).some(p=>p.type==='weapon'&&!p.destroyed))return false;enemy.attackMultiplier=Math.max(.45,Number(enemy.attackMultiplier||1)*factor);return true;}
 function applyPartDamage(combat,target,part,dealt){
  if(!part||part.destroyed)return {destroyed:false,mainDamage:0};const before=part.currentHp;part.currentHp=Math.max(0,before-dealt);
